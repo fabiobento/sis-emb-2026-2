@@ -13,7 +13,7 @@ Projetar, implementar e documentar um **sistema embarcado completo** que integre
 - **Repositório GitHub obrigatório desde a proposta**: commits distribuídos ao longo das semanas
   (não vale um único commit na véspera), README com descrição, esquemático (Fritzing/foto
   legível/Wokwi), instruções de compilação e execução, e vídeo curto (≤2 min) da demonstração.
-- Hardware: prioridade ao inventário do laboratório; compras próprias apenas com aval do professor.
+- Hardware: inventário do laboratório.
 - Simulação Wokwi aceita como **complemento** (validação), nunca como substituto da demonstração
   em hardware — exceto para partes comprovadamente inviáveis com o acervo.
 
