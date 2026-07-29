@@ -93,7 +93,7 @@ Detalhando cada item:
 - `semana-15/` — semana de encerramento: prova P2 e apresentação dos projetos (`LEIA-ME-15.md`)
 - `slides/` — **31 apresentações** (14 teorias + 14 laboratórios + semana 15 + lab extra + projeto
   final)
-- `listas/` — listas de exercícios (`lista-0X.md`) e gabaritos do professor (`gabarito-0X.md`)
+- `listas/` — listas de exercícios (`lista-0X.md`)
 - `projeto-final/` — regulamento e rubrica do projeto integrador (`README-proj-final.md`) + deck
 - `labs-extra/` — laboratórios opcionais/avançados (ex.: medidor de energia PZEM-004T com Modbus)
 - `assets/figuras/` — figuras da apostila (ver "Sobre as figuras", ao final)
