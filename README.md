@@ -73,7 +73,7 @@ sis-emb-2026-2/
 │   └── src/                      ← projetos-fonte (ESP-IDF, Python)
 ├── semana-15/                    ← encerramento: prova P2 e apresentações
 ├── listas/                       ← listas de exercícios (lista-0X)
-├── slides/                       ← 31 apresentações com roteiro falado (ver LEIA-ME.md)
+├── slides/                       ← 31 apresentações
 ├── projeto-final/                ← regulamento e rubrica do projeto integrador
 ├── labs-extra/                   ← laboratórios avançados (ex.: medidor de energia PZEM-004T)
 └── assets/figuras/               ← figuras da apostila
@@ -92,7 +92,7 @@ Detalhando cada item:
 - `semana-XX/src/` — códigos-fonte completos (os mesmos dissecados nas teorias)
 - `semana-15/` — semana de encerramento: prova P2 e apresentação dos projetos (`LEIA-ME-15.md`)
 - `slides/` — **31 apresentações** (14 teorias + 14 laboratórios + semana 15 + lab extra + projeto
-  final), com roteiro falado nas notas do apresentador; ver `slides/LEIA-ME.md`
+  final)
 - `listas/` — listas de exercícios (`lista-0X.md`) e gabaritos do professor (`gabarito-0X.md`)
 - `projeto-final/` — regulamento e rubrica do projeto integrador (`README-proj-final.md`) + deck
 - `labs-extra/` — laboratórios opcionais/avançados (ex.: medidor de energia PZEM-004T com Modbus)
