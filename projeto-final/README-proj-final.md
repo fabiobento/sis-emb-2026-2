@@ -17,7 +17,7 @@ Projetar, implementar e documentar um **sistema embarcado completo** que integre
 - Simulação Wokwi aceita como **complemento** (validação), nunca como substituto da demonstração
   em hardware — exceto para partes comprovadamente inviáveis com o acervo.
 
-## Sugestões de tema (calibradas ao inventário)
+## Sugestões de tema
 1. **Estação meteorológica MQTT**: 2–3 nós ESP32 (DHT11 + LDR) → Mosquitto no RPi + painel.
 2. **Controle de nível/irrigação**: sensor de umidade de solo + bomba d'água via relé, PID/histerese
    no ESP32, supervisão no RPi.
