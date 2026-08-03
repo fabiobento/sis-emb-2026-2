@@ -286,12 +286,12 @@ Fig. 1.8.*
 núcleos, 1 GB de RAM, vídeo, USB, rede — do tamanho de um cartão de crédito, com um conector *header*
 de 40 pinos que expõe GPIO, I2C, SPI e UART para o mundo físico. O layout abaixo apresenta o
 modelo 3B, o nosso padrão de laboratório: identifique o SoC (quadrado central), os conectores
-USB e Ethernet (direita), o slot microSD (embaixo) e o cabeçalho GPIO de 40 pinos (topo) —
+USB e Ethernet (direita), o slot microSD (embaixo) e o conector *header* GPIO de 40 pinos (topo) —
 todos eles aparecerão nos laboratórios do Bloco 2.
 
 ![Layout do Raspberry Pi 3B com seus conectores e subsistemas identificados](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/rpi3b_layout.png)
 
-*Figura 1-C — Raspberry Pi 3 Model B: um PC Linux completo com cabeçalho GPIO de 40 pinos.
+*Figura 1-C — Raspberry Pi 3 Model B: um PC Linux completo com conector *header* GPIO de 40 pinos.
 Fonte: Internet of Things Programming Projects, 2. ed. (Packt), cap. 1, Fig. 1.2.*
 
 E a família é grande — a tabela abaixo (do mesmo livro) compara os modelos e é uma excelente
