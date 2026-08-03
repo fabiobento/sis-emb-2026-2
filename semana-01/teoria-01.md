@@ -88,10 +88,10 @@ com essa medida e, quase sempre, **agir de volta** sobre o mundo:
    mundo físico                    sistema embarcado                     mundo físico
  ┌─────────────┐   ┌────────────────────────────────────────────┐   ┌──────────────┐
  │  grandezas  │──▶│ SENSORES ─▶ CONDICIONAMENTO ─▶ PROCESSADOR │──▶│  ATUADORES   │
- │ (T, luz, …) │   │                 ▲                   │      │   │ (motor, LED, │
- └─────────────┘   │                 │              COMUNICAÇÃO │   │  relé, …)    │
-                   │              ENERGIA          (UART, Wi-Fi,│   └──────────────┘
-                   │           (bateria/fonte)      I2C, CAN…)  │
+ │ (T, luz, …) │   │                 ▲                   │       │   │ (motor, LED, │
+ └─────────────┘   │                 │              COMUNICAÇÃO  │   │  relé, …)    │
+                   │              ENERGIA           (UART, Wi-Fi,│   └──────────────┘
+                   │           (bateria/fonte)       I2C, CAN…)  │
                    └────────────────────────────────────────────┘
 ```
 
