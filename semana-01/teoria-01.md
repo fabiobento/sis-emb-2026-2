@@ -306,7 +306,7 @@ produto precisa?” que você fará em todo projeto. Fonte: Internet of Things P
 Projects, 2. ed. (Packt), cap. 1, Fig. 1.7.*
 
 > **Observação — e o Arduino?** O Arduino Uno (ATmega328P: 8 bits, 16 MHz, 2 KB de RAM) é uma
-> ferramenta didática excelente para eletrônica básica, e temos 10 no laboratório. Mas ele não
+> ferramenta didática excelente para eletrônica básica, e temos no laboratório. Mas ele não
 > tem recursos para o que faremos: Wi-Fi, RTOS, DSP, CAN. Por isso seu papel na disciplina é
 > **limitado** a demonstrações pontuais e comparações de arquitetura. O Exemplo resolvido 2.1
 > (semana 2) quantifica essa diferença: o mesmo laço de código roda **15× mais devagar** no
