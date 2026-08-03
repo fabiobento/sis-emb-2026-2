@@ -38,7 +38,7 @@ computacional **dedicado**, embutido dentro de um produto maior, projetado para 
 função específica (ou um conjunto pequeno de funções) sob **restrições** de custo, consumo de
 energia, memória, tamanho físico, confiabilidade e, muitas vezes, **tempo real**.
 
-Desmonte a definição em três partes, porque cada uma delas tem consequências de engenharia:
+Vamos "desmontar" a definição em três partes, porque cada uma delas tem consequências de engenharia:
 
 1. **Computacional**: tem um processador executando um programa. Isso o distingue de um
    circuito puramente analógico ou digital fixo. O comportamento do produto está no
@@ -88,10 +88,10 @@ com essa medida e, quase sempre, **agir de volta** sobre o mundo:
    mundo físico                    sistema embarcado                     mundo físico
  ┌─────────────┐   ┌────────────────────────────────────────────┐   ┌──────────────┐
  │  grandezas  │──▶│ SENSORES ─▶ CONDICIONAMENTO ─▶ PROCESSADOR │──▶│  ATUADORES   │
- │ (T, luz, …) │   │                 ▲                   │       │   │ (motor, LED, │
- └─────────────┘   │                 │              COMUNICAÇÃO  │   │  relé, …)    │
-                   │              ENERGIA           (UART, Wi-Fi,│   └──────────────┘
-                   │           (bateria/fonte)       I2C, CAN…)  │
+ │ (T, luz, …) │   │                 ▲                   │      │   │ (motor, LED, │
+ └─────────────┘   │                 │              COMUNICAÇÃO │   │  relé, …)    │
+                   │              ENERGIA          (UART, Wi-Fi,│   └──────────────┘
+                   │           (bateria/fonte)      I2C, CAN…)  │
                    └────────────────────────────────────────────┘
 ```
 
