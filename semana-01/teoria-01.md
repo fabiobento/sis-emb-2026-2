@@ -88,10 +88,10 @@ com essa medida e, quase sempre, **agir de volta** sobre o mundo:
    mundo físico                    sistema embarcado                     mundo físico
  ┌─────────────┐   ┌────────────────────────────────────────────┐   ┌──────────────┐
  │  grandezas  │──▶│ SENSORES ─▶ CONDICIONAMENTO ─▶ PROCESSADOR │──▶│  ATUADORES   │
- │ (T, luz, …) │   │                 ▲                   │       │   │ (motor, LED, │
- └─────────────┘   │                 │              COMUNICAÇÃO  │   │  relé, …)    │
-                   │              ENERGIA           (UART, Wi-Fi,│   └──────────────┘
-                   │           (bateria/fonte)       I2C, CAN…)  │
+ │ (T, luz, …) │   │                 ▲                   │      │   │ (motor, LED, │
+ └─────────────┘   │                 │              COMUNICAÇÃO │   │  relé, …)    │
+                   │              ENERGIA          (UART, Wi-Fi,│   └──────────────┘
+                   │           (bateria/fonte)      I2C, CAN…)  │
                    └────────────────────────────────────────────┘
 ```
 
@@ -271,7 +271,7 @@ invisíveis cuidam da tela sensível ao toque, do carregamento da bateria e dos 
 
 **O ESP32** (Espressif): o MCU que dominou a IoT na última década por integrar, num chip de
 alguns dólares, Wi-Fi e Bluetooth completos, dois núcleos de 32 bits a 240 MHz, 520 KB de RAM
-e um zoológico de periféricos (ADC, DAC, PWM, UART, I2C, SPI, CAN, sensores de toque). A
+e um ecossistema de periféricos (ADC, DAC, PWM, UART, I2C, SPI, CAN, sensores de toque). A
 foto abaixo mostra um integrante da família com display OLED e rádio LoRa — repare no módulo
 metálico (a “lata”): dentro dela ficam o chip ESP32, a memória flash e a antena. Na semana 2
 abriremos essa lata (mentalmente) e na semana 3 programaremos cada periférico.
