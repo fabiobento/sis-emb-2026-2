@@ -13,7 +13,10 @@ echo "alias get_idf='. ~/esp/esp-idf/export.sh'" >> ~/.bashrc
 sudo usermod -aG dialout $USER
 ```
 
-Teste: `get_idf && idf.py --version`.
+Teste: Em um novo terminal digite
+```bash
+get_idf && idf.py --version
+```
 
 ## 2. VS Code + extensões
 
