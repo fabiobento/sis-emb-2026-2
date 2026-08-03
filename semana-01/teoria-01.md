@@ -283,7 +283,7 @@ cartão de crédito. Fonte: Internet of Things Programming Projects, 2. ed. (Pac
 Fig. 1.8.*
 
 **O Raspberry Pi** (Raspberry Pi Foundation): um computador Linux completo — CPU ARM de 4
-núcleos, 1 GB de RAM, vídeo, USB, rede — do tamanho de um cartão de crédito, com um cabeçalho
+núcleos, 1 GB de RAM, vídeo, USB, rede — do tamanho de um cartão de crédito, com um *header*
 de 40 pinos que expõe GPIO, I2C, SPI e UART para o mundo físico. O layout abaixo apresenta o
 modelo 3B, o nosso padrão de laboratório: identifique o SoC (quadrado central), os conectores
 USB e Ethernet (direita), o slot microSD (embaixo) e o cabeçalho GPIO de 40 pinos (topo) —
