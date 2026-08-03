@@ -19,7 +19,7 @@ lanterna; ótimo para ensaiar a sintonia em casa.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Montagem do "ambiente" (15 min)

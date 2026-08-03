@@ -20,7 +20,7 @@ invertam.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — O broker no RPi (30 min)

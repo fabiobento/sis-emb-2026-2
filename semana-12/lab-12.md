@@ -19,7 +19,7 @@ reservem os últimos 15 min para mostrar ao professor.
 
 ```bash
 # no PC:
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 scp -r ~/sis-emb/semana-12/src aluno@bancadaN.local:~/lab12
 # no RPi:
 ssh aluno@bancadaN.local && cd ~/lab12

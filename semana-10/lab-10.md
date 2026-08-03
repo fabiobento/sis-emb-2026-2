@@ -18,7 +18,7 @@ a prioridade por ID e o comportamento de erro do CAN.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Selftest: o protocolo sem a rede (25 min)

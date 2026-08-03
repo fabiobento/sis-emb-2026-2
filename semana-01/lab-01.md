@@ -30,13 +30,13 @@ Você fará isto **no início de toda aula prática**, então guarde esta seçã
 
 ```bash
 cd
-git clone https://github.com/fabiobento/sis-emb.git
+git clone https://github.com/fabiobento/sis-emb-2026-2.git          
 ```
 
 **2. Computador que já tem o repositório** — sincronize com a versão oficial da semana:
 
 ```bash
-cd ~/sis-emb
+cd ~/sis-emb-2026-2
 git fetch
 git reset --hard origin/main
 ```

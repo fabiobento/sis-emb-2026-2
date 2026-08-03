@@ -17,7 +17,7 @@ Sem resistores extras: os módulos já trazem pull-ups (teoria, Exemplo 9.4).
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — O barramento e o scanner (30 min)

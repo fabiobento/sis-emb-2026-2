@@ -17,7 +17,7 @@ celular; (opcional, Parte D) buzzer passivo ou fone velho + resistor 220 Ω.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Divisor com LDR: montagem e calibração (35 min)

@@ -19,7 +19,7 @@ encontro; a Parte C pode transbordar para a semana 9 se necessário).
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Dimmer: vendo o valor médio (30 min)

@@ -17,7 +17,7 @@ ao Lab 3 — valide lá primeiro.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Rodando e entendendo (30 min)

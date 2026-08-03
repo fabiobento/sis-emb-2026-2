@@ -18,7 +18,7 @@ LED + resistor 220 Ω, protoboard, multímetro da bancada.
 ## Parte 0 — Sincronize o repositório (sempre!)
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Do exemplo oficial ao seu primeiro flash (45 min)

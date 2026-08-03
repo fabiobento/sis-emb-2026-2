@@ -103,7 +103,7 @@ Detalhando cada item:
 Todo lab começa sincronizando este repositório com a versão oficial da semana:
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 (Atenção: isso **sobrescreve** alterações locais — preserve seus experimentos no repositório da

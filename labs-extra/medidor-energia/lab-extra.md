@@ -23,7 +23,7 @@ Exemplo E.2); jumpers fêmea.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Reconhecendo o protocolo antes de codar (20 min)
