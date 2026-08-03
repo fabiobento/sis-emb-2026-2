@@ -58,7 +58,7 @@ git reset --hard origin/main
 
 ## Parte A — Ambiente de desenvolvimento (50 min)
 
-Siga `docs/instalacao.md`, seções 1–3. Os marcos de verificação (não avance sem cada ✔):
+Siga [`docs/instalacao.md`](https://github.com/fabiobento/sis-emb-2026-2/blob/main/docs/instalacao.md), seções 1–3. Os marcos de verificação (não avance sem cada ✔):
 
 **A.1 — ESP-IDF v5.2 instalado e ativável.**
 
