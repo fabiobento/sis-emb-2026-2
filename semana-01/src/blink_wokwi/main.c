@@ -1,18 +1,20 @@
-// Semana 1 — blink mínimo (ESP-IDF) — funciona no Wokwi e no hardware
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/gpio.h"
+#include <stdio.h>                 // printf para o monitor serial
+#include "freertos/FreeRTOS.h"     // o RTOS que vive dentro do ESP-IDF (semana 5)
+#include "freertos/task.h"         // vTaskDelay e criação de tarefas
+#include "driver/gpio.h"           // driver de GPIO do ESP-IDF (semana 3)
 
-#define LED_GPIO GPIO_NUM_2   // LED onboard do DevKit / LED externo no Wokwi
+#define PINO_LED GPIO_NUM_2        // GPIO 2: LED azul embutido na maioria dos DevKits
 
-void app_main(void)
+void app_main(void)                // ponto de entrada do ESP-IDF (não é main()!)
 {
-    gpio_reset_pin(LED_GPIO);
-    gpio_set_direction(LED_GPIO, GPIO_MODE_OUTPUT);
-    while (1) {
-        gpio_set_level(LED_GPIO, 1);
-        vTaskDelay(pdMS_TO_TICKS(500));   // 500 ms — a CPU fica livre p/ outras tarefas
-        gpio_set_level(LED_GPIO, 0);
-        vTaskDelay(pdMS_TO_TICKS(500));
+    gpio_reset_pin(PINO_LED);                          // devolve o pino ao estado padrão
+    gpio_set_direction(PINO_LED, GPIO_MODE_OUTPUT);    // configura como SAÍDA
+
+    int nivel = 0;
+    while (1) {                                        // firmware nunca "termina"
+        nivel = !nivel;                                // alterna 0 ↔ 1
+        gpio_set_level(PINO_LED, nivel);               // escreve no pino
+        printf("LED = %d\n", nivel);                   // log no monitor serial
+        vTaskDelay(pdMS_TO_TICKS(500));                // dorme 500 ms SEM gastar CPU
     }
 }
