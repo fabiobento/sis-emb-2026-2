@@ -116,7 +116,7 @@ histórico é parte central da nota — e começa já no Lab 1.
 
 **Como funciona:**
 
-- **No Lab 1**, cada bancada cria um repositório **privado** `sis-emb-2026-1-bancada-XX` (XX = número da
+- **No Lab 1**, cada bancada cria um repositório **privado** `sis-emb-2026-2-bancada-XX` (XX = número da
   bancada) e adiciona o colega **e o professor** como colaboradores. A bancada vale para o semestre inteiro.
 - A estrutura é uma pasta por laboratório (`lab-01/`, `lab-02/`, …), cada uma com um
   `relatorio.md` e os arquivos pedidos na seção **Entrega** do roteiro daquela semana.
