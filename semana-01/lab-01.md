@@ -94,10 +94,8 @@ preparação.
 
 ### B.1 Criando o projeto
 
-1. Em [wokwi.com](https://wokwi.com), clique em **+ New Project** e escolha **ESP32** com o
-   template **ESP-IDF** (não o Arduino!). Você verá dois painéis: o editor de código à
-   esquerda e o circuito à direita, com uma placa ESP32 DevKit.
-2. Abra `~/sis-emb/semana-01/src/blink_wokwi/main.c` no seu PC, copie **todo** o conteúdo e
+1. Em [wokwi.com/esp32](https://wokwi.com/esp32), vá até a seção **ESP-IDF Templates** e escolha **ESP32**. Assim você escolherá o template **ESP-IDF** (não o Arduino!). Agora você verá dois painéis: o editor de código à esquerda e o circuito à direita, com uma placa ESP32 DevKit.
+2. Abra `~/sis-emb-2026-1/semana-01/src/blink_wokwi/main.c` no seu PC, copie **todo** o conteúdo e
    cole sobre o `main.c` do Wokwi. Este é exatamente o código dissecado na seção 3.1 da
    teoria — se pulou, volte lá: você precisa saber o que cada linha faz.
 
@@ -126,31 +124,32 @@ preparação.
     {
       "type": "board-esp32-devkit-c-v4",
       "id": "esp",
-      "top": 0,
-      "left": 62.44,
+      "top": -67.2,
+      "left": 43.24,
       "attrs": { "builder": "esp-idf" }
     },
     {
       "type": "wokwi-led",
       "id": "led1",
       "top": 44.4,
-      "left": -101.8,
-      "attrs": { "color": "red" }
+      "left": -24.6,
+      "attrs": { "color": "red", "flip": "1" }
     },
     {
       "type": "wokwi-resistor",
       "id": "r1",
-      "top": 80.75,
-      "left": -57.6,
-      "attrs": { "value": "200" }
+      "top": 120,
+      "left": -77.35,
+      "rotate": 90,
+      "attrs": { "value": "220" }
     }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "r1:1", "led1:A", "green", [ "v-19.2" ] ],
     [ "led1:C", "esp:GND.1", "green", [ "v0" ] ],
-    [ "led1:A", "r1:1", "green", [ "v0" ] ],
-    [ "r1:2", "esp:D2", "green", [ "v0" ] ]
+    [ "r1:2", "esp:2", "green", [ "v18", "h220.8", "v-76.8" ] ]
   ],
   "dependencies": {}
 }
