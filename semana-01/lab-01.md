@@ -103,8 +103,8 @@ preparação.
 
 ### B.2 Montando o circuito
 
-3. No painel do circuito, clique no **+** e adicione as peças: `wokwi-led` (LED) e
-   `wokwi-resistor` (resistor).
+3. No painel do circuito, clique no **+** e adicione as peças: `LED` e
+   `RESISTOR`.
 4. Ligue: pino **D2** do ESP32 → resistor → **anodo (A)** do LED; **catodo (C)** do LED →
    **GND**. Clique no resistor e defina o valor: **220** (ohms). *Por que 220 Ω? É o Exemplo
    resolvido 3.2 da semana 3 — por ora, aceite; em duas semanas você fará essa conta de
