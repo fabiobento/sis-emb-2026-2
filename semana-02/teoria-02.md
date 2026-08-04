@@ -34,10 +34,10 @@ instruções da memória, executa-as e lê/escreve dados na memória e nos perif
         barramento de endereços (CPU diz ONDE)
    ┌───────────┬──────────────┬──────────────┐
    │           │              │              │
- ┌─┴──┐   ┌────┴────┐   ┌─────┴─────┐   ┌────┴─────┐
- │CPU │   │ MEMÓRIA │   │ MEMÓRIA   │   │PERIFÉRICOS│
+ ┌─┴──┐   ┌────┴────┐   ┌─────┴─────┐   ┌────┴───────┐
+ │CPU │   │ MEMÓRIA │   │ MEMÓRIA   │   │ PERIFÉRICOS│
  │    │   │ (código)│   │ (dados)   │   │(GPIO, ADC…)│
- └─┬──┘   └────┬────┘   └─────┬─────┘   └────┬─────┘
+ └─┬──┘   └────┬────┘   └─────┬─────┘   └────┬───────┘
    │           │              │              │
    └───────────┴──────────────┴──────────────┘
         barramento de dados (o QUE trafega)
