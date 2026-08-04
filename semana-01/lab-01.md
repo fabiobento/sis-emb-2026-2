@@ -120,18 +120,39 @@ preparação.
 ```json
 {
   "version": 1,
-  "author": "sua dupla",
+  "author": "Fabio Bento",
   "editor": "wokwi",
   "parts": [
-    { "type": "wokwi-esp32-devkit-v1", "id": "esp", "top": 0, "left": 0 },
-    { "type": "wokwi-led", "id": "led1", "top": -30, "left": 180, "attrs": { "color": "red" } },
-    { "type": "wokwi-resistor", "id": "r1", "top": 40, "left": 150, "attrs": { "value": "220" } }
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": 0,
+      "left": 62.44,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 44.4,
+      "left": -101.8,
+      "attrs": { "color": "red" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 80.75,
+      "left": -57.6,
+      "attrs": { "value": "200" }
+    }
   ],
   "connections": [
-    [ "esp:D2", "r1:1", "green", [] ],
-    [ "r1:2", "led1:A", "green", [] ],
-    [ "led1:C", "esp:GND.1", "black", [] ]
-  ]
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "led1:C", "esp:GND.1", "green", [ "v0" ] ],
+    [ "led1:A", "r1:1", "green", [ "v0" ] ],
+    [ "r1:2", "esp:D2", "green", [ "v0" ] ]
+  ],
+  "dependencies": {}
 }
 ```
 
