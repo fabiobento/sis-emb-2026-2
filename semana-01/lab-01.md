@@ -118,7 +118,7 @@ preparação.
 ```json
 {
   "version": 1,
-  "author": "Fabio Bento",
+  "author": "sua-dupla",
   "editor": "wokwi",
   "parts": [
     {
