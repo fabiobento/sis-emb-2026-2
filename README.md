@@ -241,7 +241,7 @@ apresentação de trabalhos. Neste curso, tomam a forma:
 |---|---|---|
 | Prova P1 | Semanas 1–6 | Escrita individual, semana 8 (2º encontro) |
 | Prova P2 | Semanas 7–14 | Escrita individual, semana 15 (1º encontro) |
-| Relatórios de laboratório | Todas as semanas de lab | **Em bancada**, por commit no repositório GitHub da bancada, até a aula prática seguinte — ver [Entrega das bancada no GitHub](#entrega-das-bancada-no-github-ao-longo-de-todo-o-semestre) |
+| Relatórios de laboratório | Todas as semanas de lab | **Em bancada**, por commit no repositório GitHub da bancada, até a aula prática seguinte — ver [Entrega das bancada no GitHub](#entrega-das-bancadas-no-github-ao-longo-de-todo-o-semestre) |
 | Listas de exercícios | Blocos de semanas (ver abaixo) | **Individuais**, em PDF ou markdown no GitHub, no prazo de cada lista |
 | Projeto final (sistema integrado) | Unidades I–IV | **Em grupo**; rubrica própria em [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md) |
 
