@@ -156,7 +156,7 @@ bancada.
 | flash ok, LED azul pisca, externo não | fiação/polaridade | anodo no resistor, catodo no GND |
 | build falha em `set-target` | rodou fora da pasta do projeto | `cd ~/lab2` e repita |
 
-## Entrega (GitHub da dupla, `lab-02/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-02/relatorio.md`)
 
 1. Foto da montagem + print do monitor serial.
 2. Tabela `Total sizes` (DRAM/IRAM/Flash) do seu build e os **três endereços** de gravação

@@ -111,7 +111,7 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 | Placa entra em modo de gravação | GPIO0 pressionado no reset | solte o botão e resete |
 | Nada acontece no clique | botão em fileira errada da protoboard | botão táctil tem os pares ligados em cruz — gire 90° |
 
-## Entrega (GitHub da dupla, `lab-03/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-03/relatorio.md`)
 
 1. Resposta da Parte A.4: qual condição do código impede repetição com o botão seguro?
 2. Tabela do experimento C completa + conclusão sobre a janela ideal (Parte C.11).

@@ -106,24 +106,22 @@ Todo lab começa sincronizando este repositório com a versão oficial da semana
 cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
-(Atenção: isso **sobrescreve** alterações locais — preserve seus experimentos no repositório da
-dupla, criado no Lab 1.)
+(Atenção: isso **sobrescreve** alterações locais — preserve seus experimentos no repositório da bancada, criado no Lab 1.)
 
-## Entrega das duplas no GitHub (ao longo de todo o semestre)
+## Entrega das bancadas no GitHub (ao longo de todo o semestre)
 
 A avaliação de laboratório **não** é uma prova única no fim: ela é o **fluxo contínuo de
-entregas** que cada dupla acumula no próprio repositório GitHub, semana após semana. Esse
+entregas** que cada bancada acumula no próprio repositório GitHub, semana após semana. Esse
 histórico é parte central da nota — e começa já no Lab 1.
 
 **Como funciona:**
 
-- **No Lab 1**, cada dupla cria um repositório **privado** `sis-emb-dupla-XX` (XX = número da
-  bancada) e adiciona o colega **e o professor** como colaboradores. A dupla vale para o semestre
-  inteiro.
+- **No Lab 1**, cada bancada cria um repositório **privado** `sis-emb-2026-1-bancada-XX` (XX = número da
+  bancada) e adiciona o colega **e o professor** como colaboradores. A bancada vale para o semestre inteiro.
 - A estrutura é uma pasta por laboratório (`lab-01/`, `lab-02/`, …), cada uma com um
   `relatorio.md` e os arquivos pedidos na seção **Entrega** do roteiro daquela semana.
 - Cada laboratório tem prazo **até a próxima aula prática** e é entregue **por commit** no
-  repositório da dupla — não por e-mail nem por outro canal.
+  repositório da bancada — não por e-mail nem por outro canal.
 
 **Por que isso importa (e pesa na nota):**
 
@@ -138,7 +136,7 @@ histórico é parte central da nota — e começa já no Lab 1.
   final**, que exige o GitHub desde a proposta e culmina no congelamento com a tag `v1.0` na
   semana 15.
 
-> Em resumo: o repositório da dupla é o seu **caderno de laboratório versionado**. Mantê-lo vivo,
+> Em resumo: o repositório da bancada é o seu **caderno de laboratório versionado**. Mantê-lo vivo,
 > semana a semana, é a forma de entrega da disciplina e uma fração relevante da avaliação — não
 > deixe para o fim.
 
@@ -243,7 +241,7 @@ apresentação de trabalhos. Neste curso, tomam a forma:
 |---|---|---|
 | Prova P1 | Semanas 1–6 | Escrita individual, semana 8 (2º encontro) |
 | Prova P2 | Semanas 7–14 | Escrita individual, semana 15 (1º encontro) |
-| Relatórios de laboratório | Todas as semanas de lab | **Em dupla**, por commit no repositório GitHub da dupla, até a aula prática seguinte — ver [Entrega das duplas no GitHub](#entrega-das-duplas-no-github-ao-longo-de-todo-o-semestre) |
+| Relatórios de laboratório | Todas as semanas de lab | **Em bancada**, por commit no repositório GitHub da bancada, até a aula prática seguinte — ver [Entrega das bancada no GitHub](#entrega-das-bancada-no-github-ao-longo-de-todo-o-semestre) |
 | Listas de exercícios | Blocos de semanas (ver abaixo) | **Individuais**, em PDF ou markdown no GitHub, no prazo de cada lista |
 | Projeto final (sistema integrado) | Unidades I–IV | **Em grupo**; rubrica própria em [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md) |
 
@@ -251,7 +249,7 @@ apresentação de trabalhos. Neste curso, tomam a forma:
 
 São **cinco listas individuais**, uma por bloco de conteúdo, com questões no mesmo estilo dos
 **Exemplos resolvidos** das teorias (conta feita, unidade correta, conclusão de projeto). Cada
-lista é entregue **individualmente** — diferente dos relatórios de laboratório, que são em dupla —
+lista é entregue **individualmente** — diferente dos relatórios de laboratório, que são em bancada —
 **em PDF ou markdown, no GitHub**, até a aula indicada no seu cabeçalho:
 
 | Lista | Cobre | Prazo | Função |
@@ -277,7 +275,7 @@ A composição da nota semestral (os pesos abaixo) segue o plano de ensino da tu
 |---|---|
 | Prova P1 | _a definir_ |
 | Prova P2 | _a definir_ |
-| Relatórios de laboratório (duplas) | _a definir_ |
+| Relatórios de laboratório (bancadas) | _a definir_ |
 | Listas de exercícios (individuais) | _a definir_ |
 | Projeto final | _a definir_ |
 | **Total** | **100 %** |
@@ -286,7 +284,7 @@ A composição da nota semestral (os pesos abaixo) segue o plano de ensino da tu
 > composição; os números acima são o único ponto do plano que depende exclusivamente do professor.
 
 Dentro do **projeto final**, a distribuição já está definida em sua rubrica: funcionamento 40 %,
-qualidade técnica 25 %, documentação 20 % (inclui o histórico de commits do repositório da dupla)
+qualidade técnica 25 %, documentação 20 % (inclui o histórico de commits do repositório da bancada)
 e apresentação 15 %, com a nota individual ajustável em ±20 % pela arguição — ver o regulamento.
 
 ## Convenções usadas no texto

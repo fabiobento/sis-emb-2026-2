@@ -111,7 +111,7 @@ Hora de aposentar de vez o polling do botão: o padrão profissional do Exemplo 
 
 ---
 
-## Entrega (GitHub da dupla, `lab-06/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-06/relatorio.md`)
 
 1. Tabela da Parte A (5 execuções sem mutex + 5 com) + 3 linhas: por que os valores sem
    mutex variam e por que com mutex não.

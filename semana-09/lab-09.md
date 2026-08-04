@@ -110,7 +110,7 @@ idf.py add-dependency "espressif/ssd1306"
 | Valores congelados | sensor desconectou no meio | reconecte; cheque os jumpers |
 | Display mudo | endereço errado (0x3C × 0x3D) | o scanner da Parte A.4 diz qual |
 
-## Entrega (GitHub da dupla, `lab-09/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-09/relatorio.md`)
 
 1. Prints do scanner: saudável (2 endereços) e das duas falhas provocadas (A.3), com uma
    linha de diagnóstico para cada.

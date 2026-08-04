@@ -129,7 +129,7 @@ jupyter notebook ~/sis-emb/semana-13/src/analise_pid.ipynb
 | `u` sempre no teto | referência inalcançável / saturação | confira REF com a faixa do sensor (Parte A.4 do Lab 7) |
 | Oscilação que não para | K_p alto demais (ou K_d zero) | volte ao passo 2 da tabela |
 
-## Entrega (GitHub da dupla, `lab-13/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-13/relatorio.md`)
 
 1. Constante de tempo identificada em malha aberta (Parte B) + o trecho de dados que a sustenta.
 2. Tabela de sintonia completa (Parte C) + os 5 CSVs no repositório.

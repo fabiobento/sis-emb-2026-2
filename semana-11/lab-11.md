@@ -144,7 +144,7 @@ bash inventario_sistema.sh
     Saída esperada: `gerado: relatorio_bancadaN.txt`. Abra o script com `less` e leia: são
     os comandos das Partes B–C empacotados em shell — seu primeiro script de administração.
 13. Traga o relatório de volta ao PC (`scp aluno@bancadaN.local:~/relatorio_bancadaN.txt .`)
-    e suba no GitHub da dupla.
+    e suba no GitHub da bancada.
 
 > 💡 **Hábito que vale ouro**: `scp` PC↔RPi é o correio do Bloco 2. Edite no VS Code do PC
 > (confortável), envie com `scp`, execute via `ssh`. Três janelas de terminal, um fluxo de
@@ -161,7 +161,7 @@ bash inventario_sistema.sh
 | SSH recusado | SSH não habilitado na engrenagem | regrave habilitando |
 | `tee` pede senha toda hora | normal — sudo por comando | paciência, ou `sudo -i` (com cuidado!) |
 
-## Entrega (GitHub da dupla, `lab-11/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-11/relatorio.md`)
 
 1. `relatorio_bancadaN.txt` gerado pelo script (Parte D) — anexado no repositório.
 2. Saídas anotadas da Parte B.6 com uma linha de comentário em cada (o que ela revela?).

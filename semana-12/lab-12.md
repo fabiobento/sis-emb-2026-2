@@ -169,7 +169,7 @@ substitui?
 | Distâncias absurdas/timeout | ECHO sem divisor (ou divisor errado) | refaça a checklist da Parte C |
 | `i2cdetect` mostra tudo ocupado | I2C não habilitado | Lab 11, Parte D.11 |
 
-## Entrega (GitHub da dupla, `lab-12/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-12/relatorio.md`)
 
 1. Resposta da A.1 (o que o gpiozero esconde — mínimo 3 itens) + print do `gpioinfo`
    mostrando a linha ocupada (A.2) + resultado do sysfs (A.3).

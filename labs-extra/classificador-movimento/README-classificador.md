@@ -50,7 +50,7 @@ ESP32 (inferência na borda) ──MQTT "movimento/#"──▶ painel no RPi (se
 
 ## Reprodutibilidade
 
-Registre no repositório da dupla o **project ID** do Edge Impulse, a lista de classes, a taxa de
+Registre no repositório da bancada o **project ID** do Edge Impulse, a lista de classes, a taxa de
 amostragem e a **acurácia de teste** (não a de treino). Sem esses dados, o classificador não é
 reproduzível — e reprodutibilidade conta como documentação no
 [projeto final](../../projeto-final/README-proj-final.md).

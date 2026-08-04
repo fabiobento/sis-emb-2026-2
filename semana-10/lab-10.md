@@ -8,7 +8,7 @@ física com transceptores SN65HVD230 e terminação; trocar mensagens sensor→a
 a prioridade por ID e o comportamento de erro do CAN.
 
 **Duração**: 2 aulas.
-**Material (por dupla de bancadas — juntem-se!):** 2× ESP32, 2× transceptor SN65HVD230,
+**Material (por bancada de bancadas — juntem-se!):** 2× ESP32, 2× transceptor SN65HVD230,
 2× resistor 120 Ω, par de fios trançado (~50 cm; trancem jumpers!), protoboards.
 **Semana de proposta**: hoje também é o prazo da **proposta do projeto final**
 (`projeto-final/README.md`) — reservem os últimos 20 min.
@@ -46,7 +46,7 @@ RX ID=0x0A0 T=26.0 C  (tx=2 rx=2)
 
 ## Parte B — Montando a rede física (35 min)
 
-Agora em dupla de bancadas (2 placas):
+Agora em bancada de bancadas (2 placas):
 
 5. Em **cada** lado: ESP32 **TX=GPIO21 → pino D** do SN65HVD230; **RX=GPIO22 ← pino R**;
    **3V3 → VCC; GND → GND**. (O SN65HVD230 é de 3,3 V — casa direto com o ESP32, sem
@@ -115,7 +115,7 @@ RX comando ventilador=1
 | Um lado recebe, o outro não | TX/RX trocados num lado | D←TX(21), R→RX(22) |
 | BUS_OFF / nó calado | fio solto por tempo demais | reset; revise a fiação |
 
-## Entrega (GitHub da dupla, `lab-10/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-10/relatorio.md`)
 
 1. Print do selftest + comportamento do nó solitário em modo NORMAL (A.4) com explicação de
    1–2 linhas (ACK/confinamento).

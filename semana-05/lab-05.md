@@ -133,7 +133,7 @@ xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 1);
 
 ---
 
-## Entrega (GitHub da dupla, `lab-05/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-05/relatorio.md`)
 
 1. Explicação da Parte A.2 (por que prioridades diferentes convivem em CPU ociosa), ≤ 3
    linhas.

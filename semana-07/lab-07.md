@@ -115,7 +115,7 @@ O firmware imprime, a cada 1 s, média e **desvio-padrão** do sinal filtrado �
 | Desvio alto com LDR parado | luz fluorescente/LED da sala (100/120 Hz!) | cubra o sensor; discuta no relatório |
 | DAC sem saída | GPIO errado (só 25/26 têm DAC) | confira o pino |
 
-## Entrega (GitHub da dupla, `lab-07/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-07/relatorio.md`)
 
 1. Tabela de calibração (Parte A) + comentário sobre o desvio da teoria.
 2. Tabela de ruído × M (Parte B) + o trecho de log do spike + 3 linhas sobre o compromisso

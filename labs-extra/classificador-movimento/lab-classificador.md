@@ -40,7 +40,7 @@ com o professor).
    no seu projeto do Edge Impulse.
 
 4. **Grave as amostras.** Na aba **Data acquisition** do Studio, grave janelas de ~10 s para cada
-   classe (`parado`, `aceno`, `sobe-desce`, `círculo`). **Cada integrante da dupla grava as suas**, e
+   classe (`parado`, `aceno`, `sobe-desce`, `círculo`). **Cada integrante da bancada grava as suas**, e
    varie a posição do sensor (mão, pulso). Meta: pelo menos ~2–3 min por classe, e reserve ~20% para
    teste.
 
@@ -96,7 +96,7 @@ com o professor).
 
 ## Entrega
 
-No repositório da dupla, pasta `lab-classificador/`:
+No repositório da bancada, pasta `lab-classificador/`:
 
 - `relatorio.md` com: justificativa da taxa (Nyquist); print do Feature explorer; **treino × teste**
   e leitura da matriz de confusão; print do teste de sanidade (Studio × dispositivo batendo);

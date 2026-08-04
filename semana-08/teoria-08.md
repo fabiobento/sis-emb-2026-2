@@ -94,7 +94,7 @@ ledc_channel_config_t c = {
 ledc_channel_config(&c);
 // no laço: rampa de brilho
 ledc_set_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0, d);   // 0..4095
-ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);   // aplica (dupla escrita = sem glitch)
+ledc_update_duty(LEDC_LOW_SPEED_MODE, LEDC_CHANNEL_0);   // aplica (bancada escrita = sem glitch)
 ```
 
 Note a arquitetura **timer + canal**: um timer define f e N; vários canais podem

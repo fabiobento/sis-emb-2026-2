@@ -100,8 +100,8 @@ mosquitto_pub -t ifes/bancada3/cmd/led -m 0
    relatório **quem** publicou o `offline` — não foi o nó, obviamente; ele estava morto. (Era
    o broker, cumprindo o "testamento" registrado na conexão: teoria, seção 3.)
 10. **Curingas**: assine só as temperaturas de todas as bancadas da sala
-    (`mosquitto_sub -t 'ifes/+/temp' -v`) — se outras duplas já estão no ar no MESMO broker,
-    você as verá. Uma linha de reflexão: o que precisou mudar nos nós das outras duplas para o
+    (`mosquitto_sub -t 'ifes/+/temp' -v`) — se outras bancadas já estão no ar no MESMO broker,
+    você as verá. Uma linha de reflexão: o que precisou mudar nos nós das outras bancadas para o
     seu painel enxergá-los? (Nada — o desacoplamento do Exemplo 14.2: é exatamente o mesmo
     princípio da arbitragem por ID do CAN, Lab 10.)
 
@@ -148,7 +148,7 @@ mosquitto_pub -t ifes/bancada3/cmd/led -m 1 -r
 | Comando não chega | nó reassinou sem o bit MQTT_OK? | log `MQTT_EVENT_SUBSCRIBED` no monitor |
 | "offline" nunca chega | desligou com o cabo de rede, não com reset brusco | puxe a **energia** do nó (teste real) |
 
-## Entrega (GitHub da dupla, `lab-14/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-14/relatorio.md`)
 
 1. Print do teste local e do teste pela rede (Parte A) + as duas providências de segurança de
    produto.

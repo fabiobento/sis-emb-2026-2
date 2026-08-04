@@ -160,7 +160,7 @@ ESP32 em cada um, *versus* um painel único de vários PZEM no mesmo barramento 
 | Leituras zeradas com carga ligada | CT aberto ou abraçando o fio errado | garra no **fase** da carga (professor!) |
 | `ttyUSB0` não aparece (Parte E) | adaptador não reconhecido | outro adaptador; `dmesg \| tail` |
 
-## Entrega (GitHub da dupla, `lab-energia/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-energia/relatorio.md`)
 
 1. O quadro Modbus da Parte A.1 (bytes) + explicação do papel do CRC (A.2).
 2. Print do monitor ESP32 medindo uma carga real (Parte B.5).

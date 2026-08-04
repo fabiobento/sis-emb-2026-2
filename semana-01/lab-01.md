@@ -10,7 +10,7 @@ rodando **no simulador**, com um experimento de temporização documentado.
 
 **Duração**: 2 aulas. **Material**: apenas o PC do laboratório (Ubuntu 22.04). Nenhum
 hardware hoje.
-**Duplas**: formem as duplas de laboratório hoje — elas valem para o semestre (e para o
+**Bancadas**: formem as bancadas de laboratório hoje — elas valem para o semestre (e para o
 GitHub).
 
 > 💡 **Por que começar no simulador?** Porque o Wokwi elimina as três variáveis que mais
@@ -45,7 +45,7 @@ git reset --hard origin/main
 > para testar hipóteses. A sequência acima baixa as novidades e **sobrescreve** qualquer
 > alteração local, garantindo que seu ambiente comece idêntico ao roteiro oficial de hoje.
 > Se quiser preservar experimentos seus, copie-os antes para uma pasta fora do repositório
-> (ou para o repositório **da dupla**, que vocês criarão na Parte C).
+> (ou para o repositório **da bancada**, que vocês criarão na Parte C).
 
 **O que esses comandos fazem?**
 
@@ -86,7 +86,7 @@ erros.
 gratuita e é a que vocês usarão; a extensão paga do VS Code é usada pelo professor na
 preparação.
 
-**A.4 — Conta no GitHub** de cada integrante da dupla (se ainda não tiver).
+**A.4 — Conta no GitHub** de cada integrante da bancada (se ainda não tiver).
 
 ---
 
@@ -118,7 +118,7 @@ preparação.
 ```json
 {
   "version": 1,
-  "author": "sua-dupla",
+  "author": "sua-bancada",
   "editor": "wokwi",
   "parts": [
     {
@@ -195,9 +195,9 @@ Se o LED da protoboard não piscar mas o log aparecer: problema de **fiação** 
 
 ---
 
-## Parte C — Repositório da dupla (20 min)
+## Parte C — Repositório da bancada (20 min)
 
-1. Um integrante cria no GitHub o repositório **`sis-emb-dupla-XX`** (XX = número da
+1. Um integrante cria no GitHub o repositório **`sis-emb-2026-bancada-XX`** (XX = número da
    bancada), privado, e adiciona o colega e o professor como colaboradores.
 2. Estrutura mínima: uma pasta por lab (`lab-01/`, `lab-02/`, …), cada uma com
    `relatorio.md`.
@@ -220,7 +220,7 @@ Se o LED da protoboard não piscar mas o log aparecer: problema de **fiação** 
 | Nada pisca e sem log | projeto errado (template Arduino) | recrie com template ESP-IDF |
 | "Failed to connect" no Wokwi | — (não existe: é hardware real) | esse erro é do Lab 2! |
 
-## Entrega (via GitHub da dupla, até a próxima aula prática)
+## Entrega (via GitHub da bancada, até a próxima aula prática)
 
 1. **Link do projeto Wokwi** funcionando (botão *Share* → *Copy link*) + captura de tela.
 2. Tabela do Experimento 1: período testado × "piscar perceptível? (sim/não)".

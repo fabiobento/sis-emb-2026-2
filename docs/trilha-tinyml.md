@@ -150,7 +150,7 @@ Fluxo oficial (documentado em
   Atenção à **ordem e à escala dos eixos**: têm de ser idênticas às da coleta, ou o modelo recebe
   "outra coisa". Este é o erro nº 1 de integração.
 - Publique a classe de maior probabilidade (acima de um limiar) via **MQTT** (semana 14) num
-  tópico tipo `sis-emb/<dupla>/movimento`. No painel do RPi, mostre a etiqueta em tempo real — se
+  tópico tipo `sis-emb-2026-1/<bancada>/movimento`. No painel do RPi, mostre a etiqueta em tempo real — se
   você fez a trilha full-stack, é só mais um tópico no dashboard.
 - Dica de robustez: exija que **N janelas seguidas** concordem antes de publicar, para não piscar
   a saída a cada janela ruidosa (é o "debounce" da semana 3, agora aplicado a decisões de ML).

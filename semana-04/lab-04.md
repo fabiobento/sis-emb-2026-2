@@ -110,7 +110,7 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 | LED heartbeat não pisca | `esp_timer_start_periodic` faltando | confira a Parte A do firmware |
 | Latências sempre ~10 ms | está medindo o tick, não o evento | lembre: `vTaskDelay` tem resolução de 10 ms |
 
-## Entrega (GitHub da dupla, `lab-04/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-04/relatorio.md`)
 
 1. Tabela com as 10 latências da Parte A + média e máximo; e os valores da Parte B.5 com a
    explicação capturar × processar (≤ 5 linhas).

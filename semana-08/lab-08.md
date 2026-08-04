@@ -125,7 +125,7 @@ projeto final para um robô de duas rodas. Fonte: Practical Python Programming f
 | `ledc_timer_config` retorna erro | conta f × resolução não fecha (A.4) | menos bits ou menos Hz |
 | LED apagado no dimmer | duty invertido no código? | `ledc_update_duty` esquecido |
 
-## Entrega (GitHub da dupla, `lab-08/relatorio.md`)
+## Entrega (GitHub da bancada, `lab-08/relatorio.md`)
 
 1. Três medições do valor médio (A.2) + observações de 30 Hz a olho e em vídeo (A.3) + a
    mensagem de erro de A.4 com a conta que a explica.
