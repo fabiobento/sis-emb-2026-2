@@ -273,11 +273,11 @@ A composição da nota semestral (os pesos abaixo) segue o plano de ensino da tu
 
 | Instrumento | Peso |
 |---|---|
-| Prova P1 | _a definir_ |
-| Prova P2 | _a definir_ |
-| Relatórios de laboratório (bancadas) | _a definir_ |
-| Listas de exercícios (individuais) | _a definir_ |
-| Projeto final | _a definir_ |
+| Prova P1 | 5% |
+| Prova P2 | 5% |
+| Relatórios de laboratório (bancadas) | 35% |
+| Listas de exercícios (individuais) | 30% |
+| Projeto final | 25% |
 | **Total** | **100 %** |
 
 > **Preencher os pesos com os valores do plano de ensino desta turma.** O material não fixa essa
