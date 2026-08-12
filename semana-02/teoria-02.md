@@ -135,8 +135,7 @@ Se abríssemos o envólucro metálico do módulo ESP-WROOM-32 da sua bancada, ve
   **sobrevive ao deep sleep** (semana 14 — é onde o nó sensor guarda o que não pode esquecer
   enquanto dorme).
 - **Periféricos**: 34 GPIOs, ADC de 12 bits (18 canais), 2× DAC de 8 bits, 16 canais de PWM
-  (LEDC), 3× UART, 2× I2C, 4× SPI, **TWAI (CAN!)**, I2S, sensores touch — praticamente o
-  sumário das semanas 7–10 em silício. Cada um deles é um bloco de hardware independente que
+  (LEDC), 3× UART, 2× I2C, 4× SPI, **TWAI (CAN!)**, I2S, sensores touch — veremos nas semanas 7–10 em silício. Cada um deles é um bloco de hardware independente que
   a CPU configura e comanda… escrevendo em endereços de memória (seção 4.2!).
 - **Rádios** Wi-Fi 802.11 b/g/n e Bluetooth + aceleradores criptográficos (AES, SHA, RSA em
   hardware — TLS não sufoca a CPU) — a razão do domínio do ESP32 em IoT.
