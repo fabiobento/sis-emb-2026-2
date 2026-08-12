@@ -170,7 +170,7 @@ são decisões de projeto com consequências didáticas enormes:
 ### 3.1 Por que o Cortex-A53 é tão mais rápido? Pipeline, superescalar e cache
 
 O A53 do RPi não vence o LX6 só por clock (1,2 GHz × 240 MHz = 5×; o desempenho real difere
-bem mais). Três técnicas de arquitetura explicam — e caem em prova de concurso e entrevista:
+bem mais). Três técnicas de arquitetura explicam — e caem em **prova de concurso e entrevista**:
 
 1. **Pipeline** — a linha de montagem de instruções. Executar uma instrução envolve etapas:
    **buscar** da memória, **decodificar**, **executar**, **acessar memória**, **escrever
