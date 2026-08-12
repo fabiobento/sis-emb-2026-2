@@ -153,11 +153,11 @@ Se abríssemos o envólucro metálico do módulo ESP-WROOM-32 da sua bancada, ve
 O RPi 3 é outra espécie: SoC Broadcom **BCM2837** com 4× ARM Cortex-A53 @ 1,2 GHz e GPU
 VideoCore IV; **1 GB de RAM LPDDR2 num chip separado** (a diferença física mais visível para
 o MCU: memória externa, muito maior e mais lenta por acesso); armazenamento em cartão
-microSD; Ethernet/Wi-Fi/BT; e o cabeçalho de **40 pinos GPIO** que usaremos no Bloco 2.
+microSD; Ethernet/Wi-Fi/BT; e o headerde **40 pinos GPIO** que usaremos no Bloco 2.
 
 Volte à Figura 1-C da Aula 1 (o layout do RPi 3B) e identifique: o SoC quadrado no centro;
 o slot microSD na parte de baixo (o “disco rígido” do Pi — sem ele, o Pi não liga, pois…);
-o cabeçalho GPIO de 40 pinos no topo; e os conectores USB/Ethernet à direita. Duas ausências
+o headerGPIO de 40 pinos no topo; e os conectores USB/Ethernet à direita. Duas ausências
 são decisões de projeto com consequências didáticas enormes:
 
 - **Não há ADC nativo** — o RPi não lê tensões analógicas diretamente. Diferença crucial que
