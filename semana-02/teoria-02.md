@@ -190,8 +190,7 @@ ciclos desperdiçados chamados “bolhas”.*
    duas). `a = b + c` e `d = e + f` não dependem uma da outra → rodam juntas; já `a = b + c`
    seguida de `d = a * 2` força espera (a segunda precisa do resultado da primeira).
 3. **Cache** — uma SRAM pequena e rápida junto à CPU guarda **linhas** (blocos de 32–64 B)
-   da DRAM lenta. Acerto (*hit*): ~1–3 ciclos; falta (*miss*): dezenas de ciclos indo até a
-   LPDDR2. O princípio que a faz funcionar é a **localidade**: programas tendem a reutilizar
+   da DRAM lenta. Acerto (*hit*): ~1–3 ciclos; falta (*miss*): dezenas de ciclos. O princípio que a faz funcionar é a **localidade**: programas tendem a reutilizar
    dados próximos no tempo (localidade temporal — a variável do laço) e no espaço
    (localidade espacial — o elemento seguinte do array). Programas com laços compactos e
    dados **contíguos** "moram" na cache — um dos motivos para preferir *arrays* a listas
