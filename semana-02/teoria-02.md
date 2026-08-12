@@ -7,7 +7,7 @@
 
 Na semana passada você piscou um LED chamando `gpio_set_level()`. Mas o que essa função
 *faz*, fisicamente? Como uma linha de C vira um pino de silício mudando de 0 V para 3,3 V?
-Esta aula abre a caixa: vamos descer da linguagem à arquitetura — CPU, barramentos, memórias
+Nessa aula vamos conversar desde a linguagem à arquitetura — CPU, barramentos, memórias
 e registradores — usando nossas duas plataformas como espécimes de dissecação. No
 laboratório, você vai gravar o firmware no ESP32 **físico** pela primeira vez e piscar o LED
 escrevendo **diretamente num endereço de memória**, sem driver nenhum.
@@ -43,7 +43,7 @@ instruções da memória, executa-as e lê/escreve dados na memória e nos perif
         barramento de dados (o QUE trafega)
 ```
 
-Três barramentos trabalham juntos (o terceiro, de controle, não aparece no desenho):
+Três barramentos trabalham juntos (o terceiro, de controle, não aparece no projeto):
 
 - **Barramento de endereços**: a CPU coloca nele *onde* quer ler/escrever — um número, o
   **endereço**. A largura deste barramento define o “espaço de endereçamento”: 32 bits de
