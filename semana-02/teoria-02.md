@@ -160,7 +160,7 @@ o slot microSD na parte de baixo (o “disco rígido” do Pi — sem ele, o Pi 
 o headerGPIO de 40 pinos no topo; e os conectores USB/Ethernet à direita. Duas ausências
 são decisões de projeto com consequências didáticas enormes:
 
-- **Não há ADC nativo** — o RPi não lê tensões analógicas diretamente. Diferença crucial que
+- **Não há ADC nativo** — o RPi não lê tensões analógicas diretamente. Diferença importante que
   voltará na semana 12: para ler nosso LDR no Pi, usaremos um truque de tempo de carga de
   capacitor ou um ADC externo I2C (ADS1115).
 - **Não há flash de código: tudo vem do cartão SD** — bootloader, kernel, sistema de
