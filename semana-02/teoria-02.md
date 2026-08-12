@@ -208,8 +208,7 @@ de miss na lista e custo de miss de 40 ciclos.
 - Lista encadeada: 5 000 hits × 2 + 5 000 misses × 40 = 10 000 + 200 000 = **210 000
   ciclos**.
 
-Mais de 10× pior, com o *mesmo* algoritmo O(n) — a notação de complexidade não vê a
-constante, mas o pino do seu atuador, vê. Em MCU sem cache (ESP32 na SRAM interna) o efeito
+Mais de 10× pior, com o *mesmo* algoritmo O(n). Em MCU sem cache (ESP32 na SRAM interna) o efeito
 não existe; no RPi, domina. Layout de dados **é** desempenho — e determinismo.
 
 ---
