@@ -121,7 +121,7 @@ prática, processadores como o A53 entregam ainda mais do que a razão de clocks
 
 ## 2. O SoC ESP32 por dentro
 
-Abra mentalmente a "lata" metálica do módulo ESP-WROOM-32 da sua bancada. Dentro há um chip
+Se abríssemos o envólucro metálico do módulo ESP-WROOM-32 da sua bancada, veríamos que dentro há um chip
 (o SoC ESP32) e uma memória flash SPI ao lado. No chip:
 
 - **CPU**: 2× Xtensa LX6 de 32 bits até 240 MHz. Os núcleos têm apelidos: **PRO_CPU** (core
