@@ -64,30 +64,27 @@ flash guarda `.text`+`.rodata`, o seu programa propriamente dito.)
 ls /dev/ttyUSB*
 ```
 
-Saída esperada: `/dev/ttyUSB0`. Se nada aparecer: (i) o cabo é só de carga? troque —
-cabos USB "de carga" não têm os fios de dados e são o vilão nº 1 desta etapa; (ii)
+Saída esperada: `/dev/ttyUSB0`. Se nada aparecer então: (i) o cabo é só de carga? troque —
+cabos USB "de carga" não têm os fios de dados e são o que mais dá erro nesta etapa; (ii)
 permissão — rode `sudo usermod -aG dialout $USER` e relogue (já feito nos PCs do lab, mas
 anote para o seu notebook).
 
-**A.5** Grave e monitore (o par de comandos mais usado do semestre):
+**A.5** Grave e então monitore (o par de comandos mais usado do semestre):
 
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-Na avalanche de mensagens do flash, **cace estas linhas** (endereços do layout de flash —
-teoria, seção 5):
+Na avalanche de mensagens do processo de gravação (*flash*), **cace as linhas que confirmam a escrita dos arquivos** e o log inicial de boot (endereços do layout de flash — teoria, seção 5):
 
-```
-Bootloader binary ... 0x1000
-Partition table   ... 0x8000
-App binary        ... 0x10000
+```bash
+Wrote 26704 bytes (...) at 0x00001000...
+Wrote 184592 bytes (...) at 0x00010000...
+Wrote 3072 bytes (...) at 0x00008000...
+...
+I (180) boot: Loaded app from partition at offset 0x10000
 ```
 
-Cada um tem um papel: em `0x1000` vai o bootloader (o "preparador de terreno" que roda
-antes do seu código); em `0x8000`, a tabela de partições (o mapa das fatias da flash:
-app, NVS, etc.); em `0x10000`, **o seu aplicativo**. O LED azul da placa deve piscar. Para
-sair do monitor: **`Ctrl + ]`**.
 
 > **Observação:** se a gravação falhar com "Failed to connect", segure o botão **BOOT** da
 > placa enquanto o `idf.py` tenta conectar e solte quando começar. Algumas placas exigem
