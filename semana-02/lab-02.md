@@ -94,7 +94,35 @@ I (180) boot: Loaded app from partition at offset 0x10000
 
 **B.1** Substitua o conteúdo de `main/blink_example_main.c` pelo nosso
 `~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria —
-releia o bloco W1TS/W1TC antes de gravar).
+releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
+```c
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "soc/gpio_reg.h"      
+#include "driver/gpio.h"
+
+#define BIT_LED (1u << 2)      // GPIO 2 → bit 2 dos registradores de GPIO 0–31
+
+void app_main(void)
+{
+    gpio_reset_pin(GPIO_NUM_2);
+    
+    // Substitui a direção via driver pelo acesso direto ao registrador ENABLE
+    *(volatile uint32_t *)GPIO_ENABLE_REG |= BIT_LED;
+
+    // Aponta para o registrador de saída geral (onde moram todos os 32 pinos)
+    volatile uint32_t *out = (volatile uint32_t *)GPIO_OUT_REG; 
+
+    while (1) {
+        *out |= BIT_LED;                    // liga: lê, modifica e escreve (NÃO atômico!)
+        vTaskDelay(pdMS_TO_TICKS(250));
+        
+        *out &= ~BIT_LED;                   // desliga: lê, modifica e escreve (NÃO atômico!)
+        vTaskDelay(pdMS_TO_TICKS(250));
+    }
+}
+```
+
 
 **B.2** `idf.py flash monitor`. O efeito visível é o mesmo do driver — e essa é a lição:
 o driver é só uma casca conveniente sobre os registradores. Você acabou de comprovar a
@@ -107,12 +135,45 @@ endereço `0x3FF44008` liga o pino, exatamente como escrever numa variável.
 faixa de periféricos. É um endereço como outro qualquer, só que com pinos
 vinculados.*
 
-**B.3 Experimento — atomicidade**: no código, troque as duas escritas por uma versão
-lê-modifica-escreve usando `GPIO_OUT_REG` (`*out |= BIT_LED;` / `*out &= ~BIT_LED;`).
-Funciona igual? Sim — *por enquanto*. Guarde no relatório a resposta a: "que vantagem o
-W1TS/W1TC oferece quando houver uma ISR mexendo em OUTRO pino do mesmo registrador?"
-(semana 6 confirmará: a versão `|=` lê, modifica e escreve em três passos — e uma
-interrupção no meio pode perder a escrita; o W1TS faz tudo numa única escrita indivisível).
+**B.3 Experimento — atomicidade**: no código, troque o código do item **B.1** por uma versão com maior atomicidade usando o seguinte código: 
+```c
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "soc/gpio_reg.h"      // define GPIO_OUT_W1TS_REG etc. (evita números mágicos)
+#include "driver/gpio.h"
+
+#define BIT_LED (1u << 2)      // GPIO 2 → bit 2 dos registradores de GPIO 0–31
+
+void app_main(void)
+{
+    gpio_reset_pin(GPIO_NUM_2);
+    
+    // Substitui a direção via driver pelo acesso direto ao registrador ENABLE
+    *(volatile uint32_t *)GPIO_ENABLE_REG |= BIT_LED;
+
+    volatile uint32_t *w1ts = (volatile uint32_t *)GPIO_OUT_W1TS_REG; // "write 1 to SET"
+    volatile uint32_t *w1tc = (volatile uint32_t *)GPIO_OUT_W1TC_REG; // "write 1 to CLEAR"
+
+    while (1) {
+        *w1ts = BIT_LED;                    // liga: escreve 1 SÓ no bit 2 (atômico!)
+        vTaskDelay(pdMS_TO_TICKS(250));
+        *w1tc = BIT_LED;                    // desliga: idem
+        vTaskDelay(pdMS_TO_TICKS(250));
+    }
+}
+```
+
+**B.4 A questão do "Lê-Modifica-Escreve" e a vantagem da Atomicidade**
+
+Você deve ter percebido que, visualmente, o LED pisca da mesma forma nas duas abordagens. No entanto, no nível de hardware , a diferença estrutural entre elas é o que separa um sistema embarcado instável e sujeito a falhas intermitentes de um sistema robusto e profissional.
+
+* **A armadilha do código B.1 (Lê-Modifica-Escreve):** Ao utilizarmos os operadores bit a bit (`|=` e `&= ~`) diretamente no registrador geral `GPIO_OUT_REG`, obrigamos o processador a executar três etapas distintas: ele **lê** o estado de todos os 32 pinos, **modifica** o bit desejado na sua memória interna e **escreve** o pacote de 32 bits de volta no registrador. Se uma Rotina de Serviço de Interrupção (ISR) for acionada no meio dessas etapas e alterar um pino diferente no mesmo registrador, o passo final de "escrita" do seu loop principal devolverá a foto antiga dos pinos, apagando silenciosamente a alteração feita pela ISR. Isso é o que chamamos de Condição de Corrida (*Race Condition*).
+* **A segurança do código B.3 (Atomicidade via Hardware):** Para resolver esse problema, a arquitetura do ESP32 nos oferece os registradores `W1TS` (Write 1 To Set) e `W1TC` (Write 1 To Clear). Eles dispensam a leitura prévia. Basta executar uma única instrução de escrita informando quais bits devem ir para `1`, e o próprio circuito lógico do microcontrolador altera exclusivamente aqueles pinos, ignorando os que receberam `0`. Por ocorrer em um único ciclo indivisível de instrução (uma operação **atômica**), é impossível que uma interrupção atropele o processo.
+
+> **OBSERVAÇÃO:** Sempre que o hardware do microcontrolador oferecer registradores dedicados do tipo *Set/Clear* atômicos, o uso deles deve ser a sua escolha padrão em projetos de sistemas embarcados.
+
+> *(Nota para a Semana 6: a operação `|=` executa a leitura, modificação e escrita em três passos distintos, abrindo brecha para perda de dados em caso de interrupção. O uso de W1TS garante a atomicidade, realizando a operação em uma única instrução em nível de hardware).*
+
 
 ## Parte C — Eletrônica de bancada (30 min)
 
