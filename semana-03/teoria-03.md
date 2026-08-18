@@ -252,7 +252,7 @@ pequenina (3,3 V / 10 kΩ = 0,33 mA) que o botão ignora solenemente.
 O ESP32 e o RPi têm resistores **internos** configuráveis (~45 kΩ e ~50 kΩ) — é o que o nosso
 código usa: `gpio_pullup_en(BTN)`, dispensando o componente externo. Convenção dominante na
 indústria: **pull-up + ativo-baixo** (herança de eletrônica: transistores drenam corrente
-para GND melhor do que a fornecem — e o GND é o “rio” comum a todos os chips).
+para GND melhor do que a fornecem).
 
 A foto abaixo mostra a montagem real de um botão com resistor de pull-up em protoboard (aqui
 com resistor externo de 50–65 kΩ; no nosso laboratório usaremos o pull-up **interno**):
