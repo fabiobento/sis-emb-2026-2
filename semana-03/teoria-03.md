@@ -52,7 +52,7 @@ que representa a grandeza com folga (economia de RAM e de banda em protocolos).
 Regra da disciplina: **em código de driver e protocolo, `int` é proibido**; use
 `uintN_t/intN_t`.
 
-### 1.2 Operações bit a bit — a linguagem dos registradores
+### 1.2 Operações bit a bit
 
 Um registrador de 32 bits são 32 interruptores independentes. Para mexer em **um** sem tocar
 nos outros, usamos máscaras. O kit completo:
