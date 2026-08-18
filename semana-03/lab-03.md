@@ -15,7 +15,7 @@ D), jumpers.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
+cd ~/sis-emb && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Primeiro no Wokwi (25 min)
@@ -41,11 +41,11 @@ Como sempre no Bloco 1: **simule antes de gravar**.
 
 5. Monte o mesmo circuito na protoboard: LED→R220→GPIO2; botão entre **GPIO0 e GND**.
 
-![Botão com pull-up em protoboard: resistor do 3,3 V ao pino e botão do pino ao GND](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/botao_pullup.png)
+![Diagrama do botão com pull-up interno do ESP32: LED no GPIO2 e botão entre GPIO0 e GND](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/botao_pullup-esp32.png)
 
-*Figura L3-A — A topologia do botão com pull-up (aqui fotografada com resistor externo num
-Raspberry Pi; no nosso lab o pull-up é o interno do ESP32, e o pino é o GPIO0). Fonte:
-Practical Python Programming for IoT (Packt), cap. 6, Fig. 6.6.*
+*Figura L3-A — A montagem do lab no ESP32: o LED (com R220) no GPIO2 e o botão entre GPIO0 e GND.
+O pull-up é o **interno** do chip (`gpio_pullup_en`), então não há resistor externo — em repouso o
+GPIO0 lê 1 e, pressionado, lê 0.*
 
 > **Observação:** o GPIO 0 é também o pino de *boot* da placa (o botão "BOOT" embutido está
 > ligado nele!). Vantagem didática: você pode testar o firmware **sem botão externo**,
@@ -111,7 +111,7 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 | Placa entra em modo de gravação | GPIO0 pressionado no reset | solte o botão e resete |
 | Nada acontece no clique | botão em fileira errada da protoboard | botão táctil tem os pares ligados em cruz — gire 90° |
 
-## Entrega (GitHub da bancada, `lab-03/relatorio.md`)
+## Entrega (GitHub da dupla, `lab-03/relatorio.md`)
 
 1. Resposta da Parte A.4: qual condição do código impede repetição com o botão seguro?
 2. Tabela do experimento C completa + conclusão sobre a janela ideal (Parte C.11).
