@@ -219,10 +219,9 @@ bancada.
 2. Tabela `Total sizes` (DRAM/IRAM/Flash) do seu build e os **três endereços** de gravação
    (bootloader/partições/app) — com uma frase explicando o que é gravado em `0x10000`.
 3. Tabela de medições da Parte C preenchida + a corrente calculada.
-4. Resposta da Parte B.3 (atomicidade W1TS/W1TC), 3–5 linhas.
+4. Um resumo de 3-5 linhas sobre o que entendeu sobre o experimento da Parte B.3 (atomicidade W1TS/W1TC).
 
 ## Desafio (opcional)
 
 Sem usar `gpio_set_direction`, configure a direção do GPIO 2 escrevendo no registrador
-`GPIO_ENABLE_W1TS_REG` (dica: `soc/gpio_reg.h`). Confirme no monitor que o pisca continua e
-explique no relatório o paralelo com o par OUT/ENABLE.
+`GPIO_ENABLE_W1TS_REG` (dica: `soc/gpio_reg.h`). Confirme no monitor que o pisca continua e explique no relatório o paralelo com o par OUT/ENABLE.
