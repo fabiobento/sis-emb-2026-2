@@ -227,8 +227,7 @@ Resposta: **lixo** — 0 e 1 aleatórios, pois o pino de altíssima impedância 
 (praticamente não drena corrente) vira uma antena para ruído: a luz do laboratório, seu dedo
 se aproximando, a rede elétrica a 60 Hz. Entrada **nunca** pode ficar flutuando.
 
-A solução é um resistor que define o nível de repouso — fraco o suficiente para o botão
-vencê-lo, forte o suficiente para dominar o ruído:
+A solução é um resistor que define o nível de repouso:
 
 ![Circuitos com resistor de pull-up, pull-down e entrada flutuante](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pullup_pulldown.png)
 
