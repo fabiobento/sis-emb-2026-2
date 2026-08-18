@@ -93,6 +93,16 @@ I (180) boot: Loaded app from partition at offset 0x10000
 > isso (o botão BOOT força o modo de gravação no reset).
 
 ## Parte B — Pisca por registrador (40 min)
+**B.0** Monte na protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
+(mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
+piscar.
+
+> 🔌 **Protoboard — o mapa**: as duas colunas das bordas são trilhos contínuos de
+> alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
+> canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
+> trilho de alimentação não conectado dos dois lados.
+
+
 
 **B.1** Substitua o conteúdo de `main/blink_example_main.c` pelo nosso
 `~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria —
@@ -179,16 +189,7 @@ Você deve ter percebido que, visualmente, o LED pisca da mesma forma nas duas a
 
 ## Parte C — Eletrônica de bancada (30 min)
 
-**C.1** Monte na protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
-(mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
-piscar.
-
-> 🔌 **Protoboard — o mapa**: as duas colunas das bordas são trilhos contínuos de
-> alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
-> canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
-> trilho de alimentação não conectado dos dois lados.
-
-**C.2 Medições com o multímetro** (boa prática de *Molloy, Exploring Raspberry Pi*):
+**C.1 Medições com o multímetro** (boa prática de *Molloy, Exploring Raspberry Pi*):
 meça **sempre com o circuito energizado e o firmware rodando**, ponta preta no GND,
 vermelha no ponto de interesse, escala DC 20 V:
 
@@ -198,7 +199,7 @@ vermelha no ponto de interesse, escala DC 20 V:
 | Nível alto no GPIO | GPIO 2 ↔ GND (LED aceso) | ~3,3 V | |
 | Queda no LED | anodo ↔ catodo (aceso) | ~1,8–2,1 V | |
 
-**C.3** Com as medições, **verifique o Exemplo 3.2** por antecipação:
+**C.2** Com as medições, **verifique o Exemplo 3.2** por antecipação:
 I = (V_GPIO − V_LED)/220. O valor bate com a faixa de 5–6 mA? Se a queda no LED medir ~2,0 V
 e o GPIO ~3,3 V: I = (3,3 − 2,0)/220 ≈ 5,9 mA — a conta da semana 3 confirmada por um
 instrumento. Anotem os três números: eles são a primeira ponte entre a apostila e a
