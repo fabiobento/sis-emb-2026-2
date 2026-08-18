@@ -150,8 +150,7 @@ sensores/CAN): mais significativo primeiro → `11 22 33 44`.
 
 Quando isso dá problema? Ao **serializar** dados entre sistemas (semanas 9–14): se o ESP32 despeja
 uma struct crua na UART e o receptor assume a outra ordem, `0x11223344` vira `0x44332211` —
-valores corrompidos **sem nenhum erro de transmissão**, o pior tipo de bug (não grita,
-sussurra errado). Por isso existem `htons()/htonl()` (*host-to-network short/long*) e a
+valores corrompidos **sem nenhum erro de transmissão**, o pior tipo de bug. Por isso existem `htons()/htonl()` (*host-to-network short/long*) e a
 regra de ouro: protocolo define a ordem dos bytes **explicitamente**, campo a campo. O
 Modbus do Lab Extra, por exemplo, é big-endian — e o enunciado do lab cobra isso de você.
 
