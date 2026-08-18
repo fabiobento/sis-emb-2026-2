@@ -93,7 +93,7 @@ I (180) boot: Loaded app from partition at offset 0x10000
 ## Parte B — Pisca por registrador (40 min)
 
 **B.1** Substitua o conteúdo de `main/blink_example_main.c` pelo nosso
-`~/sis-emb/semana-02/src/blink_registrador/main.c` (dissecado na seção 4.2 da teoria —
+`~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria —
 releia o bloco W1TS/W1TC antes de gravar).
 
 **B.2** `idf.py flash monitor`. O efeito visível é o mesmo do driver — e essa é a lição:
