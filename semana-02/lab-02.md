@@ -104,8 +104,8 @@ endereço `0x3FF44008` liga o pino, exatamente como escrever numa variável.
 ![Mapa de memória do ESP32 com a faixa de periféricos e o registrador de GPIO](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/mapa_memoria_esp32.png)
 
 *Figura L2-A — Reveja o mapa da teoria: o registrador que seu código escreveu hoje mora na
-faixa de periféricos. Nenhuma mágica — um endereço como outro qualquer, só que com pinos
-atrás.*
+faixa de periféricos. É um endereço como outro qualquer, só que com pinos
+vinculados.*
 
 **B.3 Experimento — atomicidade**: no código, troque as duas escritas por uma versão
 lê-modifica-escreve usando `GPIO_OUT_REG` (`*out |= BIT_LED;` / `*out &= ~BIT_LED;`).
