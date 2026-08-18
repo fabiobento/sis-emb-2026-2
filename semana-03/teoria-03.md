@@ -130,7 +130,7 @@ volatile uint32_t *w1ts = (volatile uint32_t *)GPIO_OUT_W1TS_REG;
 cada peça tem um papel: `GPIO_OUT_W1TS_REG` é um número (um endereço, ex.: `0x3FF44008`); o
 *cast* `(volatile uint32_t *)` diz “trate esse número como ponteiro para inteiro de 32 bits
 volátil”; `*w1ts = ...` escreve *no endereço apontado* — e o hardware que mora ali obedece.
-`&` faz o caminho inverso (o endereço de uma variável), e `p[i]` é açúcar para
+`&` faz o caminho inverso (o endereço de uma variável), e `p[i]` é uma forma amigável para
 `*(p + i)` — é por isso que arrays e ponteiros se confundem em C, e por isso que o teste de
 endianness abaixo funciona.
 
