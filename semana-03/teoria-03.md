@@ -295,7 +295,7 @@ próprio ESP32 contando bordas — spoiler do laboratório).
 Último pedágio, e o mais sutil: por dentro, a saída digital tem transistores — e há duas
 arquiteturas:
 
-![Estágio de saída push-pull versus open-drain](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pushpull_opendrain.png)
+![Estágio de saída push-pull versus open-drain](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pushpull_opendrain.jpeg)
 
 *Figura 3-E — Push-pull: dois transistores, o pino “empurra” 1 e “puxa” 0 com força.
 Open-drain: só existe o transistor de baixo; o 1 vem do resistor de pull-up — vários chips
