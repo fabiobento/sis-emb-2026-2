@@ -4,7 +4,7 @@
 > **Como usar**: texto autossuficiente. Tenha papel à mão: os Exemplos 3.1–3.3 são o modelo
 > exato das questões 11–15 da Lista 1. Todos os trechos de C rodam no Wokwi — experimente.
 
-Você já sabe *o que* é um registrador (semana 2). Esta aula ensina a **linguagem** para falar
+Você já sabe *o que* é um registrador (semana 2). Esta aula ensina a **linguagem** para "falar"
 com eles — o subconjunto de C que todo firmware usa: tipos de largura fixa, operações bit a
 bit, `volatile`, ponteiros para endereços físicos. Na segunda metade, aplicamos tudo ao
 periférico fundamental, o **GPIO**, agora pelo lado da eletrônica: quanta corrente um pino
