@@ -167,7 +167,7 @@ O truque: `&v` é o endereço do inteiro; o cast para `uint8_t*` deixa lermos es
 
 ---
 
-## 2. GPIO: o periférico fundamental (U4)
+## 2. GPIO(U4)
 
 GPIO = *General Purpose Input/Output*. Cada pino pode ser saída (a CPU impõe 0 V ou 3,3 V)
 ou entrada (a CPU lê a tensão como 0 ou 1). Parece trivial — até você ligar o primeiro
