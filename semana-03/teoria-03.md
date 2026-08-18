@@ -171,7 +171,7 @@ O truque: `&v` é o endereço do inteiro; o cast para `uint8_t*` deixa lermos es
 
 GPIO = *General Purpose Input/Output*. Cada pino pode ser saída (a CPU impõe 0 V ou 3,3 V)
 ou entrada (a CPU lê a tensão como 0 ou 1). Parece trivial — até você ligar o primeiro
-componente de verdade e descobrir que o mundo analógico cobra pedágio. As próximas quatro
+componente de verdade e descobrir que o mundo analógico "cobra pedágio". As próximas quatro
 seções são os quatro pedágios: corrente, flutuação, quique e tipo de driver de saída.
 
 Antes, um detalhe que evita 90 % dos “não funciona” de bancada: **onde 0 vira 1?** A entrada
