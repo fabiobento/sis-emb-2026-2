@@ -53,10 +53,12 @@ a resolução do `vTaskDelay` é 10 ms. Salve (`S`) e saia (`Q`).
 idf.py build
 ```
 
-Ao final, procure o bloco `Total sizes:` e anote no relatório: bytes de **DRAM**, de
-**IRAM** e de **Flash** usados. (Teoria, seção 5: é o extrato das memórias — DRAM guarda
-`.data`+`.bss`+pilhas, IRAM guarda código marcado para RAM como as ISRs da semana 4, e a
-flash guarda `.text`+`.rodata`, o seu programa propriamente dito.)
+Após verificar o comportamento do LED, feche o monitor serial (**`Ctrl + ]`**) e execute o comando utilitário abaixo no terminal para gerar o relatório de consumo de memória:
+
+`idf.py size`
+
+Na avalanche de informações geradas, desça até o final, procure o bloco `Total sizes:` e anote no relatório: a quantidade de bytes de **DRAM**, de **IRAM** e de **Flash** usados. (Teoria, seção 5: é o extrato das memórias — DRAM guarda `.data`+`.bss`+pilhas, IRAM guarda código marcado para RAM como as ISRs da semana 4, e a flash guarda `.text`+`.rodata`, o seu programa propriamente dito).
+
 
 **A.4** Conecte o ESP32 e descubra a porta serial:
 
@@ -213,13 +215,24 @@ bancada.
 | "Permission denied" na porta | usuário fora do grupo dialout | `sudo usermod -aG dialout $USER`, relogue |
 | build falha em `set-target` | rodou fora da pasta do projeto | `cd ~/lab2` e repita |
 
-## Entrega (GitHub da bancada, `lab-02/relatorio.md`)
+## Entrega (GitHub da bancada)
 
-1. Foto da montagem + print do monitor serial.
-2. Tabela `Total sizes` (DRAM/IRAM/Flash) do seu build e os **três endereços** de gravação
-   (bootloader/partições/app) — com uma frase explicando o que é gravado em `0x10000`.
-3. Tabela de medições da Parte C preenchida + a corrente calculada.
-4. Um resumo de 3-5 linhas sobre o que entendeu sobre o experimento da Parte B.3 (atomicidade W1TS/W1TC).
+Salve todas as respostas e evidências no arquivo `lab-02/relatorio.md` do repositório da sua bancada:
+
+1. **Evidências Visuais:** 
+   * Uma foto nítida da montagem física.
+   * Uma captura de tela (*print*) mostrando o funcionamento no monitor serial.
+
+2. **Análise de Memória e Gravação:**
+   * **Consumo (`idf.py size`):** Transcreva ou cole os dados da tabela `Total sizes`, destacando o consumo em bytes de **DRAM**, **IRAM** e **Flash**.
+   * **Layout da Flash:** Liste os **três endereços** de gravação encontrados no log (para o *bootloader*, tabela de partições e *app*). Em seguida, escreva uma breve frase explicando o papel do que é gravado especificamente no endereço `0x10000`.
+
+3. **Análise Elétrica (Parte C):**
+   * Apresente a tabela de medições devidamente preenchida.
+   * Inclua a memória de cálculo utilizada para encontrar a corrente.
+
+4. **Conceito de Atomicidade (Experimento B.3):**
+   * Escreva um parágrafo conclusivo (3 a 5 linhas) respondendo à questão do roteiro: explique a vantagem de utilizar os registradores `W1TS/W1TC` para evitar problemas de concorrência frente à abordagem clássica de "lê-modifica-escreve" (`|=`).
 
 ## Desafio (opcional)
 
