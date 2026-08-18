@@ -187,9 +187,9 @@ Python Programming for IoT (Packt), cap. 6, Fig. 6.4.*
 
 ### 2.1 Saída: acendendo um LED com segurança
 
-Um LED **não** é uma lâmpada: é um diodo, com queda de tensão quase fixa **V_F** (vermelho
-≈ 2,0 V; azul/branco ≈ 3,0 V) e corrente nominal **I_F** (10–20 mA típicos). Diodo conduz
-“de repente”: acima de V_F, pequenos aumentos de tensão disparam a corrente. Ligado direto
+Um LED **não** é uma lâmpada: é um diodo, com queda de tensão quase fixa $V_F$ (vermelho
+≈ 2,0 V; azul/branco ≈ 3,0 V) e corrente nominal $I_F$ (10–20 mA típicos). Diodo conduz
+“de repente”: acima de $V_F$, pequenos aumentos de tensão disparam a corrente. Ligado direto
 na fonte, a corrente explode e ele queima — em frações de segundo. O **resistor série**
 assume o papel de definir a corrente, absorvendo a diferença de tensão:
 
@@ -198,7 +198,7 @@ assume o papel de definir a corrente, absorvendo a diferença de tensão:
 GPIO ──[R]──▶|── GND        (▶| = LED: anodo no lado do GPIO)
 ```
 
-**Exemplo resolvido 3.2 (resistor do LED)** — GPIO de 3,3 V, LED vermelho (V_F = 2,0 V),
+**Exemplo resolvido 3.2 (resistor do LED)** — GPIO de 3,3 V, LED vermelho ($V_F = 2,0 V$),
 alvo I = 6 mA.
 
 *Solução passo a passo.*
