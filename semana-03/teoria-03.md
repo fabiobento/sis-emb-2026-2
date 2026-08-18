@@ -225,7 +225,7 @@ A semana 8 pratica isso com motores; a conta é a Lista 1, Q13.
 Experimento mental: configure um pino como entrada e **não ligue nada**. O que ele lê?
 Resposta: **lixo** — 0 e 1 aleatórios, pois o pino de altíssima impedância de entrada
 (praticamente não drena corrente) vira uma antena para ruído: a luz do laboratório, seu dedo
-se aproximando, a rede elétrica a 60 Hz. Entrada **nunca** fica flutuando.
+se aproximando, a rede elétrica a 60 Hz. Entrada **nunca** pode ficar flutuando.
 
 A solução é um resistor que define o nível de repouso — fraco o suficiente para o botão
 vencê-lo, forte o suficiente para dominar o ruído:
