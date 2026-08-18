@@ -148,7 +148,7 @@ sensores/CAN): mais significativo primeiro → `11 22 33 44`.
  big-endian (rede, Modbus, CAN):   [  11  ][ 22 ][ 33 ][ 44 ]   “grande primeiro”
 ```
 
-Quando isso morde? Ao **serializar** dados entre sistemas (semanas 9–14): se o ESP32 despeja
+Quando isso dá problema? Ao **serializar** dados entre sistemas (semanas 9–14): se o ESP32 despeja
 uma struct crua na UART e o receptor assume a outra ordem, `0x11223344` vira `0x44332211` —
 valores corrompidos **sem nenhum erro de transmissão**, o pior tipo de bug (não grita,
 sussurra errado). Por isso existem `htons()/htonl()` (*host-to-network short/long*) e a
