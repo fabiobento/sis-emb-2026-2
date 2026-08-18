@@ -212,7 +212,7 @@ alvo I = 6 mA.
 4. Verificação da potência no resistor: P = I²·R = 0,0059² × 220 ≈ 7,6 mW ≪ 250 mW do
    resistor de 1/4 W ✔.
 
-O passo 4 parece pedante, mas é o hábito que separa protótipo de produto: **toda conta de
+O passo 4 parece demais, mas é o hábito que separa protótipo de produto: **toda conta de
 circuito termina com duas verificações** — o componente aguenta a corrente? e a potência?
 
 E quando a carga pede mais que ~10 mA (relé, fita de LED, motor)? O GPIO vira **sinal de
