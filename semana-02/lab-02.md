@@ -179,7 +179,7 @@ Você deve ter percebido que, visualmente, o LED pisca da mesma forma nas duas a
 
 **C.1** Monte na protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
-piscar em sincronia com o azul da placa.
+piscar.
 
 > 🔌 **Protoboard — o mapa**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
@@ -211,7 +211,6 @@ bancada.
 | `/dev/ttyUSB0` não existe | cabo só de carga | troque por cabo de dados |
 | "Failed to connect" no flash | auto-reset falhou | segure BOOT ao gravar |
 | "Permission denied" na porta | usuário fora do grupo dialout | `sudo usermod -aG dialout $USER`, relogue |
-| flash ok, LED azul pisca, externo não | fiação/polaridade | anodo no resistor, catodo no GND |
 | build falha em `set-target` | rodou fora da pasta do projeto | `cd ~/lab2` e repita |
 
 ## Entrega (GitHub da bancada, `lab-02/relatorio.md`)
