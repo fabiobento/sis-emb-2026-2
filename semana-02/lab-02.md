@@ -27,7 +27,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ```bash
 get_idf
-cp -r $IDF_PATH/examples/get-started/blink ~/lab2 && cd ~/lab2
+cp -r $IDF_PATH/examples/get-started/blink ~/sis-emb/lab2 && cd ~/sis-emb/lab2
 idf.py set-target esp32
 ```
 
@@ -233,7 +233,7 @@ bancada.
 | `/dev/ttyUSB0` não existe | cabo só de carga | troque por cabo de dados |
 | "Failed to connect" no flash | auto-reset falhou | segure BOOT ao gravar |
 | "Permission denied" na porta | usuário fora do grupo dialout | `sudo usermod -aG dialout $USER`, relogue |
-| build falha em `set-target` | rodou fora da pasta do projeto | `cd ~/lab2` e repita |
+| build falha em `set-target` | rodou fora da pasta do projeto | `cd ~/sis-emb/lab2` e repita |
 
 ## Entrega (GitHub da bancada)
 
