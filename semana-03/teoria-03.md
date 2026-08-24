@@ -348,7 +348,7 @@ void app_main(void)
 }
 ```
 
-Três detalhes de projeto para discutir em aula:
+Três detalhes de projeto para discutir:
 
 - **Detecção de borda por software**: comparamos `nivel_ant` com `nivel` — só a *transição*
   1→0 interessa, não o nível (senão o LED alternaria 500×/s enquanto o botão estivesse

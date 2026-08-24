@@ -32,6 +32,7 @@ void app_main(void)
             t_ok = agora + DEBOUNCE_MS;
         }
         nivel_ant = nivel;
-        vTaskDelay(pdMS_TO_TICKS(2)); // varredura a ~500 Hz
+        // Garantir pelo menos 1 tick no padrão de 100Hz do ESP-IDF
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
