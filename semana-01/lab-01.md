@@ -156,6 +156,7 @@ preparação.
   "dependencies": {}
 }
 ```
+> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-01](https://wokwi.com/projects/471428016666162177).
 
 ### B.3 Rodando e observando
 
