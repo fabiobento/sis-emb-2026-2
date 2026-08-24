@@ -96,7 +96,7 @@ I (180) boot: Loaded app from partition at offset 0x10000
 **B.0** Monte na protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
 piscar.
-
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-01.png)
 > 🔌 **Protoboard — o mapa**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
