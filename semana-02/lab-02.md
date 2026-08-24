@@ -77,7 +77,7 @@ anote para o seu notebook).
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-Na avalanche de mensagens do processo de gravação (*flash*), **cace as linhas que confirmam a escrita dos arquivos** e o log inicial de boot (endereços do layout de flash — teoria, seção 5):
+Várias mensagens são exibidas no processo de gravação (*flash*), **cace as linhas que confirmam a escrita dos arquivos** e o log inicial de boot (endereços do layout de flash — teoria, seção 5):
 
 ```bash
 Wrote 26704 bytes (...) at 0x00001000...
