@@ -5,10 +5,14 @@
 ```bash
 sudo apt update
 sudo apt install -y git wget flex bison gperf python3 python3-pip python3-venv cmake ninja-build ccache libffi-dev libssl-dev dfu-util libusb-1.0-0
+
 mkdir -p ~/esp && cd ~/esp
 git clone -b v5.2 --recursive https://github.com/espressif/esp-idf.git
 cd esp-idf && ./install.sh esp32
-echo "alias get_idf='. ~/esp/esp-idf/export.sh'" >> ~/.bashrc
+
+# ativa o ambiente do IDF automaticamente em todo terminal novo
+echo '. $HOME/esp/esp-idf/export.sh > /dev/null 2>&1' >> ~/.bashrc
+
 # permissão da porta serial (relogar depois):
 sudo usermod -aG dialout $USER
 ```
