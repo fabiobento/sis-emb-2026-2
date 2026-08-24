@@ -25,7 +25,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ## Parte A — Dimmer: vendo o valor médio (30 min)
 
 1. **Wokwi primeiro**: LED + R 220 Ω no GPIO2; cole
-   `~/sis-emb/semana-08/src/ledc_dimmer/main.c` (dissecado na teoria, seção 1.1). Rode: o
+   `~/sis-emb/semana-08/src/ledc_dimmer/main.c` (detalhado na teoria, seção 1.1). Rode: o
    LED deve subir de brilho em rampa suave contínua.
 2. No hardware, grave e **meça com o multímetro (VDC)** o GPIO2 durante a rampa: a tensão
    lida sobe suavemente de ~0 a ~3,3 V. O multímetro é lento — ele mostra exatamente o

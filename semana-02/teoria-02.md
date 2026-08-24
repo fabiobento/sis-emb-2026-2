@@ -8,7 +8,7 @@
 Na semana passada você piscou um LED chamando `gpio_set_level()`. Mas o que essa função
 *faz*, fisicamente? Como uma linha de C vira um pino de silício mudando de 0 V para 3,3 V?
 Nessa aula vamos conversar desde a linguagem à arquitetura — CPU, barramentos, memórias
-e registradores — usando nossas duas plataformas como espécimes de dissecação. No
+e registradores — usando nossas duas plataformas como espécimes de detalhação. No
 laboratório, você vai gravar o firmware no ESP32 **físico** pela primeira vez e piscar o LED
 escrevendo **diretamente num endereço de memória**, sem driver nenhum.
 

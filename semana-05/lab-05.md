@@ -22,7 +22,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte A — Três tarefas, um escalonador (25 min)
 
-1. Grave `~/sis-emb/semana-05/src/tarefas/main.c` (dissecado na seção 2.3 da teoria). Três
+1. Grave `~/sis-emb/semana-05/src/tarefas/main.c` (detalhado na seção 2.3 da teoria). Três
    instâncias da **mesma** função viram as tarefas A (prio 5), B (prio 3) e C (prio 1),
    cada uma imprimindo seu período real medido:
 

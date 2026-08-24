@@ -85,11 +85,11 @@ Detalhando cada item:
 - `docs/trilha-fullstack.md` — trilha opcional de dashboard web para o projeto final
 - `docs/trilha-tinyml.md` — trilha opcional de TinyML (classificador de movimento no ESP32 com Edge Impulse)
 - `semana-XX/teoria-XX.md` — **aula completa em formato tutorial**: conceitos explicados do zero
-  (para quem não tem os livros), códigos dissecados linha a linha, saídas de terminal esperadas,
+  (para quem não tem os livros), códigos detalhados linha a linha, saídas de terminal esperadas,
   exemplos resolvidos numerados e seção "Resumindo"
 - `semana-XX/lab-XX.md` — roteiro prático guiado: experimentos com tabelas de medição, erros
   provocados de propósito (com a mensagem esperada), entrega itemizada e desafio opcional
-- `semana-XX/src/` — códigos-fonte completos (os mesmos dissecados nas teorias)
+- `semana-XX/src/` — códigos-fonte completos (os mesmos detalhados nas teorias)
 - `semana-15/` — semana de encerramento: prova P2 e apresentação dos projetos (`LEIA-ME-15.md`)
 - `slides/` — **31 apresentações** (14 teorias + 14 laboratórios + semana 15 + lab extra + projeto
   final)

@@ -1,7 +1,7 @@
 # Lab 1 — Ambientação: Ubuntu, VS Code, ESP-IDF e o primeiro firmware no Wokwi
 
 > **Antes de começar**: leia a [teoria-01](teoria-01.md) — principalmente a seção 3.1, que
-> disseca linha a linha o código que você vai rodar hoje. Este roteiro é autossuficiente:
+> detalha linha a linha o código que você vai rodar hoje. Este roteiro é autossuficiente:
 > cada comando vem com a saída esperada e o que fazer quando ela não aparece.
 
 **Objetivo**: ao final desta prática você terá (a) o ambiente de desenvolvimento completo e
@@ -96,7 +96,7 @@ preparação.
 
 1. Em [wokwi.com/esp32](https://wokwi.com/esp32), vá até a seção **ESP-IDF Templates** e escolha **ESP32**. Assim você escolherá o template **ESP-IDF** (não o Arduino!). Agora você verá dois painéis: o editor de código à esquerda e o circuito à direita, com uma placa ESP32 DevKit.
 2. Abra `~/sis-emb-2026-2/semana-01/src/blink_wokwi/main.c` no seu PC, copie **todo** o conteúdo e
-   cole sobre o `main.c` do Wokwi. Este é exatamente o código dissecado na seção 3.1 da
+   cole sobre o `main.c` do Wokwi. Este é exatamente o código detalhado na seção 3.1 da
    teoria — se pulou, volte lá: você precisa saber o que cada linha faz.
 
 ### B.2 Montando o circuito

@@ -41,7 +41,7 @@ GND; botão entre **BCM 27** (físico 13) e GND. Rode:
 python3 led_botao.py
 ```
 
-Cada aperto alterna o LED. Agora abra o arquivo (dissecado na teoria, seção 2) e responda
+Cada aperto alterna o LED. Agora abra o arquivo (detalhado na teoria, seção 2) e responda
 para o relatório: **o que o `Button(27, bounce_time=0.02)` está escondendo de você?** Liste
 pelo menos três coisas que você fez à mão nas semanas 3–4 (pull-up, detecção de borda,
 debounce, o "laço"/evento). O circuito que você montou, fotografado num RPi idêntico:

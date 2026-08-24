@@ -1,6 +1,6 @@
 # Lab 3 — GPIO de entrada e saída + o experimento do bouncing
 
-> **Antes de começar**: leia a [teoria-03](teoria-03.md) — a seção 2.5 disseca o firmware de
+> **Antes de começar**: leia a [teoria-03](teoria-03.md) — a seção 2.5 detalha o firmware de
 > hoje linha a linha, e as Figuras 3-C/3-D mostram exatamente os circuitos que você montará.
 
 **Objetivo**: montar o circuito LED + botão; entender o firmware de polling com debounce;
@@ -23,7 +23,7 @@ cd ~/sis-emb && git fetch && git reset --hard origin/main
 Como sempre no Bloco 1: **simule antes de gravar**.
 
 1. Novo projeto ESP32/ESP-IDF no Wokwi; cole `~/sis-emb/semana-03/src/botao_led/main.c`
-   (dissecado na seção 2.4 da teoria — leia antes!).
+   (detalhado na seção 2.4 da teoria — leia antes!).
 2. Circuito: LED no **D2** via resistor de 220 Ω (como no Lab 1) + `wokwi-pushbutton` entre
    **D0** e **GND**. Não adicione resistor no botão: o código habilita o **pull-up interno**.
 3. Rode: cada clique deve alternar o LED e imprimir `evento #N` no monitor.

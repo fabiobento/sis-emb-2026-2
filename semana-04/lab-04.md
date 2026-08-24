@@ -23,7 +23,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ## Parte A — Rodando e entendendo (30 min)
 
 1. Abra `~/sis-emb/semana-04/src/isr_timer/main.c` **com a teoria do lado** (seções 2 e 3
-   dissecam a ISR e o timer linha a linha). Antes de gravar, responda mentalmente: quem
+   detalham a ISR e o timer linha a linha). Antes de gravar, responda mentalmente: quem
    pisca o LED? quem conta os eventos? quem imprime? (três "personagens" diferentes: o
    callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto
    e suas restrições).

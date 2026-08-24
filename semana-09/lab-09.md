@@ -1,7 +1,7 @@
 # Lab 9 — I2C na veia: scanner, MPU-6050 e display
 
 > **Antes de começar**: leia a [teoria-09](teoria-09.md) — a Figura 9-C (transação I2C)
-> explica o que o scanner provoca na linha, e a seção 4 disseca o firmware de hoje linha a
+> explica o que o scanner provoca na linha, e a seção 4 detalha o firmware de hoje linha a
 > linha.
 
 **Objetivo**: montar seu primeiro barramento I2C com dois dispositivos; diagnosticar com o
@@ -48,7 +48,7 @@ fim.
 ## Parte B — MPU-6050: identidade e dados (40 min)
 
 5. Grave `~/sis-emb/semana-09/src/mpu6050/main.c` (as funções `wr`/`rd` e a decodificação
-   estão dissecadas na teoria, seções 4.1–4.2 — leia antes). Primeira linha esperada:
+   estão detalhadas na teoria, seções 4.1–4.2 — leia antes). Primeira linha esperada:
 
 ```
 WHO_AM_I = 0x68 (esperado 0x68)
