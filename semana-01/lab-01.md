@@ -107,7 +107,7 @@ preparação.
    **GND**. Clique no resistor e defina o valor: **220** (ohms). *Por que 220 Ω? É o Exemplo
    resolvido 3.2 da semana 3 — por ora, aceite; em duas semanas você fará essa conta de
    olhos fechados.*
-   ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/lab-01.png)
+   ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2-privado/main/assets/figuras/lab-01.png?token=GHSAT0AAAAAAECDX5VQX6XVOUCINPIPGOXY2UMPWTA)
    
 
 > 🔌 **Regra do LED que vale para o semestre inteiro**: LED tem polaridade. O **anodo**
