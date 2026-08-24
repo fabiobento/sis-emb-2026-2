@@ -119,7 +119,8 @@ void app_main(void)
     [ "btn1:1.l", "esp:0", "green", [ "h-48", "v57.6", "h-19.2" ] ]
   ],
   "dependencies": {}
-}```
+}
+```
 
 3. Rode a simulação: cada clique deve alternar o LED e imprimir `evento #N` no monitor.
 4. **Pegadinha proposital**: no Wokwi, clique e *segure* o botão. Por que o LED não fica
