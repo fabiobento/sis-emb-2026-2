@@ -42,8 +42,7 @@ idf.py set-target esp32
 idf.py menuconfig
 ```
 
-Navegue com as setas: *Example Configuration* → **Blink GPIO number = 2** (o LED azul
-embutido). Antes de sair, faça um passeio: *Component config → FreeRTOS → Kernel* e
+Navegue com as setas: *Example Configuration* → **Blink GPIO number = 5** (o LED embutido). Antes de sair, faça um passeio: *Component config → FreeRTOS → Kernel* e
 localize **configTICK_RATE_HZ = 100**. Anote esse número — na semana 5 ele explicará por que
 a resolução do `vTaskDelay` é 10 ms. Salve (`S`) e saia (`Q`).
 
@@ -94,22 +93,27 @@ I (180) boot: Loaded app from partition at offset 0x10000
 
 ## Parte B — Pisca por registrador (40 min)
 **B.0** Monte na protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
-(mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
-piscar.
+(mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). Agora acioremos um LED externo.
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-01.png)
 
 > Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-01](https://wokwi.com/projects/471428016666162177).
 
-> 🔌 **Protoboard**: as duas colunas das bordas são trilhos contínuos de
+> **Uso do Protoboard**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
 > trilho de alimentação não conectado dos dois lados.
 
+Agora interrompa a conexão do terminal com `CTRL+[` execute no terminal o comando abaixo. Navegue com as setas: *Example Configuration* → **Blink GPIO number = 2** (o LED externo que você ligou em G2).
+```bash
+idf.py menuconfig
+```
+Grave e então monitore :
+```bash
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+Agora o led externo foi acionado?
 
-
-**B.1** Substitua o conteúdo de `main/blink_example_main.c` pelo nosso
-`~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria —
-releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
+**B.1**  Para conferir o que vimos na teoria , substitua o conteúdo de `main/blink_example_main.c` pelo nosso `~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria — releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
 ```c
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -139,8 +143,14 @@ void app_main(void)
 ```
 
 
-**B.2** `idf.py flash monitor`. O efeito visível é o mesmo do driver — e essa é a lição:
-o driver é só uma casca conveniente sobre os registradores. Você acabou de comprovar a
+**B.2** Grave esse novo firmware no esp32:
+
+```bash
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+O efeito visível é o mesmo do driver da IDF(`#include "driver/gpio.h"`) — e essa é a lição:
+o driver da biblioteca que você importou é só "uma casca" conveniente sobre os registradores. Você acabou de comprovar a
 frase central da semana: **para a CPU, hardware é memória** — escrever 1 no bit 2 do
 endereço `0x3FF44008` liga o pino, exatamente como escrever numa variável.
 
@@ -177,6 +187,12 @@ void app_main(void)
     }
 }
 ```
+Compile, grave e monitore novamente. O LED pisca da mesma forma, mas agora o código é mais robusto.
+
+```bash
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
 
 **B.4 A questão do "Lê-Modifica-Escreve" e a vantagem da Atomicidade**
 
@@ -237,8 +253,3 @@ Salve todas as respostas e evidências no arquivo `lab-02/relatorio.md` do repos
 
 4. **Conceito de Atomicidade (Experimento B.3):**
    * Escreva um parágrafo conclusivo (3 a 5 linhas) respondendo à questão do roteiro: explique a vantagem de utilizar os registradores `W1TS/W1TC` para evitar problemas de concorrência frente à abordagem clássica de "lê-modifica-escreve" (`|=`).
-
-## Desafio (opcional)
-
-Sem usar `gpio_set_direction`, configure a direção do GPIO 2 escrevendo no registrador
-`GPIO_ENABLE_W1TS_REG` (dica: `soc/gpio_reg.h`). Confirme no monitor que o pisca continua e explique no relatório o paralelo com o par OUT/ENABLE.
