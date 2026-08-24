@@ -97,7 +97,7 @@ echo 0    | sudo tee /sys/class/leds/led0/brightness # apaga
 Você acabou de acionar hardware **sem escrever uma linha de C** — com `echo`. O poder (e a
 filosofia) do "tudo é arquivo": qualquer linguagem que saiba abrir arquivos sabe falar com o
 hardware. (Por que `sudo tee` e não `sudo echo >`? Porque o redirecionamento `>` é feito
-pelo *seu* shell, antes do sudo ganhar poderes — pegadinha clássica: o shell tenta abrir o
+pelo *seu* shell, antes do sudo ganhar poderes — problema clássico: o shell tenta abrir o
 arquivo como usuário comum e falha. O `tee` roda *dentro* do sudo e resolve.)
 
 ## 3. O boot do RPi: uma história em cinco atos

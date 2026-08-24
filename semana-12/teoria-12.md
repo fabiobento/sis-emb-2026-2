@@ -8,7 +8,7 @@
 Semana passada você dominou o *sistema*; hoje o RPi encosta no mundo físico. A pergunta que
 organiza a aula: **tudo que fizemos no ESP32 (GPIO, botão, sensores, barramentos) — como fica
 sob um sistema operacional?** A resposta tem três camadas de software para o mesmo pino, um
-periférico que simplesmente *não existe* no RPi (o ADC!) e uma pegadinha elétrica que já
+periférico que simplesmente *não existe* no RPi (o ADC!) e que já
 queimou muito GPIO por aí (o ECHO de 5 V do HC-SR04). No laboratório, o mesmo botão da semana
 3 reaparece — em **3 linhas de Python** — e você medirá com estatística o preço do jitter do
 SO.

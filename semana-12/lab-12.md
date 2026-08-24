@@ -110,7 +110,7 @@ T=28 C  UR=61 %
 
 ## Parte C — HC-SR04: o divisor e a estatística do jitter (35 min)
 
-**Antes de energizar** (a pegadinha dos 5 V — teoria, seção 4):
+**Antes de energizar** (a teoria, seção 4):
 
 - [ ] VCC do sensor no **5 V** (físico 2), GND comum;
 - [ ] TRIG direto no **BCM 23** (físico 16);
