@@ -57,7 +57,7 @@ Após verificar o comportamento do LED, feche o monitor serial (**`Ctrl + ]`**) 
 
 `idf.py size`
 
-Na avalanche de informações geradas, desça até o final, procure o bloco `Total sizes:` e anote no relatório: a quantidade de bytes de **DRAM**, de **IRAM** e de **Flash** usados. (Teoria, seção 5: é o extrato das memórias — DRAM guarda `.data`+`.bss`+pilhas, IRAM guarda código marcado para RAM como as ISRs da semana 4, e a flash guarda `.text`+`.rodata`, o seu programa propriamente dito).
+Muitas informações são geradas, então desça até o final, procure o bloco `Total sizes:` e anote no relatório: a quantidade de bytes de **DRAM**, de **IRAM** e de **Flash** usados. (Teoria, seção 5: é o extrato das memórias — DRAM guarda `.data`+`.bss`+pilhas, IRAM guarda código marcado para RAM como as ISRs da semana 4, e a flash guarda `.text`+`.rodata`, o seu programa propriamente dito).
 
 
 **A.4** Conecte o ESP32 e descubra a porta serial:

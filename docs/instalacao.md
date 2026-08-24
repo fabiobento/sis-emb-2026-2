@@ -19,7 +19,7 @@ sudo usermod -aG dialout $USER
 
 Teste: Em um novo terminal digite
 ```bash
-get_idf && idf.py --version
+idf.py --version
 ```
 
 ## 2. VS Code + extensões
