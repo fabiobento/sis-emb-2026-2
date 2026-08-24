@@ -8,7 +8,7 @@
 verificado no PC do laboratório; (b) uma conta no Wokwi; (c) seu primeiro firmware ESP32
 rodando **no simulador**, com um experimento de temporização documentado.
 
-**Duração**: 2 aulas. **Material**: apenas o PC do laboratório (Ubuntu 22.04). Nenhum
+**Duração**: 2 aulas. **Material**: apenas o PC do laboratório (Ubuntu 24.04). Nenhum
 hardware hoje.
 **Bancadas**: formem as bancadas de laboratório hoje — elas valem para o semestre (e para o
 GitHub).
@@ -107,6 +107,7 @@ preparação.
    **GND**. Clique no resistor e defina o valor: **220** (ohms). *Por que 220 Ω? É o Exemplo
    resolvido 3.2 da semana 3 — por ora, aceite; em duas semanas você fará essa conta de
    olhos fechados.*
+   
    ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2-privado/main/assets/figuras/lab-01.png?token=GHSAT0AAAAAAECDX5VQX6XVOUCINPIPGOXY2UMPWTA)
    
 
