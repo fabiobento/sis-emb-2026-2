@@ -71,6 +71,56 @@ void app_main(void)
 
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
 
+- Se quiser pode montar o circuito com o diagrama.json abaixo ou acessar o projeto Wokwi: [Lab-03](https://wokwi.com/projects/473268920512424961).
+```json
+{
+  "version": 1,
+  "author": "Fabio Bento",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": -38.4,
+      "left": -33.56,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 82.8,
+      "left": 90.6,
+      "attrs": { "color": "red", "flip": "1" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 119.45,
+      "left": 133,
+      "rotate": 180,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn1",
+      "top": 30.6,
+      "left": 131.2,
+      "rotate": 270,
+      "attrs": { "color": "green", "xray": "1" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "led1:A", "esp:2", "green", [ "v0" ] ],
+    [ "led1:C", "r1:2", "green", [ "v0" ] ],
+    [ "r1:1", "esp:GND.2", "green", [ "v0" ] ],
+    [ "btn1:2.l", "esp:GND.2", "green", [ "h38.8", "v-67.2" ] ],
+    [ "btn1:1.l", "esp:0", "green", [ "h-48", "v57.6", "h-19.2" ] ]
+  ],
+  "dependencies": {}
+}```
+
 3. Rode a simulação: cada clique deve alternar o LED e imprimir `evento #N` no monitor.
 4. **Pegadinha proposital**: no Wokwi, clique e *segure* o botão. Por que o LED não fica
    alternando enquanto seguro? Localize no código a linha responsável e anote (é a detecção
