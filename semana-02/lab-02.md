@@ -97,7 +97,10 @@ I (180) boot: Loaded app from partition at offset 0x10000
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). O LED externo deve
 piscar.
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-01.png)
-> 🔌 **Protoboard — o mapa**: as duas colunas das bordas são trilhos contínuos de
+
+> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-01](https://wokwi.com/projects/471428016666162177).
+
+> 🔌 **Protoboard**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
 > trilho de alimentação não conectado dos dois lados.
