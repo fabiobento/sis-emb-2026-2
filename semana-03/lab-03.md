@@ -69,7 +69,7 @@ void app_main(void)
 2. Circuito: LED no **D2** via resistor de 220 Ω (como no Lab 1) + `wokwi-pushbutton` entre
    **D0** e **GND**. Não adicione resistor no botão: o código habilita o **pull-up interno**.
 
-![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard.png)
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
 
 - Se quiser pode montar o circuito com o diagrama.json abaixo ou acessar o projeto Wokwi: [Lab-03](https://wokwi.com/projects/473268920512424961).
 ```json
@@ -149,7 +149,7 @@ GPIO0 lê 1 e, pressionado, lê 0.*
 
 5. Monte o mesmo circuito na protoboard: LED→R220→GPIO2; botão entre **GPIO0 e GND**.
 
-![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard.png)
 
 6. **Crie o projeto via CLI**: no terminal, com o ambiente do ESP-IDF ativado, navegue até a pasta de trabalho desejada e inicie um novo projeto chamado `botao_led`:
 ```bash
