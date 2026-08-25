@@ -1,4 +1,4 @@
-# Preparação do ambiente de laboratório (Ubuntu 22.04)
+# Preparação do ambiente de laboratório (Ubuntu 24.04)
 
 ## 1. ESP-IDF (Bloco 1 — ESP32)
 
