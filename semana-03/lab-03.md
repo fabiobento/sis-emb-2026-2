@@ -242,7 +242,7 @@ void app_main(void)
     gpio_install_isr_service(0);
     gpio_isr_handler_add(BTN, isr_botao, NULL);
 
-    int led = 0, eventos_validos = 0, bordas_totais = 0;
+    int led = 0, bordas_totais = 0;
     int64_t t_ok_us = 0;   // instante (us) a partir do qual aceitamos novo evento válido
 
     struct { int nivel; int64_t t_us; } msg;
@@ -258,8 +258,7 @@ void app_main(void)
             if (msg.nivel == 0 && msg.t_us >= t_ok_us) {
                 led = !led;
                 gpio_set_level(LED, led);
-                eventos_validos++;
-                printf("evento #%d (borda total #%d)\n", eventos_validos, bordas_totais);
+                printf("borda total #%d\n", bordas_totais);
                 t_ok_us = msg.t_us + (DEBOUNCE_MS * 1000);
             }
         }
@@ -286,21 +285,17 @@ void app_main(void)
 > polling de antes, aqui o `while(1)` **fica dormindo** (não gasta CPU) até a fila receber
 > algo — só "acorda" quando uma borda de verdade acontece.
 >
-> **4. Os dois contadores**:
+> **4. O "contador de quiques"**:
 > - `bordas_totais` conta **toda** transição capturada pela interrupção — inclusive as
 >   várias bordas geradas pelo bounce de um único clique. É esse número que revela o
 >   fenômeno na prática.
-> - `eventos_validos` é o equivalente ao `evento #N` de antes: só conta quando a borda é de
->   descida (1→0) **e** já passou a janela de `DEBOUNCE_MS` desde a última borda aceita —
->   mesma lógica de filtro de sempre, só que agora aplicada sobre bordas reais, capturadas
->   por hardware, em vez de amostras periódicas.
 >
 > Na prática: pressione o botão uma vez e observe `bordas_totais` no print — se ele saltar
 > vários números para um único clique (ex.: de 3 para 11), você está vendo o bounce
 > diretamente, sem depender de a taxa de amostragem ter tido sorte de "flagrar" a rajada.
-10. Pressione o botão **10 vezes**, com firmeza normal, e anote o total de `evento #N`
+10. Pressione o botão **10 vezes**, com firmeza normal, e anote o total de `borda total #N`
    impressos. Se deu mais que 10, você acabou de *ver* o bouncing.
-11. Repita o procedimento para as janelas **5, 20 e 50 ms**, preenchendo:
+11. Repita o procedimento para as janelas **5, 20 e 50 ms**, preenchendo: 
 
 | DEBOUNCE_MS | eventos por 10 pressionadas | eventos "fantasma" |
 |---|---|---|
@@ -309,33 +304,10 @@ void app_main(void)
 | 20 | | |
 | 50 | | |
 
-12. **Teste de clique rápido**: com 50 ms, tente clicar o mais rápido que conseguir (duas
-    pressionadas em sequência imediata). Alguma pressionada legítima foi "engolida"? É o
-    outro lado do compromisso (janela grande demais).
-13. Conclua no relatório: qual janela seu grupo adotaria e por quê, citando os dois limites
-    (duração do bouncing medida × percepção humana ~50 ms).
-
 > **Observação:** botões diferentes "quicam" diferente — inclusive entre unidades do mesmo
 > lote. Compare sua tabela com a da bancada vizinha. Em produto real, dimensiona-se pela
 > *pior* unidade (e mede-se com osciloscópio — *Molloy*, Fig. 4-21, mostra um bouncing real
 > capturado: uma serra de ~5 ms antes do nível estabilizar).
-
-## Parte D — Invertendo a lógica: pull-down externo (30 min)
-
-14. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
-    resistor de **10 kΩ** do GPIO0 ao **GND** (segure o desenho da Figura 3-C da teoria ao
-    lado).
-15. Ajuste o firmware (3 mudanças): desabilite o pull-up interno (`gpio_pullup_dis`),
-    habilite `gpio_pulldown_dis` também (queremos só o externo) e **inverta a detecção de
-    borda** — agora o repouso é 0 e o acionamento é a borda **0→1**
-    (`nivel_ant == 0 && nivel == 1`).
-16. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
-
-> 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
-> **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
-> o nível de repouso e a borda do evento. Confundir essa trindade é a origem do clássico
-> "meu botão funciona ao contrário".
-
 ---
 
 ## 🛠️ Problemas comuns
