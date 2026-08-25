@@ -1,6 +1,6 @@
 # Lista de Exercícios 05 — Semanas 13 e 14
 **Temas:** PDS embarcado e PID; Wi-Fi, MQTT e arquitetura IoT.
-**Entrega:** individual, em PDF ou markdown no GitHub, até o primeiro encontro da semana 15
+**Entrega:** Por bancada, em PDF ou markdown no GitHub, até o primeiro encontro da semana 15
 (é preparação direta para a P2).
 
 ## 📚 Como estudar para esta lista

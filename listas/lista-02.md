@@ -1,7 +1,7 @@
 # Lista de Exercícios 02 — Semanas 4 a 6
 **Temas:** interrupções e temporizadores; FreeRTOS (tarefas, escalonamento); comunicação e
 sincronização (filas, semáforos, mutex).
-**Entrega:** individual, em PDF ou markdown no GitHub, até a aula teórica da semana 7.
+**Entrega:** Por bancada, em PDF ou markdown no GitHub, até a aula teórica da semana 7.
 
 ## 📚 Como estudar para esta lista
 

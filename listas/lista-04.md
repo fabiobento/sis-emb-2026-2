@@ -1,7 +1,7 @@
 # Lista de Exercícios 04 — Semanas 11 e 12
 **Temas:** Linux embarcado; Raspberry Pi; administração por linha de comando; GPIO, sensores e
 barramentos no RPi.
-**Entrega:** individual, em PDF ou markdown no GitHub, até a aula teórica da semana 13.
+**Entrega:** Por bancada, em PDF ou markdown no GitHub, até a aula teórica da semana 13.
 
 ## 📚 Como estudar para esta lista
 

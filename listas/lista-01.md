@@ -1,6 +1,6 @@
 # Lista de Exercícios 01 — Semanas 1 a 3
 **Temas:** introdução a sistemas embarcados; arquitetura de microcontroladores; C embarcado e GPIO.
-**Entrega:** individual, em PDF ou markdown no GitHub, até a aula teórica da semana 4.
+**Entrega:** Por bancada, em PDF ou markdown no GitHub, até a aula teórica da semana 4.
 
 ## 📚 Como estudar para esta lista
 

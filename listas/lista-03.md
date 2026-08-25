@@ -1,6 +1,6 @@
 # Lista de Exercícios 03 — Semanas 7 a 10
 **Temas:** ADC/DAC e introdução a PDS; PWM e atuadores; UART/SPI/I2C; barramento CAN.
-**Entrega:** individual, em PDF ou markdown no GitHub, até a aula teórica da semana 11.
+**Entrega:** Por bancada, em PDF ou markdown no GitHub, até a aula teórica da semana 11.
 É a primeira lista do escopo da **P2** (semanas 7–14), com as listas 4 e 5.
 
 ## 📚 Como estudar para esta lista

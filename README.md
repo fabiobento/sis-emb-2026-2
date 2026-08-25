@@ -242,15 +242,14 @@ apresentação de trabalhos. Neste curso, tomam a forma:
 | Prova P1 | Semanas 1–6 | Escrita individual, semana 8 (2º encontro) |
 | Prova P2 | Semanas 7–14 | Escrita individual, semana 15 (1º encontro) |
 | Relatórios de laboratório | Todas as semanas de lab | **Em bancada**, por commit no repositório GitHub da bancada, até a aula prática seguinte — ver [Entrega das bancada no GitHub](#entrega-das-bancadas-no-github-ao-longo-de-todo-o-semestre) |
-| Listas de exercícios | Blocos de semanas (ver abaixo) | **Individuais**, em PDF ou markdown no GitHub, no prazo de cada lista |
+| Listas de exercícios | Blocos de semanas (ver abaixo) | **Por bancada**, em PDF ou markdown no GitHub, no prazo de cada lista |
 | Projeto final (sistema integrado) | Unidades I–IV | **Em grupo**; rubrica própria em [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md) |
 
 ### Como funcionam as listas de exercícios
 
 São **cinco listas individuais**, uma por bloco de conteúdo, com questões no mesmo estilo dos
 **Exemplos resolvidos** das teorias (conta feita, unidade correta, conclusão de projeto). Cada
-lista é entregue **individualmente** — diferente dos relatórios de laboratório, que são em bancada —
-**em PDF ou markdown, no GitHub**, até a aula indicada no seu cabeçalho:
+lista é entregue **Por bancada** **em PDF ou markdown, no GitHub**, até a aula indicada no seu cabeçalho:
 
 | Lista | Cobre | Prazo | Função |
 |---|---|---|---|
