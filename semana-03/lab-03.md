@@ -181,8 +181,7 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 > Até agora, todo firmware do curso funcionou por **polling**: o `while(1)` fica perguntando
 > repetidamente "qual o nível do pino agora?", numa certa cadência. Isso tem um limite físico
 > — se o pino muda de estado *mais rápido* do que a cadência das suas perguntas, você perde
-> transições. Foi exatamente isso que aconteceu com `vTaskDelay(10ms)`: o bounce dura só
-> 1–10 ms, então muitas vezes ele inteiro "passava" entre duas leituras.
+> transições.
 >
 > A alternativa de hoje é a **interrupção**: em vez de a CPU perguntar, é o **próprio
 > hardware do ESP32** que avisa a CPU, imediatamente, toda vez que o pino muda de nível —
