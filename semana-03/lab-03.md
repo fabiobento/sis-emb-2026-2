@@ -176,11 +176,132 @@ Este é o coração do lab: **quantificar** o fenômeno do Exemplo resolvido 3.3
 botão. Lembre da figura da teoria: os contatos metálicos quicam por 1–10 ms antes de
 assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 
-7. No topo do código, mude `DEBOUNCE_MS` para **0** e regrave. Agora o firmware conta
-   **todas** as bordas, sem filtro.
-8. Pressione o botão **10 vezes**, com firmeza normal, e anote o total de `evento #N`
+> 🆕 **Um conceito novo: interrupção de hardware**
+>
+> Até agora, todo firmware do curso funcionou por **polling**: o `while(1)` fica perguntando
+> repetidamente "qual o nível do pino agora?", numa certa cadência. Isso tem um limite físico
+> — se o pino muda de estado *mais rápido* do que a cadência das suas perguntas, você perde
+> transições. Foi exatamente isso que aconteceu com `vTaskDelay(10ms)`: o bounce dura só
+> 1–10 ms, então muitas vezes ele inteiro "passava" entre duas leituras.
+>
+> A alternativa de hoje é a **interrupção**: em vez de a CPU perguntar, é o **próprio
+> hardware do ESP32** que avisa a CPU, imediatamente, toda vez que o pino muda de nível —
+> não importa o quão rápido. Pense na diferença entre checar a caixa de correio a cada hora
+> (polling) e ter uma campainha que toca sozinha assim que a carta chega (interrupção). A
+> campainha não perde carta nenhuma, mesmo que cheguem várias em sequência rápida.
+>
+> Vocês ainda não estudaram interrupções formalmente (isso vem mais à frente no curso) —
+> aqui o objetivo é só *usar* essa ferramenta para o experimento funcionar corretamente.
+> Comentários no código explicam cada parte nova.
+
+9. Agora o firmware vai contar **todas** as bordas, sem filtro.
+Para isso substitua o códigoda parte A pelo  seguinte:
+```c
+// Semana 3 — botão com pull-up interno + captura de bouncing via interrupção (ANYEDGE)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "driver/gpio.h"
+#include "esp_timer.h"
+#include <stdio.h>
+
+#define LED   GPIO_NUM_2
+#define BTN   GPIO_NUM_0
+#define DEBOUNCE_MS 0   // ainda existe, mas agora filtrado dentro da ISR
+
+static QueueHandle_t fila_bordas;
+
+// ISR: roda em contexto de interrupção — deve ser curta, sem printf,
+// sem alocação, sem chamadas bloqueantes.
+static void IRAM_ATTR isr_botao(void *arg)
+{
+    int nivel = gpio_get_level(BTN);
+    int64_t agora_us = esp_timer_get_time();
+
+    // Empacota nível + timestamp e manda para a fila.
+    // xQueueSendFromISR é a versão segura para uso dentro de ISR.
+    struct { int nivel; int64_t t_us; } msg = { nivel, agora_us };
+    BaseType_t acordou_task_maior_prioridade = pdFALSE;
+    xQueueSendFromISR(fila_bordas, &msg, &acordou_task_maior_prioridade);
+    if (acordou_task_maior_prioridade) {
+        portYIELD_FROM_ISR();
+    }
+}
+
+void app_main(void)
+{
+    gpio_reset_pin(LED);
+    gpio_set_direction(LED, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(BTN);
+    gpio_set_direction(BTN, GPIO_MODE_INPUT);
+    gpio_pullup_en(BTN);
+    gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE);   // dispara em subida E descida
+
+    fila_bordas = xQueueCreate(64, sizeof(struct { int nivel; int64_t t_us; }));
+
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(BTN, isr_botao, NULL);
+
+    int led = 0, eventos_validos = 0, bordas_totais = 0;
+    int64_t t_ok_us = 0;   // instante (us) a partir do qual aceitamos novo evento válido
+
+    struct { int nivel; int64_t t_us; } msg;
+
+    while (1) {
+        // Bloqueia aqui até a ISR enfileirar uma borda — sem polling.
+        if (xQueueReceive(fila_bordas, &msg, portMAX_DELAY)) {
+            bordas_totais++;   // TODA borda física, incluindo bounce
+
+            // Só conta "evento" (clique válido) na descida (1->0) e fora
+            // da janela de debounce — igual à lógica original, mas agora
+            // aplicada sobre bordas reais, não sobre amostras periódicas.
+            if (msg.nivel == 0 && msg.t_us >= t_ok_us) {
+                led = !led;
+                gpio_set_level(LED, led);
+                eventos_validos++;
+                printf("evento #%d (borda total #%d)\n", eventos_validos, bordas_totais);
+                t_ok_us = msg.t_us + (DEBOUNCE_MS * 1000);
+            }
+        }
+    }
+}
+```
+> 🔍 **Entendendo o código acima, por partes**
+>
+> **1. `GPIO_INTR_ANYEDGE`** — configura o pino para gerar uma interrupção em **qualquer**
+> mudança de nível: tanto 1→0 quanto 0→1. É isso que permite capturar cada "quique" do
+> bounce, e não só a transição final.
+>
+> **2. A função `isr_botao`** é chamada automaticamente pelo hardware toda vez que o pino
+> muda — é a "campainha" da analogia acima. Ela é chamada de **ISR** (*Interrupt Service
+> Routine*, rotina de serviço de interrupção). Uma ISR tem uma regra rígida: precisa ser
+> **muito rápida** e não pode fazer nada "pesado" — nada de `printf`, nada de esperar, nada
+> que possa travar. Por isso ela só faz o mínimo: lê o nível do pino, pega o instante exato
+> (`esp_timer_get_time()`) e **guarda esses dois dados numa fila** (`xQueueSendFromISR`),
+> devolvendo o controle da CPU imediatamente.
+>
+> **3. A fila (`fila_bordas`)** é a ponte entre a ISR (rápida, restrita) e o resto do
+> programa (`app_main`, que roda normalmente). A ISR só deposita o evento na fila; quem
+> efetivamente processa é o `while(1)` do `app_main`, com `xQueueReceive`. Diferente do
+> polling de antes, aqui o `while(1)` **fica dormindo** (não gasta CPU) até a fila receber
+> algo — só "acorda" quando uma borda de verdade acontece.
+>
+> **4. Os dois contadores**:
+> - `bordas_totais` conta **toda** transição capturada pela interrupção — inclusive as
+>   várias bordas geradas pelo bounce de um único clique. É esse número que revela o
+>   fenômeno na prática.
+> - `eventos_validos` é o equivalente ao `evento #N` de antes: só conta quando a borda é de
+>   descida (1→0) **e** já passou a janela de `DEBOUNCE_MS` desde a última borda aceita —
+>   mesma lógica de filtro de sempre, só que agora aplicada sobre bordas reais, capturadas
+>   por hardware, em vez de amostras periódicas.
+>
+> Na prática: pressione o botão uma vez e observe `bordas_totais` no print — se ele saltar
+> vários números para um único clique (ex.: de 3 para 11), você está vendo o bounce
+> diretamente, sem depender de a taxa de amostragem ter tido sorte de "flagrar" a rajada.
+10. Pressione o botão **10 vezes**, com firmeza normal, e anote o total de `evento #N`
    impressos. Se deu mais que 10, você acabou de *ver* o bouncing.
-9. Repita o procedimento para as janelas **5, 20 e 50 ms**, preenchendo:
+11. Repita o procedimento para as janelas **5, 20 e 50 ms**, preenchendo:
 
 | DEBOUNCE_MS | eventos por 10 pressionadas | eventos "fantasma" |
 |---|---|---|
@@ -189,10 +310,10 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 | 20 | | |
 | 50 | | |
 
-10. **Teste de clique rápido**: com 50 ms, tente clicar o mais rápido que conseguir (duas
+12. **Teste de clique rápido**: com 50 ms, tente clicar o mais rápido que conseguir (duas
     pressionadas em sequência imediata). Alguma pressionada legítima foi "engolida"? É o
     outro lado do compromisso (janela grande demais).
-11. Conclua no relatório: qual janela seu grupo adotaria e por quê, citando os dois limites
+13. Conclua no relatório: qual janela seu grupo adotaria e por quê, citando os dois limites
     (duração do bouncing medida × percepção humana ~50 ms).
 
 > **Observação:** botões diferentes "quicam" diferente — inclusive entre unidades do mesmo
@@ -202,14 +323,14 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 
 ## Parte D — Invertendo a lógica: pull-down externo (30 min)
 
-12. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
+14. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
     resistor de **10 kΩ** do GPIO0 ao **GND** (segure o desenho da Figura 3-C da teoria ao
     lado).
-13. Ajuste o firmware (3 mudanças): desabilite o pull-up interno (`gpio_pullup_dis`),
+15. Ajuste o firmware (3 mudanças): desabilite o pull-up interno (`gpio_pullup_dis`),
     habilite `gpio_pulldown_dis` também (queremos só o externo) e **inverta a detecção de
     borda** — agora o repouso é 0 e o acionamento é a borda **0→1**
     (`nivel_ant == 0 && nivel == 1`).
-14. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
+16. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
 
 > 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
 > **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
