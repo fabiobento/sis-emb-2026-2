@@ -69,7 +69,7 @@ void app_main(void)
 2. Circuito: LED no **D2** via resistor de 220 Ω (como no Lab 1) + `wokwi-pushbutton` entre
    **D0** e **GND**. Não adicione resistor no botão: o código habilita o **pull-up interno**.
 
-![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard.png)
 
 - Se quiser pode montar o circuito com o diagrama.json abaixo ou acessar o projeto Wokwi: [Lab-03](https://wokwi.com/projects/473268920512424961).
 ```json
@@ -123,20 +123,17 @@ void app_main(void)
 ```
 
 3. Rode a simulação: cada clique deve alternar o LED e imprimir `evento #N` no monitor.
-4. **Pegadinha proposital**: no Wokwi, clique e *segure* o botão. Por que o LED não fica
+4. **Verifique**: no Wokwi, clique e *segure* o botão. Por que o LED não fica
    alternando enquanto seguro? Localize no código a linha responsável e anote (é a detecção
    de borda — relatório, questão 1).
 
-> 🧠 **A resposta da pegadinha (não leia antes de pensar!)**: a condição
+> 🧠 **A resposta (não leia antes de pensar!)**: a condição
 > `nivel_ant == 1 && nivel == 0` só é verdadeira **no instante da transição**. Com o botão
 > seguro, `nivel` fica 0 e `nivel_ant` também — a condição nunca mais se cumpre. Borda é
 > evento; nível é estado. É o mesmo princípio que diferencia "a porta abriu" de "a porta
 > está aberta".
 
-## Parte B — Hardware (25 min)
-
-5. Monte o mesmo circuito na protoboard: LED→R220→GPIO2; botão entre **GPIO0 e GND**.
-
+> OBSERVAÇÃO: o Wokwi simula o pull-up interno do ESP32, então não há resistor externo no botão.
 ![Diagrama do botão com pull-up interno do ESP32: LED no GPIO2 e botão entre GPIO0 e GND](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/botao_pullup-esp32.png)
 
 *Figura L3-A — A montagem do lab no ESP32: o LED (com R220) no GPIO2 e o botão entre GPIO0 e GND.
@@ -148,7 +145,25 @@ GPIO0 lê 1 e, pressionado, lê 0.*
 > usando o BOOT da própria placa. Cuidado colateral: se o botão estiver pressionado durante
 > um reset, a placa entra em modo de gravação — solte e resete de novo.
 
-6. `idf.py flash monitor` e confirme o mesmo comportamento do simulador.
+## Parte B — Hardware (25 min)
+
+5. Monte o mesmo circuito na protoboard: LED→R220→GPIO2; botão entre **GPIO0 e GND**.
+
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
+
+6. **Crie o projeto via CLI**: no terminal, com o ambiente do ESP-IDF ativado, navegue até a pasta de trabalho desejada e inicie um novo projeto chamado `botao_led`:
+```bash
+idf.py create-project botao_led
+
+```
+
+
+7. Entre na pasta criada (`cd botao_led`), abra o arquivo `main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
+8. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
+```bash
+idf.py build flash monitor
+
+```
 
 ## Parte C — O experimento do bouncing (40 min)
 
