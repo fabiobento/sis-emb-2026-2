@@ -22,7 +22,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 Como sempre no Bloco 1: **simule antes de gravar**.
 
-1. Novo projeto ESP32/ESP-IDF no Wokwi; cole `~/sis-emb/semana-03/src/botao_led/main.c`
+1. Abra um novo projeto ESP32/ESP-IDF no Wokwi e cole o código abaixo, cuja versão mais atualizada está em `~/sis-emb-2026-2/semana-03/src/botao_led/main.c`
    (detalhado na seção 2.4 da teoria — leia antes!).
 
 ```c
@@ -64,14 +64,13 @@ void app_main(void)
         vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
-
 ```   
 2. Circuito: LED no **D2** via resistor de 220 Ω (como no Lab 1) + `wokwi-pushbutton` entre
    **D0** e **GND**. Não adicione resistor no botão: o código habilita o **pull-up interno**.
 
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03.png)
 
-- Se quiser pode montar o circuito com o diagrama.json abaixo ou acessar o projeto Wokwi: [Lab-03](https://wokwi.com/projects/473268920512424961).
+- Se quiser pode montar o circuito com o diagrama.json abaixo ou acessar o projeto Wokwi: [Lab-03-parte-a](https://wokwi.com/projects/473268920512424961).
 ```json
 {
   "version": 1,
