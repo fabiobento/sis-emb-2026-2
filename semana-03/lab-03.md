@@ -15,7 +15,7 @@ D), jumpers.
 ## Parte 0 — Sincronize o repositório
 
 ```bash
-cd  && git fetch && git reset --hard origin/main
+cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 ```
 
 ## Parte A — Primeiro no Wokwi (25 min)
