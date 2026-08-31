@@ -162,7 +162,7 @@ idf.py create-project botao_led
 ```bash
 cd botao_led
 ```
-Em seguida abra o arquivo `~/home/fabio~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
+Em seguida abra o arquivo `~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
 
 > **OBSERVAÇÃO**:
 >
