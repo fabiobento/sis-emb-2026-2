@@ -205,7 +205,10 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 > Comentários no código explicam cada parte nova.
 
 9. Agora o firmware vai contar **todas** as bordas, sem filtro.
-Para isso substitua o códigoda parte A pelo  seguinte:
+
+Para isso substitua o códigoda parte A pelo  código abaixo:
+> **Observação** Há uma cópia desse projeto no Wokwi: [lab-03-parte-c](https://wokwi.com/projects/473906771287636993).
+
 ```c
 // Semana 3 — botão com pull-up interno + captura de bouncing via interrupção (ANYEDGE)
 #include "freertos/FreeRTOS.h"
