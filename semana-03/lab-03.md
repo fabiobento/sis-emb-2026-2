@@ -152,6 +152,7 @@ GPIO0 lê 1 e, pressionado, lê 0.*
 
 6. **Crie o projeto via CLI**: no terminal, com o ambiente do ESP-IDF ativado, navegue até a pasta de trabalho desejada e inicie um novo projeto chamado `botao_led`:
 ```bash
+mkdir ~/sis-emb/lab3
 cd ~/sis-emb/lab3
 idf.py create-project botao_led
 ```
@@ -161,7 +162,7 @@ idf.py create-project botao_led
 ```bash
 cd botao_led
 ```
-Em seguida abra o arquivo `main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
+Em seguida abra o arquivo `~/home/fabio~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
 
 8. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
 ```bash
