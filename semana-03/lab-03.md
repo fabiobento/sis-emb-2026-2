@@ -407,7 +407,7 @@ void app_main(void)
 
 > 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
 > **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
-> o nível de repouso e a borda do evento. Confundir essa trindade é a origem do clássico
+> o nível de repouso e a borda do evento. Confundir esse três fatores é a origem do clássico
 > "meu botão funciona ao contrário".
 
 ---
