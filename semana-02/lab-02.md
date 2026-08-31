@@ -192,12 +192,11 @@ void app_main(void)
 Compile, grave e monitore novamente. 
 > Lembre-se de sempre interromper a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
 
-O LED vai piscar da mesma forma, mas agora o código é mais robusto.
-
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
+O LED vai piscar da mesma forma, mas agora o código é mais robusto.
 
 **B.4 A questão do "Lê-Modifica-Escreve" e a vantagem da Atomicidade**
 
