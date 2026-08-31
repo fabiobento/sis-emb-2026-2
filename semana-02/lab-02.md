@@ -189,6 +189,8 @@ void app_main(void)
     }
 }
 ```
+> Nota: você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [lab-02-B-3](https://wokwi.com/projects/473905018233043969).
+
 Compile, grave e monitore novamente. 
 > Lembre-se de sempre interromper a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
 
