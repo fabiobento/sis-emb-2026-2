@@ -27,7 +27,8 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ```bash
 get_idf
-cp -r $IDF_PATH/examples/get-started/blink ~/sis-emb/lab2 && cd ~/sis-emb/lab2
+mkdir -p ~/sis-emb/lab2
+cp -r $IDF_PATH/examples/get-started/blink ~/sis-emb/lab2 && cd ~/sis-emb/lab2/blink
 idf.py set-target esp32
 ```
 
