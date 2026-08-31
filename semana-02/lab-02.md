@@ -27,8 +27,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ```bash
 get_idf
-mkdir -p ~/sis-emb/lab2
-cp -r $IDF_PATH/examples/get-started/blink ~/sis-emb/lab2 && cd ~/sis-emb/lab2/blink
+cp -r $IDF_PATH/examples/get-started/blink ~/sis-emb/lab2 && cd ~/sis-emb/lab2
 idf.py set-target esp32
 ```
 
@@ -43,7 +42,10 @@ idf.py set-target esp32
 idf.py menuconfig
 ```
 
-Navegue com as setas: *Example Configuration* → **Blink GPIO number = 5** (o LED embutido). Antes de sair, faça um passeio: *Component config → FreeRTOS → Kernel* e
+Navegue com as setas: *Example Configuration* → **Blink GPIO number = 2** (o mesmo GPIO2 que
+a teoria-01 chama de "LED embutido"; a placa que usamos pode não ter LED de uso geral onboard de
+verdade — você só vai *ligar* o LED fisicamente nesse pino na Parte B, então não estranhe se
+nada acender ainda). Antes de sair, faça um passeio: *Component config → FreeRTOS → Kernel* e
 localize **configTICK_RATE_HZ = 100**. Anote esse número — na semana 5 ele explicará por que
 a resolução do `vTaskDelay` é 10 ms. Salve (`S`) e saia (`Q`).
 
@@ -53,9 +55,11 @@ a resolução do `vTaskDelay` é 10 ms. Salve (`S`) e saia (`Q`).
 idf.py build
 ```
 
-Após verificar o comportamento do LED, feche o monitor serial (**`Ctrl + ]`**) e execute o comando utilitário abaixo no terminal para gerar o relatório de consumo de memória:
+Em seguida, execute o comando utilitário abaixo no terminal para gerar o relatório de consumo de memória:
 
-`idf.py size`
+```bash
+idf.py size
+```
 
 Muitas informações são geradas, então desça até o final, procure o bloco `Total sizes:` e anote no relatório: a quantidade de bytes de **DRAM**, de **IRAM** e de **Flash** usados. (Teoria, seção 5: é o extrato das memórias — DRAM guarda `.data`+`.bss`+pilhas, IRAM guarda código marcado para RAM como as ISRs da semana 4, e a flash guarda `.text`+`.rodata`, o seu programa propriamente dito).
 
@@ -104,11 +108,10 @@ I (180) boot: Loaded app from partition at offset 0x10000
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
 > trilho de alimentação não conectado dos dois lados.
 
-Agora interrompa a conexão do terminal com `CTRL+[` execute no terminal o comando abaixo. Navegue com as setas: *Example Configuration* → **Blink GPIO number = 2** (o LED externo que você ligou em G2).
-```bash
-idf.py menuconfig
-```
-Grave e então monitore :
+Como o **Blink GPIO number** já ficou em **2** desde a A.2, não é preciso rodar o
+`menuconfig` de novo — o firmware já aponta para o mesmo pino onde você acabou de ligar o LED
+externo. Só interrompa a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
+e grave e monitore direto:
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
