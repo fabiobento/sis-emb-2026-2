@@ -108,15 +108,6 @@ I (180) boot: Loaded app from partition at offset 0x10000
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
 > trilho de alimentação não conectado dos dois lados.
 
-Como o **Blink GPIO number** já ficou em **2** desde a A.2, não é preciso rodar o
-`menuconfig` de novo — o firmware já aponta para o mesmo pino onde você acabou de ligar o LED
-externo. Só interrompa a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
-e grave e monitore direto:
-```bash
-idf.py -p /dev/ttyUSB0 flash monitor
-```
-Agora o led externo foi acionado?
-
 **B.1**  Para conferir o que vimos na teoria , substitua o conteúdo de `main/blink_example_main.c` pelo nosso `~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria — releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
 ```c
 #include "freertos/FreeRTOS.h"
@@ -149,9 +140,15 @@ void app_main(void)
 
 **B.2** Grave esse novo firmware no esp32:
 
+Como o **Blink GPIO number** já ficou em **2** desde a A.2, não é preciso rodar o
+`menuconfig` de novo — o firmware já aponta para o mesmo pino onde você acabou de ligar o LED
+externo. Só interrompa a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
+e grave e monitore direto:
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
+Agora o led externo foi acionado?
+
 
 O efeito visível é o mesmo do driver da IDF(`#include "driver/gpio.h"`) — e essa é a lição:
 o driver da biblioteca que você importou é só "uma casca" conveniente sobre os registradores. Você acabou de comprovar a
