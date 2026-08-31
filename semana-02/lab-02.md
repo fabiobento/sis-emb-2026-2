@@ -101,14 +101,14 @@ I (180) boot: Loaded app from partition at offset 0x10000
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). Agora acioremos um LED externo.
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-02-hard.png)
 
-> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-02-B-1](https://wokwi.com/projects/473902984265972737).
+> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [lab-02-B-1](https://wokwi.com/projects/473902984265972737).
 
 > **Uso do Protoboard**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
 > canaleta do meio. Se o circuito não fecha, 80 % das vezes é fio em fileira vizinha ou
 > trilho de alimentação não conectado dos dois lados.
 
-**B.1**  Para conferir o que vimos na teoria , substitua o conteúdo de `main/blink_example_main.c` pelo nosso `~/sis-emb/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria — releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
+**B.1**  Para conferir o que vimos na teoria , substitua o conteúdo de `~/sis-emb/lab2/main/blink_example_main.c` pelo nosso `~/sis-emb-2026-2/semana-02/src/blink_registrador/main.c` (detalhado na seção 4.2 da teoria — releia o bloco W1TS/W1TC antes de gravar), e possui uma abordagem "lê-modifica-escreve" .
 ```c
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
