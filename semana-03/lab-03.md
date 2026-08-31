@@ -164,6 +164,17 @@ cd botao_led
 ```
 Em seguida abra o arquivo `~/home/fabio~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
 
+> **OBSERVAÇÃO**:
+>
+> **Por que não usamos `idf.py menuconfig` aqui?** Na Semana 2, o exemplo `blink` vinha
+> pronto com opções de configuração (`CONFIG_BLINK_GPIO` etc.) porque a Espressif escreveu um
+> arquivo especial (`Kconfig.projbuild`) declarando essas opções. O projeto `botao_led` que
+> você acabou de criar com `idf.py create-project` é "vazio" — não tem esse arquivo, então não
+> há nada extra para aparecer no `menuconfig` além dos padrões do ESP-IDF já explorados na
+> Semana 2. Por isso `LED`, `BTN` e `DEBOUNCE_MS` são simples `#define` fixos direto no
+> código: a partir de agora, ajustar o firmware significa editar o `.c`, não navegar em
+> menus — é exatamente o que você vai fazer na Parte D.
+
 8. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor 
@@ -308,6 +319,92 @@ void app_main(void)
 > lote. Compare sua tabela com a da bancada vizinha. Em produto real, dimensiona-se pela
 > *pior* unidade (e mede-se com osciloscópio — *Molloy*, Fig. 4-21, mostra um bouncing real
 > capturado: uma serra de ~5 ms antes do nível estabilizar).
+
+## Parte D — Invertendo a lógica: pull-down externo (30 min)
+
+12. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
+    resistor de **10 kΩ** do GPIO0 ao **GND** (segure o desenho da Figura 3-C da teoria ao
+    lado).
+13. Ajuste o firmware (3 mudanças) sobre o código da Parte C (com interrupção): desabilite o
+    pull-up interno (`gpio_pullup_dis`), habilite `gpio_pulldown_dis` também (queremos só o
+    externo) e **inverta a detecção de borda** — agora o repouso é 0 e o acionamento é a
+    borda **0→1** (`msg.nivel == 1` em vez de `msg.nivel == 0`).
+
+```c
+// Semana 3 — botão com pull-down externo + captura de bouncing via interrupção (ANYEDGE)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "freertos/queue.h"
+#include "driver/gpio.h"
+#include "esp_timer.h"
+#include <stdio.h>
+
+#define LED   GPIO_NUM_2
+#define BTN   GPIO_NUM_0
+#define DEBOUNCE_MS 0
+
+static QueueHandle_t fila_bordas;
+
+static void IRAM_ATTR isr_botao(void *arg)
+{
+    int nivel = gpio_get_level(BTN);
+    int64_t agora_us = esp_timer_get_time();
+
+    struct { int nivel; int64_t t_us; } msg = { nivel, agora_us };
+    BaseType_t acordou_task_maior_prioridade = pdFALSE;
+    xQueueSendFromISR(fila_bordas, &msg, &acordou_task_maior_prioridade);
+    if (acordou_task_maior_prioridade) {
+        portYIELD_FROM_ISR();
+    }
+}
+
+void app_main(void)
+{
+    gpio_reset_pin(LED);
+    gpio_set_direction(LED, GPIO_MODE_OUTPUT);
+
+    gpio_reset_pin(BTN);
+    gpio_set_direction(BTN, GPIO_MODE_INPUT);
+    gpio_pullup_dis(BTN);             // Mudança 1: desabilita o pull-up interno
+    gpio_pulldown_dis(BTN);           // Mudança 2: desabilita o pull-down interno também
+                                       // (queremos só o resistor de 10 kΩ externo)
+                                       // repouso = 0; pressionado = 1
+    gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE);
+
+    fila_bordas = xQueueCreate(64, sizeof(struct { int nivel; int64_t t_us; }));
+
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(BTN, isr_botao, NULL);
+
+    int led = 0, bordas_totais = 0;
+    int64_t t_ok_us = 0;
+
+    struct { int nivel; int64_t t_us; } msg;
+
+    while (1) {
+        if (xQueueReceive(fila_bordas, &msg, portMAX_DELAY)) {
+            bordas_totais++;   // toda borda física, incluindo bounce
+
+            // Mudança 3: agora o clique válido é a borda de SUBIDA (0->1),
+            // pois com pull-down externo o repouso é 0 e o acionamento é 1.
+            if (msg.nivel == 1 && msg.t_us >= t_ok_us) {
+                led = !led;
+                gpio_set_level(LED, led);
+                printf("borda total #%d\n", bordas_totais);
+                t_ok_us = msg.t_us + (DEBOUNCE_MS * 1000);
+            }
+        }
+    }
+}
+```
+
+14. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
+
+> 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
+> **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
+> o nível de repouso e a borda do evento. Confundir essa trindade é a origem do clássico
+> "meu botão funciona ao contrário".
+
 ---
 
 ## 🛠️ Problemas comuns
