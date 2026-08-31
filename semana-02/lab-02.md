@@ -101,7 +101,7 @@ I (180) boot: Loaded app from partition at offset 0x10000
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). Agora acioremos um LED externo.
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-02-hard.png)
 
-> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-01](https://wokwi.com/projects/471428016666162177).
+> Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [Lab-02-B-1](https://wokwi.com/projects/473902984265972737).
 
 > **Uso do Protoboard**: as duas colunas das bordas são trilhos contínuos de
 > alimentação (+ e −); as fileiras centrais conectam 5 furos em linha, separadas pela
