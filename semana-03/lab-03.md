@@ -207,7 +207,7 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 9. Agora o firmware vai contar **todas** as bordas, sem filtro.
 
 Para isso substitua o códigoda parte A pelo  código abaixo:
-> **Observação** Há uma cópia desse projeto no Wokwi: [lab-03-parte-c](https://wokwi.com/projects/473906771287636993).
+
 
 ```c
 // Semana 3 — botão com pull-up interno + captura de bouncing via interrupção (ANYEDGE)
@@ -322,6 +322,8 @@ void app_main(void)
 > lote. Compare sua tabela com a da bancada vizinha. Em produto real, dimensiona-se pela
 > *pior* unidade (e mede-se com osciloscópio — *Molloy*, Fig. 4-21, mostra um bouncing real
 > capturado: uma serra de ~5 ms antes do nível estabilizar).
+
+> **Observação** Se quizer conferir a simulação do circuito que você acabou de montar, pode conferir no seguinte projeto do Wokwi: [lab-03-parte-c](https://wokwi.com/projects/473906771287636993).
 
 ## Parte D — Invertendo a lógica: pull-down externo (30 min)
 
