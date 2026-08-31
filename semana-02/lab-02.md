@@ -99,6 +99,7 @@ I (180) boot: Loaded app from partition at offset 0x10000
 ## Parte B — Pisca por registrador (40 min)
 **B.0** Monte no protoboard: **GPIO 2 → resistor 220 Ω → anodo do LED → catodo → GND**
 (mesma topologia do Wokwi do Lab 1, agora com elétrons de verdade). Agora acioremos um LED externo.
+
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-02-hard.png)
 
 > Nota: Você também pode encontrar uma cópia desse circuito nesse projeto Wokwi: [lab-02-B-1](https://wokwi.com/projects/473902984265972737).
@@ -188,7 +189,10 @@ void app_main(void)
     }
 }
 ```
-Compile, grave e monitore novamente. O LED pisca da mesma forma, mas agora o código é mais robusto.
+Compile, grave e monitore novamente. 
+> Lembre-se de sempre interromper a conexão do terminal com `CTRL+[` (se o monitor ainda estiver aberto)
+
+O LED vai piscar da mesma forma, mas agora o código é mais robusto.
 
 ```bash
 idf.py -p /dev/ttyUSB0 flash monitor
