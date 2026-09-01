@@ -320,14 +320,26 @@ void app_main(void)
 
 ## Parte D — Invertendo a lógica: pull-down externo (30 min)
 
-12. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
-    resistor de **10 kΩ** do GPIO0 ao **GND** (segure o desenho da Figura 3-C da teoria ao
-    lado).
+> ⚠️ **Por que trocamos de GPIO0 para GPIO4 nesta parte:** o GPIO0 é o **pino de boot** do
+> ESP32 — a cada reset, o chip lê o nível desse pino para decidir como iniciar. Nível 1 (ou
+> flutuando) → boot normal, roda seu firmware. Nível 0 → o chip entende que deve entrar em
+> **modo de gravação**. Um pull-down (interno ou externo) deixa o GPIO0 em 0 *o tempo todo*
+> em repouso — inclusive durante o reset — então o chip fica preso tentando entrar em modo de
+> gravação em vez de rodar seu programa (sintoma típico: o LED trava aceso ou apagado logo no
+> início, e nenhum `evento #N` novo aparece, não importa quantas vezes você clique). Nas
+> Partes A/B/C isso nunca apareceu porque pull-up deixa o repouso em 1, compatível com o boot
+> normal. Por isso, a partir de agora usamos **GPIO4** — um pino livre, sem função especial de
+> boot — para o botão.
+
+12. Desmonte o botão e remonte com **pull-down externo**: GPIO4 → botão → **3V3**, e um
+    resistor de **10 kΩ** do GPIO4 ao **GND** (segure o desenho da Figura 3-C da teoria ao
+    lado, adaptando o pino).
 13. Volte ao código de **polling** da Parte A/B (não à versão com interrupção da Parte C —
     aquela serviu só para *demonstrar* o bouncing; aqui você já sabe que ele existe e vai
-    trabalhar com debounce normalmente). Ajuste o firmware (3 mudanças): desabilite o pull-up
-    interno (`gpio_pullup_dis`), habilite `gpio_pulldown_dis` também (queremos só o externo) e
-    **inverta a detecção de borda** — agora o repouso é 0 e o acionamento é a borda **0→1**
+    trabalhar com debounce normalmente). Ajuste o firmware (4 mudanças): troque o botão para
+    o **GPIO4** (`#define BTN GPIO_NUM_4`), desabilite o pull-up interno (`gpio_pullup_dis`),
+    habilite `gpio_pulldown_dis` também (queremos só o externo) e **inverta a detecção de
+    borda** — agora o repouso é 0 e o acionamento é a borda **0→1**
     (`nivel_ant == 0 && nivel == 1`).
 
 ```c
@@ -339,7 +351,7 @@ void app_main(void)
 #include <stdio.h>
 
 #define LED   GPIO_NUM_2
-#define BTN   GPIO_NUM_0
+#define BTN   GPIO_NUM_4    // Mudança 1: GPIO0 é o pino de boot — não use pull-down nele
 #define DEBOUNCE_MS 20
 
 void app_main(void)
@@ -349,8 +361,8 @@ void app_main(void)
 
     gpio_reset_pin(BTN);
     gpio_set_direction(BTN, GPIO_MODE_INPUT);
-    gpio_pullup_dis(BTN);             // Mudança 1: desabilita o pull-up interno
-    gpio_pulldown_dis(BTN);           // Mudança 2: desabilita o pull-down interno também
+    gpio_pullup_dis(BTN);             // Mudança 2: desabilita o pull-up interno
+    gpio_pulldown_dis(BTN);           // Mudança 3: desabilita o pull-down interno também
                                        // (queremos só o resistor de 10 kΩ externo)
                                        // repouso = 0; pressionado = 1
 
@@ -361,7 +373,7 @@ void app_main(void)
     while (1) {
         int nivel = gpio_get_level(BTN);
         int64_t agora = esp_timer_get_time() / 1000;      // ms
-        if (nivel_ant == 0 && nivel == 1 && agora >= t_ok) {  // Mudança 3: borda de subida válida
+        if (nivel_ant == 0 && nivel == 1 && agora >= t_ok) {  // Mudança 4: borda de subida válida
             led = !led;
             gpio_set_level(LED, led);
             printf("evento #%d\n", ++eventos);
@@ -373,6 +385,69 @@ void app_main(void)
     }
 }
 ```
+
+- Se quiser montar o circuito direto no Wokwi, use o `diagram.json` abaixo (LED em GPIO2 via
+  R220, botão em GPIO4 com pull-down externo de 10 kΩ):
+```json
+{
+  "version": 1,
+  "author": "Fabio Bento",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": -38.4,
+      "left": -33.56,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led1",
+      "top": 82.8,
+      "left": 119.4,
+      "attrs": { "color": "red", "flip": "1" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 119.45,
+      "left": 161.8,
+      "rotate": 180,
+      "attrs": { "value": "220" }
+    },
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn1",
+      "top": 49.8,
+      "left": 169.6,
+      "rotate": 270,
+      "attrs": { "color": "green", "xray": "1" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r2",
+      "top": 43.2,
+      "left": 66.65,
+      "rotate": 90,
+      "attrs": { "value": "10000" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "led1:A", "esp:2", "blue", [ "v0" ] ],
+    [ "led1:C", "r1:2", "blue", [ "v0" ] ],
+    [ "r1:1", "esp:GND.2", "black", [ "h19.2", "v-134.4" ] ],
+    [ "btn1:1.l", "esp:4", "green", [ "h-57.6", "v38.4" ] ],
+    [ "btn1:2.l", "esp:3V3", "red", [ "h19.6", "v-124.8", "h-259.2", "v38.4" ] ],
+    [ "r2:1", "esp:GND.2", "black", [ "v-28.8" ] ],
+    [ "r2:2", "esp:4", "green", [ "v37.2" ] ]
+  ],
+  "dependencies": {}
+}
+```
+
 
 14. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
 
