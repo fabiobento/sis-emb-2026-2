@@ -439,8 +439,7 @@ verificada — o diagrama só mostra o comportamento, não a implementação):
 stateDiagram-v2
     [*] --> AGUARDANDO_CLIQUE
 
-    AGUARDANDO_CLIQUE --> AGUARDANDO_SEGUNDO_CLIQUE: clique detectado<br/>(inicia janela de 400 ms)
-
-    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 2º clique dentro de 400 ms<br/>→ pisca LED 3x rápido
-    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 400 ms esgotados sem 2º clique<br/>→ alterna o LED (clique simples)
+    AGUARDANDO_CLIQUE --> AGUARDANDO_SEGUNDO_CLIQUE: clique detectado
+    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 2º clique em até 400ms -> pisca 3x
+    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: timeout de 400ms -> alterna o LED
 ```
