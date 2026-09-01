@@ -274,6 +274,9 @@ void app_main(void)
     }
 }
 ```
+
+- Se quiser ver a simulação do circuito no Wokwi acesse [Lab-03-parte-c](https://wokwi.com/projects/473906771287636993).
+
 > 🔍 **Entendendo o código acima, por partes**
 >
 > **1. `GPIO_INTR_ANYEDGE`** — configura o pino para gerar uma interrupção em **qualquer**
@@ -428,3 +431,16 @@ Clique simples × clique duplo: modifique o firmware para distinguir 1 clique (a
 de 2 cliques em até 400 ms (pisca o LED 3× rápido). Dica: ao detectar um clique, em vez de
 agir na hora, aguarde 400 ms observando se vem o segundo — uma máquina de estados com dois
 estados resolve.
+
+Esboço da máquina de estados (você ainda precisa decidir *onde*, no código, cada seta é
+verificada — o diagrama só mostra o comportamento, não a implementação):
+
+```mermaid
+stateDiagram-v2
+    [*] --> AGUARDANDO_CLIQUE
+
+    AGUARDANDO_CLIQUE --> AGUARDANDO_SEGUNDO_CLIQUE: clique detectado<br/>(inicia janela de 400 ms)
+
+    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 2º clique dentro de 400 ms<br/>→ pisca LED 3x rápido
+    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 400 ms esgotados sem 2º clique<br/>→ alterna o LED (clique simples)
+```
