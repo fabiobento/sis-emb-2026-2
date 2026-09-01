@@ -430,30 +430,9 @@ void app_main(void)
 
 Clique simples × clique duplo: modifique o firmware para distinguir 1 clique (alterna o LED)
 de 2 cliques em até 400 ms (pisca o LED 3× rápido). Dica: ao detectar um clique, em vez de
-agir na hora, aguarde 400 ms observando se vem o segundo — uma máquina de estados com dois
-estados resolve.
+agir na hora, aguarde 400 ms observando se vem o segundo.
 
 Esboço da máquina de estados (você ainda precisa decidir *onde*, no código, cada seta é
 verificada — o diagrama só mostra o comportamento, não a implementação):
-```
-+-----------------------+
-|   AGUARDANDO_CLIQUE    |
-+-----------+------------+
-            | clique detectado
-            v
-+------------------------------------+
-|     AGUARDANDO_SEGUNDO_CLIQUE       |
-+------------------+------------------+
-        +----------+----------+
-        |                     |
-  2o clique <= 400ms    passaram 400ms
-        |                sem 2o clique
-        v                     v
-pisca LED 3x rapido    alterna o LED
-        |              (clique simples)
-        |                     |
-        +----------+----------+
-                   |
-                   v
-        volta a AGUARDANDO_CLIQUE
-```
+
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-desafio.jpeg)
