@@ -427,6 +427,7 @@ void app_main(void)
 
 ## Desafio (opcional)
 
+
 Clique simples × clique duplo: modifique o firmware para distinguir 1 clique (alterna o LED)
 de 2 cliques em até 400 ms (pisca o LED 3× rápido). Dica: ao detectar um clique, em vez de
 agir na hora, aguarde 400 ms observando se vem o segundo — uma máquina de estados com dois
@@ -442,4 +443,29 @@ stateDiagram-v2
     AGUARDANDO_CLIQUE --> AGUARDANDO_SEGUNDO_CLIQUE: clique detectado
     AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 2º clique em até 400ms -> pisca 3x
     AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: timeout de 400ms -> alterna o LED
+```
+
+Alternativa em ASCII puro (caso o Mermaid não renderize no seu visualizador):
+
+```
++-----------------------+
+|   AGUARDANDO_CLIQUE    |
++-----------+------------+
+            | clique detectado
+            v
++------------------------------------+
+|     AGUARDANDO_SEGUNDO_CLIQUE       |
++------------------+------------------+
+        +----------+----------+
+        |                     |
+  2o clique <= 400ms    passaram 400ms
+        |                sem 2o clique
+        v                     v
+pisca LED 3x rapido    alterna o LED
+        |              (clique simples)
+        |                     |
+        +----------+----------+
+                   |
+                   v
+        volta a AGUARDANDO_CLIQUE
 ```
