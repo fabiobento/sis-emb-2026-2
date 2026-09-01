@@ -386,72 +386,12 @@ void app_main(void)
 }
 ```
 
-- Se quiser montar o circuito direto no Wokwi, use o `diagram.json` abaixo (LED em GPIO2 via
-  R220, botão em GPIO4 com pull-down externo de 10 kΩ):
-```json
-{
-  "version": 1,
-  "author": "Fabio Bento",
-  "editor": "wokwi",
-  "parts": [
-    {
-      "type": "board-esp32-devkit-c-v4",
-      "id": "esp",
-      "top": -38.4,
-      "left": -33.56,
-      "attrs": { "builder": "esp-idf" }
-    },
-    {
-      "type": "wokwi-led",
-      "id": "led1",
-      "top": 82.8,
-      "left": 119.4,
-      "attrs": { "color": "red", "flip": "1" }
-    },
-    {
-      "type": "wokwi-resistor",
-      "id": "r1",
-      "top": 119.45,
-      "left": 161.8,
-      "rotate": 180,
-      "attrs": { "value": "220" }
-    },
-    {
-      "type": "wokwi-pushbutton-6mm",
-      "id": "btn1",
-      "top": 49.8,
-      "left": 169.6,
-      "rotate": 270,
-      "attrs": { "color": "green", "xray": "1" }
-    },
-    {
-      "type": "wokwi-resistor",
-      "id": "r2",
-      "top": 43.2,
-      "left": 66.65,
-      "rotate": 90,
-      "attrs": { "value": "10000" }
-    }
-  ],
-  "connections": [
-    [ "esp:TX", "$serialMonitor:RX", "", [] ],
-    [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "led1:A", "esp:2", "blue", [ "v0" ] ],
-    [ "led1:C", "r1:2", "blue", [ "v0" ] ],
-    [ "r1:1", "esp:GND.2", "black", [ "h19.2", "v-134.4" ] ],
-    [ "btn1:1.l", "esp:4", "green", [ "h-57.6", "v38.4" ] ],
-    [ "btn1:2.l", "esp:3V3", "red", [ "h19.6", "v-124.8", "h-259.2", "v38.4" ] ],
-    [ "r2:1", "esp:GND.2", "black", [ "v-28.8" ] ],
-    [ "r2:2", "esp:4", "green", [ "v37.2" ] ]
-  ],
-  "dependencies": {}
-}
-```
+- Se quiser ver a simulação do circuito no Wokwi acesse [Lab-03-parte-d](https://wokwi.com/projects/473966100704939009) — o diagrama é o mesmo da Figura 3-C da teoria, só que com GPIO4 no lugar do GPIO0.
 
 
 14. Valide: mesmo comportamento externo, lógica interna invertida ("ativo-alto").
 
-> 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
+> **Por que este exercício existe**: para você sentir que pull-up e pull-down são
 > **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
 > o nível de repouso e a borda do evento. Confundir essa trindade é a origem do clássico
 > "meu botão funciona ao contrário".
