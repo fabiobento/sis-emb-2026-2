@@ -435,18 +435,6 @@ estados resolve.
 
 Esboço da máquina de estados (você ainda precisa decidir *onde*, no código, cada seta é
 verificada — o diagrama só mostra o comportamento, não a implementação):
-
-```mermaid
-stateDiagram-v2
-    [*] --> AGUARDANDO_CLIQUE
-
-    AGUARDANDO_CLIQUE --> AGUARDANDO_SEGUNDO_CLIQUE: clique detectado
-    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: 2º clique em até 400ms -> pisca 3x
-    AGUARDANDO_SEGUNDO_CLIQUE --> AGUARDANDO_CLIQUE: timeout de 400ms -> alterna o LED
-```
-
-Alternativa em ASCII puro (caso o Mermaid não renderize no seu visualizador):
-
 ```
 +-----------------------+
 |   AGUARDANDO_CLIQUE    |
