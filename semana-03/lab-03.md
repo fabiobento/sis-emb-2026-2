@@ -334,6 +334,8 @@ void app_main(void)
 12. Desmonte o botão e remonte com **pull-down externo**: GPIO4 → botão → **3V3**, e um
     resistor de **10 kΩ** do GPIO4 ao **GND** (segure o desenho da Figura 3-C da teoria ao
     lado, adaptando o pino).
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard-pulldown-protoboard.png)    
+![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard-pulldown-schematics.png) 
 13. Volte ao código de **polling** da Parte A/B (não à versão com interrupção da Parte C —
     aquela serviu só para *demonstrar* o bouncing; aqui você já sabe que ele existe e vai
     trabalhar com debounce normalmente). Ajuste o firmware (4 mudanças): troque o botão para
