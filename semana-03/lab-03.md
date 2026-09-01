@@ -332,8 +332,8 @@ void app_main(void)
 > boot — para o botão.
 
 12. Desmonte o botão e remonte com **pull-down externo**: GPIO4 → botão → **3V3**, e um
-    resistor de **10 kΩ** do GPIO4 ao **GND** (segure o desenho da Figura 3-C da teoria ao
-    lado, adaptando o pino).
+    resistor de **10 kΩ** do GPIO4 ao **GND** (Revise o desenho da [Figura 3-C da teoria](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pullup_pulldown.png) ao
+    lado, adaptando ao pino). 
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard-pulldown-protoboard.png)    
 ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-hard-pulldown-schematics.png) 
 13. Volte ao código de **polling** da Parte A/B (não à versão com interrupção da Parte C —
