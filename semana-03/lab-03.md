@@ -162,11 +162,9 @@ idf.py create-project botao_led
 ```bash
 cd botao_led
 ```
-Em seguida abra o arquivo `~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
+Em seguida abra o arquivo `~/home/fabio~/sis-emb/lab3/botao_led/main/botao_led.c` no seu editor de código e **substitua todo o conteúdo** pelo código em C que você utilizou e simulou na Parte A.
 
-> **OBSERVAÇÃO**:
->
-> **Por que não usamos `idf.py menuconfig` aqui?** Na Semana 2, o exemplo `blink` vinha
+> 💭 **Por que não usamos `idf.py menuconfig` aqui?** Na Semana 2, o exemplo `blink` vinha
 > pronto com opções de configuração (`CONFIG_BLINK_GPIO` etc.) porque a Espressif escreveu um
 > arquivo especial (`Kconfig.projbuild`) declarando essas opções. O projeto `botao_led` que
 > você acabou de criar com `idf.py create-project` é "vazio" — não tem esse arquivo, então não
@@ -205,10 +203,7 @@ assentar, gerando uma rajada de bordas. Hoje vocês medirão a rajada.
 > Comentários no código explicam cada parte nova.
 
 9. Agora o firmware vai contar **todas** as bordas, sem filtro.
-
-Para isso substitua o códigoda parte A pelo  código abaixo:
-
-
+Para isso substitua o códigoda parte A pelo  seguinte:
 ```c
 // Semana 3 — botão com pull-up interno + captura de bouncing via interrupção (ANYEDGE)
 #include "freertos/FreeRTOS.h"
@@ -323,45 +318,29 @@ void app_main(void)
 > *pior* unidade (e mede-se com osciloscópio — *Molloy*, Fig. 4-21, mostra um bouncing real
 > capturado: uma serra de ~5 ms antes do nível estabilizar).
 
-> **Observação** Se quizer conferir a simulação do circuito que você acabou de montar, pode conferir no seguinte projeto do Wokwi: [lab-03-parte-c](https://wokwi.com/projects/473906771287636993).
-
 ## Parte D — Invertendo a lógica: pull-down externo (30 min)
 
 12. Desmonte o botão e remonte com **pull-down externo**: GPIO0 → botão → **3V3**, e um
     resistor de **10 kΩ** do GPIO0 ao **GND** (segure o desenho da Figura 3-C da teoria ao
     lado).
-13. Ajuste o firmware (3 mudanças) sobre o código da Parte C (com interrupção): desabilite o
-    pull-up interno (`gpio_pullup_dis`), habilite `gpio_pulldown_dis` também (queremos só o
-    externo) e **inverta a detecção de borda** — agora o repouso é 0 e o acionamento é a
-    borda **0→1** (`msg.nivel == 1` em vez de `msg.nivel == 0`).
+13. Volte ao código de **polling** da Parte A/B (não à versão com interrupção da Parte C —
+    aquela serviu só para *demonstrar* o bouncing; aqui você já sabe que ele existe e vai
+    trabalhar com debounce normalmente). Ajuste o firmware (3 mudanças): desabilite o pull-up
+    interno (`gpio_pullup_dis`), habilite `gpio_pulldown_dis` também (queremos só o externo) e
+    **inverta a detecção de borda** — agora o repouso é 0 e o acionamento é a borda **0→1**
+    (`nivel_ant == 0 && nivel == 1`).
 
 ```c
-// Semana 3 — botão com pull-down externo + captura de bouncing via interrupção (ANYEDGE)
+// Semana 3 — botão com pull-down externo + debounce por software (polling)
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
-#include "freertos/queue.h"
 #include "driver/gpio.h"
 #include "esp_timer.h"
 #include <stdio.h>
 
 #define LED   GPIO_NUM_2
 #define BTN   GPIO_NUM_0
-#define DEBOUNCE_MS 0
-
-static QueueHandle_t fila_bordas;
-
-static void IRAM_ATTR isr_botao(void *arg)
-{
-    int nivel = gpio_get_level(BTN);
-    int64_t agora_us = esp_timer_get_time();
-
-    struct { int nivel; int64_t t_us; } msg = { nivel, agora_us };
-    BaseType_t acordou_task_maior_prioridade = pdFALSE;
-    xQueueSendFromISR(fila_bordas, &msg, &acordou_task_maior_prioridade);
-    if (acordou_task_maior_prioridade) {
-        portYIELD_FROM_ISR();
-    }
-}
+#define DEBOUNCE_MS 20
 
 void app_main(void)
 {
@@ -374,31 +353,23 @@ void app_main(void)
     gpio_pulldown_dis(BTN);           // Mudança 2: desabilita o pull-down interno também
                                        // (queremos só o resistor de 10 kΩ externo)
                                        // repouso = 0; pressionado = 1
-    gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE);
 
-    fila_bordas = xQueueCreate(64, sizeof(struct { int nivel; int64_t t_us; }));
-
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(BTN, isr_botao, NULL);
-
-    int led = 0, bordas_totais = 0;
-    int64_t t_ok_us = 0;
-
-    struct { int nivel; int64_t t_us; } msg;
+    int  led = 0, eventos = 0;
+    int  nivel_ant = 0;                // repouso agora é 0 (antes era 1)
+    int64_t t_ok = 0;                 // instante a partir do qual aceitamos nova borda
 
     while (1) {
-        if (xQueueReceive(fila_bordas, &msg, portMAX_DELAY)) {
-            bordas_totais++;   // toda borda física, incluindo bounce
-
-            // Mudança 3: agora o clique válido é a borda de SUBIDA (0->1),
-            // pois com pull-down externo o repouso é 0 e o acionamento é 1.
-            if (msg.nivel == 1 && msg.t_us >= t_ok_us) {
-                led = !led;
-                gpio_set_level(LED, led);
-                printf("borda total #%d\n", bordas_totais);
-                t_ok_us = msg.t_us + (DEBOUNCE_MS * 1000);
-            }
+        int nivel = gpio_get_level(BTN);
+        int64_t agora = esp_timer_get_time() / 1000;      // ms
+        if (nivel_ant == 0 && nivel == 1 && agora >= t_ok) {  // Mudança 3: borda de subida válida
+            led = !led;
+            gpio_set_level(LED, led);
+            printf("evento #%d\n", ++eventos);
+            t_ok = agora + DEBOUNCE_MS;
         }
+        nivel_ant = nivel;
+        // Garantir pelo menos 1 tick no padrão de 100Hz do ESP-IDF
+        vTaskDelay(pdMS_TO_TICKS(10));
     }
 }
 ```
@@ -407,8 +378,14 @@ void app_main(void)
 
 > 💡 **Por que este exercício existe**: para você sentir que pull-up e pull-down são
 > **escolhas**, não leis da física — e que a escolha muda três coisas acopladas: o circuito,
-> o nível de repouso e a borda do evento. Confundir esse três fatores é a origem do clássico
+> o nível de repouso e a borda do evento. Confundir essa trindade é a origem do clássico
 > "meu botão funciona ao contrário".
+>
+> **Por que voltamos ao polling aqui:** a interrupção da Parte C existiu só para *revelar* o
+> bouncing (capturar cada quique, sem depender da taxa de amostragem). Agora que você já viu
+> o fenômeno e mediu a janela ideal de debounce, o firmware volta ao polling — mais simples de
+> ler — para focar no que muda de fato entre pull-up e pull-down: o circuito, o nível de
+> repouso e a borda do evento.
 
 ---
 
