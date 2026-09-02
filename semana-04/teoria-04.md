@@ -1,7 +1,7 @@
 # Aula 4 — Interrupções e Temporizadores (U2)
 
 > **Pré-requisito**: Aula 3 (GPIO, debounce por software, polling).
-> **Como usar**: texto autossuficiente. Os Exemplos 4.1–4.3 são o modelo das questões 1–5 da
+> **Como usar**: Os Exemplos 4.1–4.3 são o modelo das questões 1–5 da
 > Lista 2. No laboratório você provocará **de propósito** os dois crashes clássicos desta
 > aula (printf na ISR; watchdog) — errar em ambiente controlado é a melhor vacina.
 
