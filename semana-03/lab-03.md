@@ -425,14 +425,10 @@ void app_main(void)
 3. *Diff* das três mudanças da Parte D (pode ser print do código com as linhas destacadas).
 4. Foto da montagem final (pull-down) com o resistor de 10 kΩ visível.
 
-## Desafio (opcional)
+## Desafio
 
 
 Clique simples × clique duplo: modifique o firmware para distinguir 1 clique (alterna o LED)
 de 2 cliques em até 400 ms (pisca o LED 3× rápido). Dica: ao detectar um clique, em vez de
 agir na hora, aguarde 400 ms observando se vem o segundo.
 
-Esboço da máquina de estados (você ainda precisa decidir *onde*, no código, cada seta é
-verificada — o diagrama só mostra o comportamento, não a implementação):
-
-![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-03-desafio.jpeg)
