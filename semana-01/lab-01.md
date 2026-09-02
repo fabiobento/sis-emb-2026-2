@@ -207,6 +207,9 @@ Se o LED da protoboard não piscar mas o log aparecer: problema de **fiação** 
    `relatorio.md`.
 3. Commit de hoje: `lab-01/relatorio.md` com o conteúdo da entrega abaixo.
 
+> 🔗 **Passo a passo dos comandos Git**: [`docs/instalacao.md`](https://github.com/fabiobento/sis-emb-2026-2/blob/main/docs/instalacao.md), seção 5 — cobre tanto quem está criando o
+> repositório agora quanto quem já criou e só precisa conectar a pasta local.
+
 > **Observação:** o histórico de commits ao longo do semestre é critério de avaliação do
 > projeto final (20 % — documentação). Commits pequenos e frequentes, com mensagens
 > descritivas, desde já. Mensagem boa: "lab01: experimento 2 — LED assimétrico 900/100 ms".
