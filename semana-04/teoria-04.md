@@ -238,7 +238,7 @@ gpio_isr_handler_add(BTN, btn_isr, NULL);     // registra btn_isr na tabela de d
 
 Por que borda de descida? Porque o botão usa pull-up e é ativo-baixo (semana 3): apertar =
 o pino cai de 1 para 0. Se o botão fosse ativo-alto, seria `GPIO_INTR_POSEDGE`; para medir
-largura de pulso (seção 3, HC-SR04), usa-se `GPIO_INTR_ANYEDGE` — qualquer borda chama.
+largura de pulso (Semana 12, HC-SR04), usa-se `GPIO_INTR_ANYEDGE` — qualquer borda chama.
 
 ## 3. Temporizadores de hardware
 
