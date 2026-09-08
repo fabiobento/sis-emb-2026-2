@@ -178,7 +178,7 @@ simples de depurar. Engenharia é escolher a ferramenta mais simples que atende 
 > "qual pino exatamente" é um segundo nível, feito em software pelo driver. É esse segundo
 > nível que `gpio_isr_handler_add()` alimenta.
 
-## 2. Regras de ouro para ISRs
+## 2. Boas Práticas para ISRs
 
 Uma ISR executa num contexto especial: outras interrupções da mesma prioridade esperam, e o
 sistema inteiro fica "prendendo a respiração" — incluindo o escalonador. Daí o código de
