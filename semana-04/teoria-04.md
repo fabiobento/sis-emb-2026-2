@@ -376,6 +376,23 @@ E (15324) task_wdt: Task watchdog got triggered. The following tasks did not res
 E (15324) task_wdt:  - IDLE0 (CPU 0)
 ```
 
+> **"Cada núcleo" — de onde vem isso:** já vimos na Semana 2 (`teoria-02.md`) que o ESP32
+> tem **2 núcleos físicos** Xtensa LX6, com apelidos: **PRO_CPU** (core 0, onde o ESP-IDF
+> roda Wi-Fi/Bluetooth por padrão) e **APP_CPU** (core 1, "seu" — onde o `app_main` do curso
+> normalmente executa). Cada núcleo roda sua **própria instância do escalonador** do
+> FreeRTOS e, por consequência, sua **própria tarefa IDLE** — por isso existem `IDLE0` e
+> `IDLE1`, cada uma vigiada separadamente pelo Task WDT.
+
+![Os dois núcleos do ESP32, cada um com sua própria tarefa IDLE, ambas vigiadas pelo Task Watchdog; uma tarefa travada no núcleo 0 impede a IDLE0 de rodar](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dual_core_wdt.png)
+
+*Figura 4-J — Por que a mensagem do watchdog identifica "CPU 0" especificamente. Cada
+núcleo tem sua fila de tarefas e sua IDLE; o Task WDT vigia as duas de forma independente.
+No exemplo, uma tarefa travada no núcleo 0 (PRO_CPU) rouba a CPU e nunca deixa a IDLE0
+rodar — enquanto o núcleo 1 (APP_CPU) segue funcionando normalmente ao lado, sem que isso
+sozinho dispare nada nele. O log resultante aponta exatamente qual dos dois núcleos ficou
+preso, porque é literalmente isso que o Task WDT mede: uma IDLE por núcleo, cada uma com seu
+próprio prazo.*
+
 Vamos **provocar isso de propósito** no laboratório (`#define PROVOCAR_WDT 1` liga um
 `while(1){}` nu) — você reconhecerá essa mensagem no futuro como um médico reconhece um
 sintoma: “alguém segurou a CPU e nunca bloqueou”.
