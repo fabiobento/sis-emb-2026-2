@@ -52,12 +52,12 @@ sistema está congelado.*
 
 **As 7 etapas, uma a uma:**
 
-1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico "decide",
+1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico decide,
    completamente **assíncrona** em relação ao clock da CPU. Ela pode chegar em qualquer fase
    do ciclo de clock — inclusive bem no meio de uma borda de subida do próprio clock, o que
    nos leva à próxima etapa.
 
-2. **Sincronização do sinal** — um sinal externo, lido bruto nesse instante indeterminado,
+2. **Sincronização do sinal** — um sinal externo, lido "crú" nesse instante indeterminado,
    corre o risco de deixar um flip-flop interno em estado **metaestável** (nem 0 nem 1 de
    forma confiável) por um tempo curto, mas nocivo. Por isso o hardware passa o sinal por um
    *sincronizador* (normalmente 2 flip-flops em série, no clock do sistema) antes de
@@ -95,12 +95,33 @@ a métrica que compara com o Exemplo 4.1 (latência de polling). As etapas 5–7
 nessa métrica porque a 5 é *seu* código (você escolhe o quão longo) e a 6–7 são o custo
 simétrico de "desligar" a interrupção, não de "ligá-la".
 
+A etapa 2 (sincronização) é a mais abstrata das quatro — vale destrinchar em câmera ainda
+mais lenta por que ela existe e por que aparece em dobro (2 flip-flops, não 1):
+
+![Sincronizador de dois flip-flops: diagrama de blocos e linha do tempo mostrando a janela de metaestabilidade](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/sincronizador_sinal.png)
+
+*Figura 4-C — Anatomia da etapa 2. Acima: o sinal assíncrono passa por dois flip-flops em
+série, ambos no clock do sistema, antes de ser considerado confiável. Abaixo: se a borda
+chega bem no instante em que o clock amostra (pior caso), a saída do 1º flip-flop (Q1) pode
+oscilar por um tempo — a "zona de metaestabilidade". O 2º flip-flop só amostra Q1 um ciclo
+de clock depois, dando tempo de sobra para essa oscilação se resolver antes de propagar
+adiante. Um único flip-flop arriscaria repassar a instabilidade adiante; o segundo é o que
+transforma "quase certo" em "garantido".*
+
+Por isso a etapa 2 tem uma duração **fixa em número de ciclos de clock** (tipicamente 2,
+como na figura — alguns projetos usam 3 para margem extra), não em microssegundos: ela
+encolhe ou cresce em tempo real conforme a frequência do clock do periférico, mas o
+projetista de hardware já a dimensionou para o pior caso. Nada que você escreva na ISR
+muda essa etapa — é a razão de ela **não** fazer parte da régua "quanto MENOR a ISR, mais
+previsível o sistema" da Figura 4-B: aquela régua é sobre a etapa 5, que é sua; esta aqui é
+arquitetura, fora do seu alcance.
+
 ```
  fluxo principal ──────────■ (borda no pino!) ┌────────────┐
                             \────────────────▶│    ISR     │
-                            salvamento de     │ (curta!)   │
-                            contexto          └─────┬──────┘
-                            /◀──────────────────────┘
+                             salvamento de     │ (curta!)   │
+                             contexto          └─────┬──────┘
+                            /◀───────────────────────┘
  fluxo principal ──────────■  restaura contexto e segue
 ```
 
