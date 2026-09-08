@@ -15,7 +15,7 @@ metrônomo do sistema) e o **watchdog** (o vigia que reinicia tudo quando seu c�
 
 **Objetivos de aprendizagem** — ao final desta aula você deve ser capaz de:
 
-- (a) comparar polling e interrupção **com números** (latência e custo de CPU);
+- (a) comparar polling e interrupção **de forma quantitativa** (latência e custo de CPU);
 - (b) escrever ISRs corretas (curtas, sem bloqueio, em IRAM, com APIs `FromISR`);
 - (c) projetar um timer de hardware (prescaler + comparação) para um período pedido;
 - (d) explicar o papel do watchdog e reconhecer seu disparo no monitor serial.
@@ -53,9 +53,9 @@ sistema está congelado.*
 ```
  fluxo principal ──────────■ (borda no pino!) ┌────────────┐
                             \────────────────▶│    ISR     │
-                             salvamento de     │ (curta!)   │
-                             contexto          └─────┬──────┘
-                            /◀───────────────────────┘
+                            salvamento de     │ (curta!)   │
+                            contexto          └─────┬──────┘
+                            /◀──────────────────────┘
  fluxo principal ──────────■  restaura contexto e segue
 ```
 
