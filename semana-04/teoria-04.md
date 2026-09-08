@@ -322,7 +322,7 @@ largura com o que já vimos nesta semana?
 
 *Solução.* Capturar o instante da borda de subida (t₁) e da descida (t₂) do pino ECHO por
 interrupção — uma única ISR configurada em `GPIO_INTR_ANYEDGE` (dispara nas duas bordas),
-que a cada chamada só carimba `esp_timer_get_time()` e guarda o valor (regra de ouro:
+que a cada chamada só carimba `esp_timer_get_time()` e guarda o valor (lembre-se que a ISR deve ser:
 curtíssima). Depois, na tarefa: distância = (t₂ − t₁) × velocidade_do_som ÷ 2 (o som vai **e
 volta** até o obstáculo — daí o ÷ 2).
 
@@ -341,7 +341,7 @@ A resolução de 1 µs do relógio ⇒ resolução de distância de 340 m/s × 1
 sobra em relação à precisão do sensor (±3 mm); o erro real virá do sensor e da temperatura do
 ar (o som viaja mais rápido no ar quente: ~0,6 m/s por °C).
 
-## 4. Watchdog Timer (WDT): o vigia do firmware
+## 4. Watchdog Timer (WDT): o "vigia" do firmware
 
 E se, apesar de tudo, o firmware travar em campo — um laço infinito por bug, um deadlock? Não
 há ninguém para apertar reset num medidor no poste, num satélite, num controlador enterrado
