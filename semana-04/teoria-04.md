@@ -52,12 +52,12 @@ sistema está congelado.*
 
 **As 7 etapas, uma a uma:**
 
-1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico decide,
+1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico "decide",
    completamente **assíncrona** em relação ao clock da CPU. Ela pode chegar em qualquer fase
    do ciclo de clock — inclusive bem no meio de uma borda de subida do próprio clock, o que
    nos leva à próxima etapa.
 
-2. **Sincronização do sinal** — um sinal externo, lido "crú" nesse instante indeterminado,
+2. **Sincronização do sinal** — um sinal externo, lido bruto nesse instante indeterminado,
    corre o risco de deixar um flip-flop interno em estado **metaestável** (nem 0 nem 1 de
    forma confiável) por um tempo curto, mas nocivo. Por isso o hardware passa o sinal por um
    *sincronizador* (normalmente 2 flip-flops em série, no clock do sistema) antes de
