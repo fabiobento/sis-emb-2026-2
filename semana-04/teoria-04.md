@@ -52,12 +52,12 @@ sistema está congelado.*
 
 **As 7 etapas, uma a uma:**
 
-1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico decide,
+1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico "decide",
    completamente **assíncrona** em relação ao clock da CPU. Ela pode chegar em qualquer fase
    do ciclo de clock — inclusive bem no meio de uma borda de subida do próprio clock, o que
    nos leva à próxima etapa.
 
-2. **Sincronização do sinal** — um sinal externo, lido "crú" nesse instante indeterminado,
+2. **Sincronização do sinal** — um sinal externo, lido bruto nesse instante indeterminado,
    corre o risco de deixar um flip-flop interno em estado **metaestável** (nem 0 nem 1 de
    forma confiável) por um tempo curto, mas nocivo. Por isso o hardware passa o sinal por um
    *sincronizador* (normalmente 2 flip-flops em série, no clock do sistema) antes de
@@ -72,10 +72,34 @@ sistema está congelado.*
    de CPU*, não de periférico, e por isso está sob controle de quem projeta o firmware/SDK,
    não do seu código de aplicação.
 
-4. **Despacha para o vetor** — com o contexto seguro, o núcleo consulta a **tabela de
-   vetores de interrupção** para descobrir qual função tratar: dezenas de periféricos (GPIO,
-   UART, timers, ...) compartilham a mesma CPU, então é preciso indexar corretamente até o
-   endereço da *sua* ISR antes de saltar para ela.
+4. **Despacha para o vetor** — merece destrinchar, porque "vetor de interrupção" esconde uma
+   sutileza importante que vai aparecer de novo quando você registrar a ISR do botão.
+
+   A **tabela de vetores** é uma estrutura de hardware: um array, em endereço fixo de
+   memória, com um ponteiro de código para cada **linha de interrupção** que o núcleo da CPU
+   enxerga. "Linha", não "periférico" — e é aí que mora a pegadinha. O Xtensa do ESP32 tem
+   um número pequeno de linhas de interrupção (dezenas, não centenas), enquanto o chip tem
+   **40 pinos de GPIO**. Não existe uma entrada na tabela de vetores para "GPIO2" e outra
+   para "GPIO4": os 40 pinos **compartilham uma única linha** de interrupção do núcleo.
+
+   Isso significa que o despacho acontece em **dois níveis**:
+
+   - **Nível 1 (hardware, tabela de vetores de verdade)**: quando qualquer pino de GPIO
+     interrompe, o núcleo salta para *um* endereço fixo — o manipulador genérico de GPIO que
+     o driver do ESP-IDF instalou ali (uma única vez, via `gpio_install_isr_service()`).
+     Até aqui, a CPU só sabe "algum GPIO pediu atenção", não qual.
+   - **Nível 2 (software, dentro do driver)**: esse manipulador genérico lê os registradores
+     de status do periférico GPIO (que funcionam como um "bitmap": um bit ligado por pino que
+     mudou), descobre **qual(is) pino(s)** dispararam e só então chama a função que *você*
+     registrou para aquele pino específico — a tabela que `gpio_isr_handler_add()` preenche.
+
+   Ou seja: `gpio_isr_handler_add(BTN, btn_isr, NULL)` não "pendura `btn_isr` na tabela de
+   vetores da CPU" (como um comentário simplificado poderia sugerir) — ele pendura numa
+   tabela de despacho **por pino**, mantida em software pelo driver, um nível abaixo do vetor
+   real. É esse segundo nível — ler o status, decidir qual pino, indexar sua tabela — que faz
+   o despacho custar um pouco mais que "zero" mesmo tendo só uma linha de hardware.
+   Periféricos com uma linha de interrupção dedicada por instância (um timer, uma UART) não
+   precisam desse segundo nível: a tabela de vetores já resolve sozinha.
 
 5. **SEU CÓDIGO NA ISR** — só agora a primeira linha que você escreveu de fato executa. É a
    **única** etapa desta figura sob o seu controle direto — todas as anteriores são
@@ -141,11 +165,10 @@ Critério geral: **eventos rápidos (período < ~10× a varredura) ou raros (cus
 desperdiçado) ⇒ interrupção; sinais lentos e constantes ⇒ polling ainda é honesto** — e mais
 simples de depurar. Engenharia é escolher a ferramenta mais simples que atende ao requisito.
 
-> **Observação — quem decide qual ISR roda?** O controlador de interrupções: cada fonte
-> (pino, timer, UART…) tem uma entrada numa **tabela de vetores** — um array de endereços de
-> ISRs que a CPU consulta por hardware, sem gastar um ciclo de software para descobrir quem
-> chamou. No ARM ela tem nome próprio (vetor de exceções); no ESP-IDF, a matriz de
-> interrupções faz o roteamento e `gpio_isr_handler_add()` pendura sua função lá.
+> **Observação — quem decide qual ISR roda?** Já vimos em detalhe na Figura 4-B (etapa 4):
+> a tabela de vetores é do hardware, mas para os 40 pinos de GPIO do ESP32 o roteamento
+> "qual pino exatamente" é um segundo nível, feito em software pelo driver. É esse segundo
+> nível que `gpio_isr_handler_add()` alimenta.
 
 ## 2. Regras de ouro para ISRs
 
@@ -201,7 +224,8 @@ A instalação, no `app_main`:
 ```c
 gpio_set_intr_type(BTN, GPIO_INTR_NEGEDGE);   // dispare na borda de DESCIDA (ativo-baixo)
 gpio_install_isr_service(0);                  // serviço de despacho de ISRs de GPIO
-gpio_isr_handler_add(BTN, btn_isr, NULL);     // pendura btn_isr no vetor do pino
+gpio_isr_handler_add(BTN, btn_isr, NULL);     // registra btn_isr na tabela de despacho
+                                               // por pino do driver (não é o vetor da CPU)
 ```
 
 Por que borda de descida? Porque o botão usa pull-up e é ativo-baixo (semana 3): apertar =
@@ -331,7 +355,8 @@ sintoma: “alguém segurou a CPU e nunca bloqueou”.
 | Termo | Significado |
 |---|---|
 | ISR | rotina de tratamento de interrupção |
-| tabela de vetores | array de endereços de ISRs consultado por hardware |
+| tabela de vetores | array de endereços de ISRs, uma entrada por **linha** de interrupção do hardware |
+| tabela de despacho por pino | roteamento em software, feito pelo driver GPIO, dos 40 pinos que compartilham 1 linha |
 | contexto | PC + registradores salvos na troca de fluxo |
 | IRAM_ATTR | atributo que coloca o código na SRAM (ISR segura) |
 | prescaler | divisor de clock à frente do contador do timer |
