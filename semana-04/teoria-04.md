@@ -50,12 +50,57 @@ O que acontece, em câmera lenta, entre a borda no pino e a primeira linha da su
 contexto) explica por que a ISR deve ser curta: tudo nessa figura é tempo em que o resto do
 sistema está congelado.*
 
+**As 7 etapas, uma a uma:**
+
+1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico decide,
+   completamente **assíncrona** em relação ao clock da CPU. Ela pode chegar em qualquer fase
+   do ciclo de clock — inclusive bem no meio de uma borda de subida do próprio clock, o que
+   nos leva à próxima etapa.
+
+2. **Sincronização do sinal** — um sinal externo, lido "crú" nesse instante indeterminado,
+   corre o risco de deixar um flip-flop interno em estado **metaestável** (nem 0 nem 1 de
+   forma confiável) por um tempo curto, mas nocivo. Por isso o hardware passa o sinal por um
+   *sincronizador* (normalmente 2 flip-flops em série, no clock do sistema) antes de
+   confiar nele. Isso custa **poucos ciclos de clock** — invisível em nanossegundos, mas é a
+   primeira fatia real de latência, e ela existe mesmo que sua ISR esteja vazia.
+
+3. **Salva contexto (registradores)** — antes de desviar a execução, o núcleo precisa
+   garantir que o código interrompido, ao voltar, encontre tudo exatamente como deixou. Isso
+   significa empilhar o contador de programa (PC) e um conjunto de registradores de
+   trabalho. Quanto **mais registradores** a arquitetura empilha automaticamente (ou quanto
+   mais o *startup code* da ISR salva por conta própria), mais longa essa etapa — é *tempo
+   de CPU*, não de periférico, e por isso está sob controle de quem projeta o firmware/SDK,
+   não do seu código de aplicação.
+
+4. **Despacha para o vetor** — com o contexto seguro, o núcleo consulta a **tabela de
+   vetores de interrupção** para descobrir qual função tratar: dezenas de periféricos (GPIO,
+   UART, timers, ...) compartilham a mesma CPU, então é preciso indexar corretamente até o
+   endereço da *sua* ISR antes de saltar para ela.
+
+5. **SEU CÓDIGO NA ISR** — só agora a primeira linha que você escreveu de fato executa. É a
+   **única** etapa desta figura sob o seu controle direto — todas as anteriores são
+   overhead fixo da arquitetura/SDK. É por isso que a régua "quanto MENOR a ISR, mais
+   previsível o sistema" aponta exatamente para esse bloco: encurtar as etapas 1–4 não está
+   ao seu alcance, encurtar a 5 está.
+
+6. **Restaura contexto** — o espelho da etapa 3: os registradores empilhados voltam aos seus
+   lugares.
+
+7. **Retoma programa** — o PC volta a apontar para a instrução seguinte àquela que estava
+   rodando no instante da borda; o código interrompido não tem como saber que foi pausado.
+
+**Onde termina a "latência de interrupção" propriamente dita:** a seta vermelha na figura
+cobre só as etapas 1–4 — é o tempo entre o evento físico e a primeira instrução da sua ISR,
+a métrica que compara com o Exemplo 4.1 (latência de polling). As etapas 5–7 não entram
+nessa métrica porque a 5 é *seu* código (você escolhe o quão longo) e a 6–7 são o custo
+simétrico de "desligar" a interrupção, não de "ligá-la".
+
 ```
  fluxo principal ──────────■ (borda no pino!) ┌────────────┐
                             \────────────────▶│    ISR     │
-                            salvamento de     │ (curta!)   │
-                            contexto          └─────┬──────┘
-                            /◀──────────────────────┘
+                             salvamento de     │ (curta!)   │
+                             contexto          └─────┬──────┘
+                            /◀───────────────────────┘
  fluxo principal ──────────■  restaura contexto e segue
 ```
 
