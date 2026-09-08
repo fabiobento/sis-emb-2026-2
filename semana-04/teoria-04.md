@@ -204,7 +204,7 @@ conduta:
 5. **Dados compartilhados**: variáveis tocadas pela ISR e pelo resto do código são
    `volatile` (semana 3) e, se a atualização não for atômica, protegidas por seção crítica.
 
-Veja as regras encarnadas no firmware do laboratório (`src/isr_timer/main.c`) — a ISR
+Veja as regras ilustradas no firmware do laboratório (`src/isr_timer/main.c`) — a ISR
 completa:
 
 ```c
