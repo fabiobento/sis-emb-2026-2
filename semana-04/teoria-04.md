@@ -243,10 +243,24 @@ largura de pulso (Semana 12, HC-SR04), usa-se `GPIO_INTR_ANYEDGE` — qualquer b
 ## 3. Temporizadores de hardware
 
 Como fazer algo "a cada X ms" com precisão? `vTaskDelay` tem resolução de tick (10 ms) e
-depende do escalonador (se uma tarefa mais prioritária estiver ocupada, seu atraso estica —
-jitter). A resposta de precisão é o **timer de hardware**: um contador incrementado pelo
-clock, dividido por um **prescaler**, que gera uma interrupção ao atingir o valor de
-**comparação** (alarme) — e pode recarregar sozinho (modo periódico), sem a CPU no caminho:
+depende do escalonador: se uma tarefa mais prioritária estiver ocupada quando seu tick
+chegar, a tarefa que está em `vTaskDelay` só roda depois que aquela liberar a CPU — seu
+atraso "estica" de forma imprevisível. Esse estica-e-encolhe tem nome: **jitter**, a
+variação, evento a evento, entre o instante em que algo *deveria* acontecer e o instante em
+que de fato acontece.
+
+![Comparação de jitter entre vTaskDelay e um timer de hardware: eventos regulares no timer, irregulares no vTaskDelay](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/jitter_vtaskdelay_vs_timer.png)
+
+*Figura 4-E — O mesmo período nominal (500 ms), duas garantias bem diferentes. Com
+`vTaskDelay`, o evento real desliza conforme o que mais está rodando no sistema — no exemplo,
+uma tarefa de maior prioridade atrasa um dos disparos em vários ms. Com um timer de hardware,
+o contador incrementa sozinho, movido pelo clock do chip — a CPU nem precisa estar acordada
+para ele continuar contando.*
+
+A resposta de precisão é o **timer de hardware**: um contador incrementado pelo clock,
+dividido por um **prescaler** (um divisor de frequência), que dispara uma interrupção ao
+atingir um valor de **comparação** (o "alarme") — e pode recarregar sozinho e recomeçar
+(modo periódico), sem que nenhum código seu precise rodar entre um disparo e o outro:
 
 ```
 clock 80 MHz ──▶ [÷ prescaler] ──▶ contador ──▶ (== alarme?) ──▶ IRQ + recarrega
@@ -268,6 +282,16 @@ clock 80 MHz ──▶ [÷ prescaler] ──▶ contador ──▶ (== alarme?) 
 
 Método geral (decore o caminho, não os números): **período_desejado = prescaler × alarme ÷
 clock**. Escolha o prescaler para um tick “redondo” (1 µs, 1 ms) e o alarme cai de presente.
+
+![Anatomia de um timer de hardware: pipeline clock-prescaler-contador-comparador-IRQ e a forma de onda dente de serra do contador ao longo de dois ciclos](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/timer_hw_anatomia.png)
+
+*Figura 4-F — O Exemplo 4.2 em imagem. Acima, o pipeline: o clock de 80 MHz passa pelo
+prescaler (÷80, dando o tick de 1 µs), incrementa o contador, é comparado ao alarme
+(250 000) e, ao bater, dispara a IRQ e recarrega o contador em 0 — sem intervenção da CPU
+nesse laço. Abaixo, o contador **na prática**: sobe linearmente de 0 até o alarme (um "dente
+de serra"), a cada 250 ms bate no teto, dispara a interrupção e recomeça do zero. O callback
+do usuário só entra em cena no instante do pico — o resto do tempo é hardware trabalhando
+sozinho.*
 
 No ESP-IDF, a API de alto nível **`esp_timer`** entrega exatamente isso sem tocar
 registradores — e é o "heartbeat" do firmware desta semana:
@@ -291,12 +315,24 @@ esp_timer_start_periodic(timer, 500000);     // período em µs: 500 ms
 > sistema — um callback guloso atrasa os demais.
 
 **Exemplo resolvido 4.3 (medição de largura de pulso — o futuro HC-SR04)** — Para medir o
-eco do sensor ultrassônico (semana 12 no RPi): o sensor responde a um disparo com um pulso
-cuja **largura** é proporcional à distância. Como medi-la?
+eco do sensor ultrassônico (semana 12 no RPi): você dispara um pulso curto no pino **TRIG**
+(10 µs), o sensor emite um som ultrassônico e, assim que o capta de volta, levanta o pino
+**ECHO** por um tempo **proporcional à distância** percorrida pelo som. Como medir essa
+largura com o que já vimos nesta semana?
 
-*Solução.* Capturar o instante da borda de subida (t₁) e da descida (t₂) por interrupção
-(uma ISR em `GPIO_INTR_ANYEDGE` carimbando `esp_timer_get_time()` a cada chamada), e
-calcular: distância = (t₂ − t₁) × velocidade_do_som ÷ 2 (o som vai **e volta** — daí o ÷ 2).
+*Solução.* Capturar o instante da borda de subida (t₁) e da descida (t₂) do pino ECHO por
+interrupção — uma única ISR configurada em `GPIO_INTR_ANYEDGE` (dispara nas duas bordas),
+que a cada chamada só carimba `esp_timer_get_time()` e guarda o valor (regra de ouro:
+curtíssima). Depois, na tarefa: distância = (t₂ − t₁) × velocidade_do_som ÷ 2 (o som vai **e
+volta** até o obstáculo — daí o ÷ 2).
+
+![Diagrama de tempo do TRIG e do ECHO do HC-SR04, com t1 na borda de subida e t2 na borda de descida do eco](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pulso_echo_hcsr04.png)
+
+*Figura 4-G — TRIG dispara o sensor com um pulso de 10 µs; algum tempo depois, ECHO sobe
+(t₁) e permanece em nível alto até o som voltar, quando desce (t₂). A mesma ISR
+`GPIO_INTR_ANYEDGE` captura os dois instantes — é o mesmo padrão de código do botão da
+semana 3, só que cronometrando em vez de contando cliques.*
+
 Com v_som = 340 m/s e um eco de 1 166 µs:
 
 d = 1 166 × 10⁻⁶ s × 340 m/s ÷ 2 ≈ **0,198 m** (19,8 cm)
