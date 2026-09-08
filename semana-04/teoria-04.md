@@ -52,12 +52,12 @@ sistema está congelado.*
 
 **As 7 etapas, uma a uma:**
 
-1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico "decide",
+1. **Evento no pino** — a borda elétrica acontece no instante em que o mundo físico decide,
    completamente **assíncrona** em relação ao clock da CPU. Ela pode chegar em qualquer fase
    do ciclo de clock — inclusive bem no meio de uma borda de subida do próprio clock, o que
    nos leva à próxima etapa.
 
-2. **Sincronização do sinal** — um sinal externo, lido bruto nesse instante indeterminado,
+2. **Sincronização do sinal** — um sinal externo, lido "crú" nesse instante indeterminado,
    corre o risco de deixar um flip-flop interno em estado **metaestável** (nem 0 nem 1 de
    forma confiável) por um tempo curto, mas nocivo. Por isso o hardware passa o sinal por um
    *sincronizador* (normalmente 2 flip-flops em série, no clock do sistema) antes de
@@ -72,7 +72,8 @@ sistema está congelado.*
    de CPU*, não de periférico, e por isso está sob controle de quem projeta o firmware/SDK,
    não do seu código de aplicação.
 
-4. **Despacha para o vetor** — essa etapa merece detalhamento adicional, porque o termo "vetor de interrupção" esconde uma sutileza importante que vai aparecer de novo quando você registrar a ISR do botão.
+4. **Despacha para o vetor** — merece destrinchar, porque "vetor de interrupção" esconde uma
+   sutileza importante que vai aparecer de novo quando você registrar a ISR do botão.
 
    A **tabela de vetores** é uma estrutura de hardware: um array, em endereço fixo de
    memória, com um ponteiro de código para cada **linha de interrupção** que o núcleo da CPU
@@ -99,6 +100,14 @@ sistema está congelado.*
    o despacho custar um pouco mais que "zero" mesmo tendo só uma linha de hardware.
    Periféricos com uma linha de interrupção dedicada por instância (um timer, uma UART) não
    precisam desse segundo nível: a tabela de vetores já resolve sozinha.
+
+   ![Despacho em dois níveis: tabela de vetores do hardware até a tabela de despacho por pino do driver GPIO](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/despacho_vetor_gpio.png)
+
+   *Figura 4-D — Anatomia da etapa 4, seguindo uma borda em GPIO4 do evento até `btn_isr()`.
+   Nível 1 (hardware): a CPU só sabe que "algum GPIO" interrompeu — todos os 40 pinos
+   apontam para a mesma entrada da tabela de vetores. Nível 2 (software, dentro do driver):
+   o manipulador genérico lê o bitmap `GPIO_STATUS`, identifica o bit ligado (pino 4) e
+   consulta a tabela que `gpio_isr_handler_add()` preencheu para chamar a função certa.*
 
 5. **SEU CÓDIGO NA ISR** — só agora a primeira linha que você escreveu de fato executa. É a
    **única** etapa desta figura sob o seu controle direto — todas as anteriores são
