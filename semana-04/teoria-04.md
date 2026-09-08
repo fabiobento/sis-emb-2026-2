@@ -322,7 +322,7 @@ largura com o que já vimos nesta semana?
 
 *Solução.* Capturar o instante da borda de subida (t₁) e da descida (t₂) do pino ECHO por
 interrupção — uma única ISR configurada em `GPIO_INTR_ANYEDGE` (dispara nas duas bordas),
-que a cada chamada só carimba `esp_timer_get_time()` e guarda o valor (lembre-se que a ISR deve ser:
+que a cada chamada só carimba `esp_timer_get_time()` e guarda o valor (regra de ouro:
 curtíssima). Depois, na tarefa: distância = (t₂ − t₁) × velocidade_do_som ÷ 2 (o som vai **e
 volta** até o obstáculo — daí o ÷ 2).
 
@@ -341,20 +341,35 @@ A resolução de 1 µs do relógio ⇒ resolução de distância de 340 m/s × 1
 sobra em relação à precisão do sensor (±3 mm); o erro real virá do sensor e da temperatura do
 ar (o som viaja mais rápido no ar quente: ~0,6 m/s por °C).
 
-## 4. Watchdog Timer (WDT): o "vigia" do firmware
+## 4. Watchdog Timer (WDT): o vigia do firmware
 
 E se, apesar de tudo, o firmware travar em campo — um laço infinito por bug, um deadlock? Não
 há ninguém para apertar reset num medidor no poste, num satélite, num controlador enterrado
 numa plantação. O **watchdog** é um contador de hardware que **reinicia o sistema** se o
-software não o "alimentar" (resetar) dentro do prazo. Firmware saudável alimenta o WDT no seu
-laço principal; firmware travado deixa o prazo estourar → reset → sistema volta ao ar
-sozinho. É a última linha de defesa, presente em todo produto sério — e um dos motivos pelos
-quais seu medidor de energia raramente “trava” de vez.
+software não o "alimentar" (resetar) dentro do prazo. É a última linha de defesa, presente em
+todo produto sério — e um dos motivos pelos quais seu medidor de energia raramente “trava” de
+vez.
+
+Repare que o mecanismo é primo do timer da Seção 3 — um contador correndo contra um valor de
+comparação — só que aqui **quem reseta o contador é o seu código**, chamando
+`esp_task_wdt_reset()` em algum ponto do laço principal que você quer vigiar, não o hardware
+sozinho de forma automática. Firmware saudável passa por esse ponto regularmente (o "▽" da
+figura abaixo), sempre bem antes do prazo; firmware travado para de passar por ali, o contador
+segue subindo sem ser zerado e, ao cruzar o timeout, o watchdog dispara:
+
+![Linha do tempo do watchdog: contador reiniciado periodicamente pela alimentação do software (saudável) versus contador que ultrapassa o timeout e provoca reset (travado)](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/wdt_alimentacao.png)
+
+*Figura 4-H — A diferença crucial para o timer da Figura 4-F: ali o próprio hardware
+recarregava o contador a cada estouro (modo periódico); aqui é o software que precisa
+aparecer e "alimentar" antes do prazo. É exatamente essa dependência do software que torna o
+watchdog capaz de **detectar** o software travado — um contador que só o hardware controla
+nunca saberia que algo do lado de cá parou de responder.*
 
 O ESP-IDF já ativa por padrão o **Task WDT** vigiando a tarefa IDLE de cada núcleo (a IDLE é
 a tarefa que roda quando ninguém mais quer a CPU — se ela não roda, alguém está
 monopolizando): se alguma tarefa monopolizar a CPU com um laço sem bloqueio (a violação da
-semana 5), a IDLE nunca roda e você verá no monitor:
+semana 5), a IDLE nunca roda, ninguém alimenta o watchdog em nome dela, e você verá no
+monitor:
 
 ```
 E (15324) task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
@@ -364,6 +379,28 @@ E (15324) task_wdt:  - IDLE0 (CPU 0)
 Vamos **provocar isso de propósito** no laboratório (`#define PROVOCAR_WDT 1` liga um
 `while(1){}` nu) — você reconhecerá essa mensagem no futuro como um médico reconhece um
 sintoma: “alguém segurou a CPU e nunca bloqueou”.
+
+### Por que só um watchdog não basta: defesa em camadas
+
+Um detalhe que costuma passar batido: o Task WDT que acabamos de descrever é ele mesmo
+**software** rodando sobre um timer — e software pode travar de formas que impedem até ele
+de fazer seu trabalho (por exemplo, uma seção crítica que desabilita interrupções e nunca as
+reabilita). Por isso o ESP32 empilha watchdogs independentes, cada um cobrindo a falha do
+anterior:
+
+![Três camadas de watchdog do ESP32: Task Watchdog, Interrupt Watchdog e RTC Watchdog, cada uma cobrindo a falha da anterior](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/wdt_camadas.png)
+
+*Figura 4-I — Defesa em profundidade. O Task WDT (Nível 1, o que vimos acima) cobre o caso
+comum: uma tarefa presa num laço. Se o próprio mecanismo de monitoramento não conseguir
+rodar — por exemplo, alguém desabilitou interrupções por tempo demais e nunca reabilitou —,
+o Interrupt Watchdog (Nível 2) percebe. E se até essa camada de software travar junto com o
+resto, o RTC Watchdog (Nível 3) é hardware puro, alheio ao que trava no núcleo principal, e
+garante que o chip reinicia de qualquer forma. Cada camada existe porque a de cima, sendo
+código, tem seu próprio jeito de falhar.*
+
+Essa é a mesma lógica de confiabilidade em camadas que fecha esta seção: o watchdog que te
+protege também precisa de um watchdog — nenhuma camada isolada, sozinha, é digna de confiança
+plena.
 
 > **Observação — anti-padrão clássico**: alimentar o WDT dentro de uma ISR de timer. A ISR
 > continua viva mesmo com o laço principal travado ⇒ o WDT nunca dispara e perde a razão de
