@@ -98,9 +98,9 @@ simétrico de "desligar" a interrupção, não de "ligá-la".
 ```
  fluxo principal ──────────■ (borda no pino!) ┌────────────┐
                             \────────────────▶│    ISR     │
-                             salvamento de     │ (curta!)   │
-                             contexto          └─────┬──────┘
-                            /◀───────────────────────┘
+                            salvamento de     │ (curta!)   │
+                            contexto          └─────┬──────┘
+                            /◀──────────────────────┘
  fluxo principal ──────────■  restaura contexto e segue
 ```
 
