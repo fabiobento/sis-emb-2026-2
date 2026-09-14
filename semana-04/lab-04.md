@@ -150,9 +150,9 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 
 ## Entrega (GitHub da bancada, `lab-04/relatorio.md`)
 
-1. Tabela com as 10 latências da Parte A + média e máximo; e os valores da Parte B.5 com a
+1. Tabela com as 10 latências da Parte A + média e máximo; e os valores do item 9 com a
    explicação capturar × processar (≤ 5 linhas).
-2. Resposta da Parte B.4: cenário numérico em que o polling do Lab 3 perderia eventos.
+2. Resposta do item 8: cenário numérico em que o polling do Lab 3 perderia eventos.
 3. Prints das duas falhas da Parte C (erro do printf-na-ISR e mensagem do task_wdt) + a
    explicação da cadeia do WDT.
 4. Código da Parte D (só a ISR modificada) + três medições de largura de pulso.
