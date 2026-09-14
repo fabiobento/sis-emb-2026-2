@@ -368,7 +368,7 @@ aparecer e "alimentar" antes do prazo. É exatamente essa dependência do softwa
 watchdog capaz de **detectar** o software travado — um contador que só o hardware controla
 nunca saberia que algo do lado de cá parou de responder.*
 
-O ESP-IDF já ativa por padrão o **Task WDT** vigiando a tarefa IDLE de cada núcleo (a IDLE é
+O ESP-IDF já ativa por padrão o **Task WDT** vigiando a tarefa IDLE de **cada núcleo** (a IDLE é
 a tarefa que roda quando ninguém mais quer a CPU — se ela não roda, alguém está
 monopolizando): se alguma tarefa monopolizar a CPU com um laço sem bloqueio (a violação da
 semana 5), a IDLE nunca roda, ninguém alimenta o watchdog em nome dela, e você verá no
