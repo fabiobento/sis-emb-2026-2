@@ -163,6 +163,6 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 
 Latência real da ISR: em vez de medir até a tarefa, meça da borda até a **primeira linha da
 ISR**. Como não dá para carimbar "antes" da ISR, use um truque de bancada: configure um
-segundo GPIO como saída, faça a ISR **setá-lo imediatamente**, e ligue os dois pinos ao...
-Wokwi Logic Analyzer (peça `wokwi-logic-analyzer`)! Compare a defasagem entre a borda do
+segundo GPIO como saída, faça a ISR **setá-lo imediatamente**, e ligue os dois pinos ao componente
+`Logic Analyzer` do Wokwi! Compare a defasagem entre a borda do
 botão e a borda da saída. Reporte o valor em µs.
