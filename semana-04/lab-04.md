@@ -103,10 +103,9 @@ laço dela, não do hardware.*
 Hora de errar em ambiente controlado.
 
 10. **printf na ISR**: adicione um `printf("isr!\n");` dentro de `btn_isr` e regrave.
-   Pressione o botão. Dependendo da sorte, você verá um **abort/Guru Meditation** com
-   backtrace no monitor — fotografe a primeira linha do erro. Remova o printf. (Regra 2 da
+   Pressione o botão. Você verá um ** panic_abort ** com backtrace no monitor — dê um print para o relatório. Remova o printf. (Regra 2 da
    teoria: violada e comprovada. O `printf` usa mutex e buffers da newlib — recursos que
-   assumem um contexto de tarefa; numa ISR, o chão some.)
+   assumem um contexto de tarefa numa ISR!E eis que o chão some, rsrs)
 11. **Task WDT**: mude `#define PROVOCAR_WDT 0` para `1` e regrave. O `while(1){}` nu
    monopoliza a CPU; em ~5 s o monitor mostra:
 

@@ -7,7 +7,7 @@
 
 #define LED   GPIO_NUM_2
 #define BTN   GPIO_NUM_4    // GPIO0 é o pino de boot — evite usá-lo com botão (ver Semana 3, Parte D)
-#define DEBOUNCE_US 150000    // ajuste para o SEU botão: veja Lab 3, Parte C — 20 ms nem
+#define DEBOUNCE_US 200000    // ajuste para o SEU botão: veja Lab 3, Parte C — 20 ms nem
                               // sempre basta, pois a ISR captura bounce que o polling não via
 #define PROVOCAR_WDT 0
 
