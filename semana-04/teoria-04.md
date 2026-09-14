@@ -362,7 +362,7 @@ segue subindo sem ser zerado e, ao cruzar o timeout, o watchdog dispara:
 
 ![Linha do tempo do watchdog: contador reiniciado periodicamente pela alimentação do software (saudável) versus contador que ultrapassa o timeout e provoca reset (travado)](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/wdt_alimentacao.png)
 
-*Figura 4-H — A diferença crucial para o timer da Figura 4-F: ali o próprio hardware
+*Figura 4-H — A principal diferença para o timer da Figura 4-F: ali o próprio hardware
 recarregava o contador a cada estouro (modo periódico); aqui é o software que precisa
 aparecer e "alimentar" antes do prazo. É exatamente essa dependência do software que torna o
 watchdog capaz de **detectar** o software travado — um contador que só o hardware controla
