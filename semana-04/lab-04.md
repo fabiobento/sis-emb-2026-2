@@ -54,11 +54,11 @@ cp ~/sis-emb-2026-2/semana-04/src/isr_timer/main.c ~/sis-emb/lab4/botao_led_inte
 ```
 
 4. Antes de gravar, lembre-se:
+   - Abra no VSCode o programa `~/sis-emb/lab4/botao_led_interrupt/main/botao_led_interrupt.c` **com a teoria do lado** (as seções 2 e 3 detalham a ISR e o timer linha a linha). 
    - quem  pisca o LED? quem conta os eventos?
    - quem imprime?
       (o callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto  e suas restrições)
-   - Abra no VSCode o programa `~/sis-emb/lab4/botao_led_interrupt/main/botao_led_interrupt.c` **com a teoria do lado** (as seções 2 e 3 detalham a ISR e o timer linha a linha). .
-
+   
 
 5. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
 ```bash
