@@ -72,7 +72,7 @@ sistema está congelado.*
    de CPU*, não de periférico, e por isso está sob controle de quem projeta o firmware/SDK,
    não do seu código de aplicação.
 
-4. **Despacha para o vetor** — merece destrinchar, porque "vetor de interrupção" esconde uma
+4. **Despacha para o vetor** — vou detalhar um pouco mais essa etapa, porque "vetor de interrupção" esconde uma
    sutileza importante que vai aparecer de novo quando você registrar a ISR do botão.
 
    A **tabela de vetores** é uma estrutura de hardware: um array, em endereço fixo de
