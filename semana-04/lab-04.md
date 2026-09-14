@@ -11,8 +11,12 @@
 - provocar (de propósito!) o Task Watchdog para aprender a reconhecer seu sintoma.
 
 **Duração**: 2 aulas.
-**Material**: ESP32, LED + R 220 Ω, botão (ou o BOOT da placa). **Wokwi**: circuito idêntico
-ao Lab 3 — valide lá primeiro.
+
+**Material**: ESP32, LED + R 220 Ω, botão (ou o BOOT da placa). 
+
+**Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou. Se quiser pode conferir  [no Wokwi por esse link](https://wokwi.com/projects/475146701299637249).
+
+![circuito do lab 04](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04.png)
 
 ---
 
@@ -24,12 +28,12 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte A — Rodando e entendendo (30 min)
 
-1. Abra `~/sis-emb/semana-04/src/isr_timer/main.c` **com a teoria do lado** (seções 2 e 3
-   detalham a ISR e o timer linha a linha). Antes de gravar, responda mentalmente: quem
-   pisca o LED? quem conta os eventos? quem imprime? (três "personagens" diferentes: o
+1. Abra `~/sis-emb-2026-2/semana-04/src/isr_timer/main.c` **com a teoria do lado** (seções 2 e 3
+   detalham a ISR e o timer linha a linha). Antes de gravar, lembre-se:  quem
+   pisca o LED? quem conta os eventos? quem imprime? (o
    callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto
    e suas restrições).
-2. Grave e monitore. Comportamento esperado: LED piscando a 1 Hz (heartbeat de 500 ms via
+2. Grave e monitore. O comportamento esperado é o seguinte: LED piscando a 1 Hz (heartbeat de 500 ms via
    `esp_timer`) **independentemente** do botão; a cada pressionada:
 
 ```
