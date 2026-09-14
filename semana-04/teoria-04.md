@@ -94,7 +94,7 @@ sistema está congelado.*
      registrou para aquele pino específico — a tabela que `gpio_isr_handler_add()` preenche.
 
    Ou seja: `gpio_isr_handler_add(BTN, btn_isr, NULL)` não "pendura `btn_isr` na tabela de
-   vetores da CPU" (como um comentário simplificado poderia sugerir) — ele pendura numa
+   vetores da CPU" — ele pendura numa
    tabela de despacho **por pino**, mantida em software pelo driver, um nível abaixo do vetor
    real. É esse segundo nível — ler o status, decidir qual pino, indexar sua tabela — que faz
    o despacho custar um pouco mais que "zero" mesmo tendo só uma linha de hardware.
@@ -169,9 +169,12 @@ a 3 000 RPM com 20 pulsos/volta sobrevive a esse polling?
    contagem de rotação ficaria errada de forma silenciosa. Com interrupção, cada borda é
    capturada com latência de poucos µs — 100× mais rápido que o evento.
 
-Critério geral: **eventos rápidos (período < ~10× a varredura) ou raros (custo de polling
-desperdiçado) ⇒ interrupção; sinais lentos e constantes ⇒ polling ainda é honesto** — e mais
-simples de depurar. Engenharia é escolher a ferramenta mais simples que atende ao requisito.
+> Critério geral para escolha entre pooling e interrupção:
+>
+>- **eventos rápidos (período < ~10× a varredura) ou raros (custo de polling desperdiçado) ⇒ interrupção; >- sinais lentos e constantes ⇒ polling ainda é honesto** — e mais
+simples de depurar.
+>
+>Engenharia é escolher a ferramenta mais simples que atende ao requisito.
 
 > **Observação — quem decide qual ISR roda?** Já vimos em detalhe na Figura 4-B (etapa 4):
 > a tabela de vetores é do hardware, mas para os 40 pinos de GPIO do ESP32 o roteamento
