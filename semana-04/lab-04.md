@@ -2,11 +2,13 @@
 
 > **Antes de começar**: leia a [teoria-04](teoria-04.md) — as Figuras 4-A e 4-B explicam o
 > que você vai medir hoje, e a seção 2 lista as regras de ISR que você vai **violar de
-> propósito** na Parte C. Errar em ambiente controlado é a melhor vacina.
+> propósito** na Parte C. Errar em ambiente controlado é a oportunidade de observar para "se vacinar" contra problemas em sistemas embarcados.
 
-**Objetivo**: substituir o polling do Lab 3 por **interrupção**; usar o `esp_timer` como
-heartbeat; **medir a latência** ISR→tarefa; e provocar (de propósito!) o Task Watchdog para
-aprender a reconhecer seu sintoma.
+**Objetivos**:
+- substituir o polling do Lab 3 por **interrupção**;
+- usar o `esp_timer` como heartbeat;
+- **medir a latência** ISR→tarefa e;
+- provocar (de propósito!) o Task Watchdog para aprender a reconhecer seu sintoma.
 
 **Duração**: 2 aulas.
 **Material**: ESP32, LED + R 220 Ω, botão (ou o BOOT da placa). **Wokwi**: circuito idêntico
