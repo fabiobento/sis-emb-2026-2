@@ -248,7 +248,7 @@ largura de pulso (Semana 12, HC-SR04), usa-se `GPIO_INTR_ANYEDGE` — qualquer b
 Como fazer algo "a cada X ms" com precisão? `vTaskDelay` tem resolução de tick (10 ms) e
 depende do escalonador: se uma tarefa mais prioritária estiver ocupada quando seu tick
 chegar, a tarefa que está em `vTaskDelay` só roda depois que aquela liberar a CPU — seu
-atraso "estica" de forma imprevisível. Esse estica-e-encolhe tem nome: **jitter**, a
+atraso "estica" de forma imprevisível. Essa instabilidade tem nome: **jitter**, a
 variação, evento a evento, entre o instante em que algo *deveria* acontecer e o instante em
 que de fato acontece.
 
@@ -315,7 +315,7 @@ esp_timer_start_periodic(timer, 500000);     // período em µs: 500 ms
 > **Observação:** por padrão o callback do `esp_timer` roda numa *tarefa* de alta
 > prioridade, não numa ISR — por isso pode usar APIs normais (inclusive `gpio_set_level`).
 > Ainda assim, mantenha-o curto: ele compartilha a fila com todos os outros timers do
-> sistema — um callback guloso atrasa os demais.
+> sistema — um callback demorado pode atrasar os demais.
 
 **Exemplo resolvido 4.3 (medição de largura de pulso — o futuro HC-SR04)** — Para medir o
 eco do sensor ultrassônico (semana 12 no RPi): você dispara um pulso curto no pino **TRIG**
