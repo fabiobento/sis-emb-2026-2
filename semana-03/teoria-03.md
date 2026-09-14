@@ -262,6 +262,54 @@ com resistor externo de 50–65 kΩ; no nosso laboratório usaremos o pull-up **
 *Figura 3-D — Botão com pull-up: repare no resistor do trilho de 3,3 V ao pino e no botão do
 pino ao GND. Fonte: Practical Python Programming for IoT (Packt), cap. 6, Fig. 6.6.*
 
+### 2.2.1 Interno ou externo? O compromisso por trás da escolha
+
+Já vimos que existe resistor interno (o que usamos no laboratório) e externo (o da foto
+acima). Mas quando cada um se justifica? A escolha é basicamente um compromisso entre
+**espaço em hardware**, **imunidade a ruído elétrico** e **frequência do sinal** — regra
+geral: interno para simplificar e economizar; externo quando o circuito precisa de
+robustez que o interno não entrega.
+
+**Resistor interno — bom para:**
+
+- **Botões na mesma placa**: trilhas curtas (poucos centímetros) não captam ruído
+  suficiente para vencer o resistor interno.
+- **Prototipagem**: menos componentes na protoboard, menos fricção em aula/laboratório —
+  é por isso que o usamos no Lab 3.
+- **Economia de espaço e BOM** (*Bill of Materials*): cada componente a menos importa em
+  produto final, se o ambiente não for eletricamente hostil.
+- **Sinais de baixíssima frequência**, onde a borda não precisa ser rápida.
+
+**Resistor externo — indispensável para:**
+
+- **Cabos longos ou ambientes ruidosos**: fiação extensa vira antena, captando
+  interferência eletromagnética (EMI). O pull-up interno (fraco, *weak pull*) não tem força
+  para manter o nível lógico estável diante de ruído induzido; um resistor externo de
+  1–2,2 kΩ impõe uma corrente maior na linha, "abafando" a interferência.
+- **Barramentos rápidos (I2C, SPI, 1-Wire)**: o sinal precisa carregar/descarregar a
+  capacitância parasita do fio a cada borda — é justamente o que vimos na Seção 2.4: o
+  open-drain do I2C *depende* de um pull-up externo (tipicamente 4,7 kΩ) forte o bastante
+  para isso acontecer rápido; o resistor interno é fraco demais e distorce a borda.
+- **Sinais críticos** (reset, botão de emergência, interrupções de segurança): onde um
+  falso disparo por ruído é inaceitável.
+- **Gate de MOSFET de potência**: garante que o transistor fique cortado mesmo durante o
+  boot do micro, antes de qualquer firmware configurar pino algum (veja a seguir).
+
+> ⚠️ **O resistor interno só existe depois que seu código roda.** `gpio_pullup_en()` é uma
+> configuração de software — até o firmware executar essa linha (bem no início do boot), o
+> pino está exatamente na situação do início desta seção: **flutuando**. Para a maioria dos
+> botões isso não importa (a janela é curta e ninguém está clicando durante o boot). Mas em
+> reset, gate de MOSFET ou qualquer sinal que precise de um nível **garantido desde o
+> instante em que a energia liga**, só um resistor externo entrega isso — ele é físico,
+> não espera código nenhum rodar.
+
+| Característica | Pull interno | Pull externo |
+|---|---|---|
+| Resistência típica | alta (~20–50 kΩ) — *weak pull* | escolhida por você (~1–10 kΩ) — *strong pull* |
+| Imunidade a ruído | baixa | alta |
+| Espaço / custo | zero (já embutido no chip) | 1 componente físico a mais |
+| Nível durante o boot | indefinido (flutuante até o firmware configurar) | garantido desde o instante em que a energia liga |
+
 ### 2.3 Bouncing: quando um clique vale dez
 
 Um botão é mecânico: ao fechar/abrir, os contatos metálicos **quicam** — como uma bola
@@ -399,6 +447,8 @@ Programming for IoT (Packt), cap. 2, Fig. 2.7.*
 | endianness | ordem dos bytes de um inteiro na memória |
 | V_F | queda de tensão direta do LED/diodo |
 | pull-up / pull-down | resistor que define o nível de repouso da entrada |
+| weak pull / strong pull | resistor interno (alta R, corrente baixa) vs. externo (R escolhida, corrente maior) |
+| EMI | interferência eletromagnética — ruído captado por fios/trilhas longas |
 | ativo-baixo | lógica em que “acionado” = nível 0 |
 | bouncing | quique mecânico dos contatos de uma chave |
 | debounce | tratamento (soft/hard) do bouncing |

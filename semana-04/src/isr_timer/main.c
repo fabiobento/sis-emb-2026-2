@@ -6,7 +6,7 @@
 #include <stdio.h>
 
 #define LED   GPIO_NUM_2
-#define BTN   GPIO_NUM_0
+#define BTN   GPIO_NUM_4    // GPIO0 é o pino de boot — evite usá-lo com botão (ver Semana 3, Parte D)
 #define DEBOUNCE_US 20000
 #define PROVOCAR_WDT 0
 

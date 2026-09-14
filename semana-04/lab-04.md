@@ -12,10 +12,18 @@
 
 **Duração**: 2 aulas.
 
-**Material**: ESP32, LED + R 220 Ω, botão (ou o BOOT da placa). 
+**Material**: ESP32, LED + R 220 Ω, botão.
 
-**Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou. Se quiser pode conferir  [no Wokwi por esse link](https://wokwi.com/projects/475146701299637249).
+> ⚠️ **Não use o botão BOOT da placa neste lab.** O firmware usa **GPIO4** para o botão (não
+> mais GPIO0 como em versões antigas deste material) — GPIO0 é o pino de boot do ESP32, e um
+> botão externo pendurado nele corre o risco de derrubar a placa em modo de gravação se for
+> pressionado durante um reset (mesmo problema que resolvemos na Semana 3, Parte D). Monte um
+> botão externo real entre **GPIO4** e **GND**, com o pull-up interno cuidando do resto.
 
+**Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou (e o
+botão agora vai no **GPIO4**, não no GPIO0/BOOT).
+
+Se quiser conferir [o link atual do Wokwi](https://wokwi.com/projects/475146701299637249) e a imagem abaixo servem para entender a *ideia* do circuito (LED com R220 + botão com pull-up interno).
 ![circuito do lab 04](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04.png)
 
 ---
