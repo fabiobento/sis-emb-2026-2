@@ -20,10 +20,9 @@
 > pressionado durante um reset (mesmo problema que resolvemos na Semana 3, Parte D). Monte um
 > botão externo real entre **GPIO4** e **GND**, com o pull-up interno cuidando do resto.
 
-**Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou (e o
-botão agora vai no **GPIO4**, não no GPIO0/BOOT).
+**Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou (e o botão agora vai no **GPIO4**, não no GPIO0/BOOT). Se quiser, você pode conferir a simulação [nesse link do Wokwi](https://wokwi.com/projects/475146701299637249).
 
-Se quiser conferir [o link atual do Wokwi](https://wokwi.com/projects/475146701299637249) e a imagem abaixo servem para entender a *ideia* do circuito (LED com R220 + botão com pull-up interno).
+Monte o circuito da imagem abaixo (LED com R220 + botão com pull-up interno).
 ![circuito do lab 04](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04.png)
 
 ---
@@ -36,12 +35,38 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte A — Rodando e entendendo (30 min)
 
-1. Abra `~/sis-emb-2026-2/semana-04/src/isr_timer/main.c` **com a teoria do lado** (seções 2 e 3
-   detalham a ISR e o timer linha a linha). Antes de gravar, lembre-se:  quem
-   pisca o LED? quem conta os eventos? quem imprime? (o
-   callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto
-   e suas restrições).
-2. Grave e monitore. O comportamento esperado é o seguinte: LED piscando a 1 Hz (heartbeat de 500 ms via
+1. Abra o seu diretório de trabalho com o VS Code:
+```bash
+code ~/sis-emb
+```
+
+2. Dentro do VS Code, abra o terminal integrado, crie e acesse o diretório do lab 04:
+```bash
+mkdir ~/sis-emb/lab4
+cd ~/sis-emb/lab4
+idf.py create-project botao_led_interrupt
+cd botao_led_interrupt 
+```  
+
+3. Ainda no terminal integrado, copie o firmware do repositório do lab 04 para o seu diretório de projeto:
+```bash
+cp ~/sis-emb-2026-2/semana-04/src/isr_timer/main.c ~/sis-emb/lab4/botao_led_interrupt/main/botao_led_interrupt.c 
+```
+
+4. Antes de gravar, lembre-se:
+   - quem  pisca o LED? quem conta os eventos?
+   - quem imprime?
+      (o callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto  e suas restrições)
+   - Abra no VSCode o programa `~/sis-emb/lab4/botao_led_interrupt/main/botao_led_interrupt.c` **com a teoria do lado** (as seções 2 e 3 detalham a ISR e o timer linha a linha). .
+
+
+5. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
+```bash
+cd ~/sis-emb/lab4/botao_led_interrupt
+idf.py -p /dev/ttyUSB0 flash monitor 
+```
+
+6. O comportamento esperado é o seguinte: LED piscando a 1 Hz (heartbeat de 500 ms via
    `esp_timer`) **independentemente** do botão; a cada pressionada:
 
 ```
@@ -49,7 +74,7 @@ evento #1 | latencia ate a tarefa: 812 us
 evento #2 | latencia ate a tarefa: 1204 us
 ```
 
-3. Anote 10 valores de latência. Essa latência **não** é a da ISR (que respondeu em ~µs):
+7. Anote 10 valores de latência. Essa latência **não** é a da ISR (que respondeu em ~µs):
    é o tempo até a *tarefa* notar o flag — inclui o `vTaskDelay` do laço dela. Guarde essa
    distinção para o relatório: **capturar** (ISR, µs, garantido pelo hardware) ×
    **processar** (tarefa, quando o escalonador deixar).
@@ -62,13 +87,13 @@ laço dela, não do hardware.*
 
 ## Parte B — Polling × interrupção, na prática (25 min)
 
-4. Faça uma "metralhadora de cliques": pressione o botão o mais rápido que conseguir por
+8. Faça uma "metralhadora de cliques": pressione o botão o mais rápido que conseguir por
    10 segundos e anote o total contado. Repita com o firmware do **Lab 3** (polling a
    2 ms). Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
    pouca — então **quando a diferença importaria?** Responda com o Exemplo resolvido 4.1
    (encoder a 1 kHz: pulsos de 1 ms contra varredura de 2 ms — o polling perderia metade
    deles).
-5. **Experimento de estresse do laço principal**: no firmware de hoje, aumente o
+9. **Experimento de estresse do laço principal**: no firmware de hoje, aumente o
    `vTaskDelay` do laço da tarefa para 500 ms. Os eventos ainda são todos contados? (Sim —
    a ISR não depende do laço!) E a latência impressa? (Explode para até ~500 ms.) Registre
    os novos valores e explique a diferença entre *capturar* o evento e *processá-lo*.
@@ -77,12 +102,12 @@ laço dela, não do hardware.*
 
 Hora de errar em ambiente controlado.
 
-6. **printf na ISR**: adicione um `printf("isr!\n");` dentro de `btn_isr` e regrave.
+10. **printf na ISR**: adicione um `printf("isr!\n");` dentro de `btn_isr` e regrave.
    Pressione o botão. Dependendo da sorte, você verá um **abort/Guru Meditation** com
    backtrace no monitor — fotografe a primeira linha do erro. Remova o printf. (Regra 2 da
    teoria: violada e comprovada. O `printf` usa mutex e buffers da newlib — recursos que
    assumem um contexto de tarefa; numa ISR, o chão some.)
-7. **Task WDT**: mude `#define PROVOCAR_WDT 0` para `1` e regrave. O `while(1){}` nu
+11. **Task WDT**: mude `#define PROVOCAR_WDT 0` para `1` e regrave. O `while(1){}` nu
    monopoliza a CPU; em ~5 s o monitor mostra:
 
 ```
@@ -103,12 +128,12 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 
 ## Parte D — Medindo a largura de um pulso (25 min) — ponte com o Exemplo 4.3
 
-8. Reconfigure a interrupção do botão para **ambas as bordas**
+12. Reconfigure a interrupção do botão para **ambas as bordas**
    (`gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE)`).
-9. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
+13. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
    **subida**, calcule `s_duracao_us = agora - t1` e incremente o contador. Na tarefa,
    imprima a duração.
-10. Meça: quanto dura **sua** pressionada "curta"? E uma "longa" proposital? (Valores
+14. Meça: quanto dura **sua** pressionada "curta"? E uma "longa" proposital? (Valores
     típicos: 80–300 ms e >1 s.) Você acabou de implementar o esqueleto da medição do
     HC-SR04 (semana 12) — só muda a escala: lá os pulsos terão centenas de **µs** e o
     resultado vira distância via d = Δt × 340/2.
