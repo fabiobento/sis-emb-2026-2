@@ -144,7 +144,7 @@ git push -u origin main
 | `! [rejected] ... (fetch first)` ao dar `push` | o remoto tem commits que você não tem localmente | rode `git pull origin main` (com `--allow-unrelated-histories` se for a primeira vez) antes do `push` |
 | `nothing to commit` mas os arquivos aparecem no GitHub errado | rodou os comandos dentro de `~/sis-emb-2026-2` por engano | `cd ~/sis-emb` (sua pasta, não o clone oficial) e repita |
 
-## 6. PulseView (visualizador de captura lógica)
+## 6. [PulseView](https://sigrok.org/wiki/PulseView) (visualizador de captura lógica)
 
 Usado a partir da Semana 4 (Lab 4, Desafio) para abrir o `.vcd` exportado pelo **Logic
 Analyzer** do Wokwi — e reaproveitado nas semanas de protocolo (I2C/SPI/UART) para ver as
