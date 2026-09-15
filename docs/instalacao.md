@@ -144,6 +144,55 @@ git push -u origin main
 | `! [rejected] ... (fetch first)` ao dar `push` | o remoto tem commits que você não tem localmente | rode `git pull origin main` (com `--allow-unrelated-histories` se for a primeira vez) antes do `push` |
 | `nothing to commit` mas os arquivos aparecem no GitHub errado | rodou os comandos dentro de `~/sis-emb-2026-2` por engano | `cd ~/sis-emb` (sua pasta, não o clone oficial) e repita |
 
+## 6. PulseView (visualizador de captura lógica)
+
+Usado a partir da Semana 4 (Lab 4, Desafio) para abrir o `.vcd` exportado pelo **Logic
+Analyzer** do Wokwi — e reaproveitado nas semanas de protocolo (I2C/SPI/UART) para ver as
+formas de onda reais do barramento.
+
+### 6.1 Instalação (Ubuntu 24.04)
+
+```bash
+sudo apt update
+sudo apt install -y pulseview
+```
+
+Se o `apt` não encontrar o pacote, o repositório *universe* provavelmente está desabilitado:
+
+```bash
+sudo add-apt-repository universe
+sudo apt update
+sudo apt install -y pulseview
+```
+
+> **Alternativa mais leve**: `sudo apt install -y gtkwave` — também abre `.vcd`, interface
+> mais simples, sem os decodificadores de protocolo do PulseView. Qualquer um dos dois
+> resolve as tarefas do curso; use o que preferir.
+
+### 6.2 Uso básico: abrindo e medindo um `.vcd`
+
+1. Abra o arquivo direto do terminal (ajuste o caminho para onde o navegador salvou o
+   download do Wokwi):
+   ```bash
+   pulseview ~/Downloads/wokwi-logic.vcd
+   ```
+   Ou abra o PulseView pelo menu de aplicativos e use **File → Open** — se ele não
+   reconhecer a extensão automaticamente, escolha o formato **"Value Change Dump"** na
+   lista de importação.
+2. Os canais gravados aparecem como trilhas horizontais, uma por sinal (`D0`, `D1`, ... ou
+   os nomes que você configurou em `channelNames`).
+3. **Zoom**: roda do mouse (ou `+`/`-`) para aproximar da região de interesse; arraste com o
+   botão do meio para navegar.
+4. **Medir um intervalo de tempo entre duas bordas**: clique numa borda para soltar um
+   cursor ali, depois `Ctrl` + clique numa segunda posição para soltar outro — o PulseView
+   mostra a diferença de tempo entre os dois cursores na barra inferior (já convertida para
+   a unidade mais legível: µs, ms, etc.).
+5. Terminou de medir? **File → Close** — não precisa instalar driver nenhum de hardware
+   real: o `.vcd` já é o dado completo, capturado pela simulação.
+
+📖 Guia oficial, com mais detalhes e exemplos de decodificação de protocolo:
+<https://docs.wokwi.com/guides/logic-analyzer> (seção "Viewing the data").
+
 ## Acervo complementar da turma
 
 - Molloy (*Exploring Raspberry Pi*);

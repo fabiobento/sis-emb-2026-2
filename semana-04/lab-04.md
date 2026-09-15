@@ -135,6 +135,41 @@ próprio chip (push-pull, sem contato mecânico), **não existe bounce para filt
 foco fica 100% na técnica de medição (`t1`/`t2`, `GPIO_INTR_ANYEDGE`), sem o ruído de "meu
 botão quica diferente do seu".
 
+> 💡 **Comece pelo Wokwi, não pelo hardware.** Como o GPIO18 e o GPIO4 estão no mesmo chip,
+> dá para montar e depurar essa parte inteira em simulação antes de tocar na protoboard —
+> inclusive **vendo o pulso de verdade** com o `Logic Analyzer` do Wokwi, em vez de confiar
+> só no que o firmware imprime. Passo a passo:
+>
+> 1. Abra um novo projeto Wokwi (ESP-IDF) e adicione um `Logic Analyzer (8 channels)`
+>    (`wokwi-logic-analyzer`) ao circuito — clique no botão azul **+** e procure por
+>    "Logic Analyzer".
+> 2. Ligue os pinos direto no diagrama (sem precisar editar `diagram.json` na mão, mas se
+>    preferir colar, o essencial é isto):
+>    ```json
+>    "connections": [
+>      [ "esp:18", "esp:4", "green", [] ],
+>      [ "logic1:D0", "esp:18", "blue", [] ],
+>      [ "logic1:GND", "esp:GND.2", "black", [] ]
+>    ]
+>    ```
+>    Repare que `esp:18` e `esp:4` estão ligados **direto um no outro** — é a simulação do
+>    jumper físico que você vai fazer depois na protoboard.
+> 3. Configure o trigger do analisador para começar a gravar sozinho a cada pulso: clique no
+>    componente e ajuste `triggerMode: "edge"`, `triggerPin: "D0"`, `triggerLevel: "low"`.
+> 4. **Antes de escrever a ISR**, implemente só a `gerador_task` (item 15) e rode a
+>    simulação por uns 5 segundos. Pare a simulação — o Wokwi baixa um `wokwi-logic.vcd`.
+> 5. Abra esse arquivo no **PulseView** (instalado no seu PC — veja
+>    [`docs/instalacao.md`](https://github.com/fabiobento/sis-emb-2026-2/blob/main/docs/instalacao.md), seção 6) e confirme visualmente: os pulsos
+>    realmente duram ~150 ms e ~1200 ms? Use os cursores para medir direto na tela, sem
+>    depender de nenhum código de medição ainda.
+> 6. Só depois de confirmar visualmente que o gerador está correto, implemente a ISR
+>    (itens 13-14) e compare a leitura impressa pelo firmware com o que você já mediu "no
+>    olho" no PulseView. Se baterem, migre para o hardware real com confiança.
+>
+> Essa ordem — gerar, ver na tela, só então medir por código — é a mesma lógica de
+> depuração que profissionais usam com osciloscópio/analisador de verdade: **nunca confie
+> cegamente numa medição de firmware sem uma segunda fonte independente para conferir**.
+
 12. **Religue o circuito**: desconecte o botão do GPIO4 (ele não é mais usado nesta parte) e
     ligue um **jumper físico** diretamente do **GPIO18** ao **GPIO4** — é o único fio novo.
 13. Configure `GPIO18` como saída (`GPIO_MODE_OUTPUT`) e `GPIO4` como entrada com
