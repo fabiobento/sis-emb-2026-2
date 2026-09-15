@@ -132,6 +132,15 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 13. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
    **subida**, calcule `s_duracao_us = agora - t1` e incremente o contador. Na tarefa,
    imprima a duração.
+
+![Diagrama da Parte D: sinal do botão com t1 na borda de descida e t2 na borda de subida, o que cada ramo da ISR faz em cada borda, e exemplos de medição curta e longa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab04_parte_d.png)
+
+*O sinal do botão (repouso em 1 pelo pull-up) desce quando você pressiona (t₁) e sobe quando
+solta (t₂) — a mesma ISR de `GPIO_INTR_ANYEDGE` é chamada nas duas bordas; é o
+`gpio_get_level(BTN)` lido *dentro* dela que decide qual dos dois ramos (`if`/`else`)
+executar em cada chamada. A caixa inferior faz a ponte com a Semana 12: o HC-SR04 usa
+exatamente esse esqueleto, só que medindo microssegundos em vez de milissegundos.*
+
 14. Meça: quanto dura **sua** pressionada "curta"? E uma "longa" proposital? (Valores
     típicos: 80–300 ms e >1 s.) Você acabou de implementar o esqueleto da medição do
     HC-SR04 (semana 12) — só muda a escala: lá os pulsos terão centenas de **µs** e o
