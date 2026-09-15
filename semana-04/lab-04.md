@@ -143,15 +143,8 @@ botão quica diferente do seu".
 > 1. Abra um novo projeto Wokwi (ESP-IDF) e adicione um `Logic Analyzer (8 channels)`
 >    (`wokwi-logic-analyzer`) ao circuito — clique no botão azul **+** e procure por
 >    "Logic Analyzer".
-> 2. Ligue os pinos direto no diagrama (sem precisar editar `diagram.json` na mão, mas se
->    preferir colar, o essencial é isto):
->    ```json
->    "connections": [
->      [ "esp:18", "esp:4", "green", [] ],
->      [ "logic1:D0", "esp:18", "blue", [] ],
->      [ "logic1:GND", "esp:GND.2", "black", [] ]
->    ]
->    ```
+> 2. Utilize como template de sua solução o projeto do Wokwi disponível nesse link: [lab-04-D](https://wokwi.com/projects/475239458696647681).
+>
 >    Repare que `esp:18` e `esp:4` estão ligados **direto um no outro** — é a simulação do
 >    jumper físico que você vai fazer depois na protoboard.
 > 3. Configure o trigger do analisador para começar a gravar sozinho a cada pulso: clique no
