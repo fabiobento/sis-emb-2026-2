@@ -218,9 +218,13 @@ Sem ele, o PulseView reconhece o aparelho mas falha ao subir o firmware nele (er
 
 **No PulseView:**
 
-1. **File → Connect to Device**.
-2. Driver: **`fx2lafw (generic driver for FX2 based LAs)`**.
-3. **Scan for devices using driver above** — deve aparecer algo como `sigrok FX2 LA (8ch)`.
+1. Na **barra de ferramentas** (não no menu "File"): há um botão mostrando o dispositivo
+   atual — por padrão, **"Demo device"**, com uma setinha `▾` ao lado. Clique na setinha e
+   escolha **"Connect to Device..."**.
+2. Driver: na lista, o `fx2lafw` aparece desmembrado por perfil de hardware (o mesmo chip é
+   usado em vários clones) — para o "24MHz8CH", escolha **`Saleae Logic`**.
+3. **Scan for devices using driver above** — deve aparecer algo como `Saleae Logic with 8
+   channels`.
 4. Selecione o dispositivo → **OK**.
 5. Ajuste a taxa de amostragem para o sinal que for medir (sinais na faixa de ms, como os
    pulsos do Lab 4, não precisam nem chegar perto dos 24 MHz do aparelho — 1–10 kHz já
