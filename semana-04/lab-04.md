@@ -12,7 +12,7 @@
 
 **Duração**: 2 aulas.
 
-**Material**: ESP32, LED + R 220 Ω, botão.
+**Material**: ESP32, LED + R 220 Ω, botão, 1 jumper extra (só para a Parte D — veja lá).
 
 > ⚠️ **Não use o botão BOOT da placa neste lab.** O firmware usa **GPIO4** para o botão (não
 > mais GPIO0 como em versões antigas deste material) — GPIO0 é o pino de boot do ESP32, e um
@@ -127,24 +127,42 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 
 ## Parte D — Medindo a largura de um pulso (25 min) — revise o  com o Exemplo 4.3 da [teoria da Aula 4](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-04/teoria-04.md)
 
-12. Reconfigure a interrupção do botão para **ambas as bordas**
-   (`gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE)`).
-13. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
-   **subida**, calcule `s_duracao_us = agora - t1` e incremente o contador. Na tarefa,
-   imprima a duração.
+Nesta parte o botão sai de cena. Em vez de medir uma pressionada manual (sujeita ao bounce
+que já te deu trabalho antes), o **próprio ESP32 gera o pulso**: uma tarefa (`gerador_task`)
+alterna a saída do **GPIO18** entre alto e baixo com larguras exatas e conhecidas por você —
+e você mede essa largura pela ISR do **GPIO4**. Como o sinal vem de uma saída digital do
+próprio chip (push-pull, sem contato mecânico), **não existe bounce para filtrar**: o
+foco fica 100% na técnica de medição (`t1`/`t2`, `GPIO_INTR_ANYEDGE`), sem o ruído de "meu
+botão quica diferente do seu".
 
-![Diagrama da Parte D: sinal do botão com t1 na borda de descida e t2 na borda de subida, o que cada ramo da ISR faz em cada borda, e exemplos de medição curta e longa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab04_parte_d.png)
+12. **Religue o circuito**: desconecte o botão do GPIO4 (ele não é mais usado nesta parte) e
+    ligue um **jumper físico** diretamente do **GPIO18** ao **GPIO4** — é o único fio novo.
+13. Configure `GPIO18` como saída (`GPIO_MODE_OUTPUT`) e `GPIO4` como entrada com
+    `gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE)` (ambas as bordas). Sem pull-up: quem define
+    o nível do pino agora é sempre o `GPIO18`, ativamente — não há mais nível flutuante para
+    proteger.
+14. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
+    **subida**, calcule `s_duracao_us = agora - t1` e incremente o contador. Na tarefa,
+    imprima a duração.
 
-*O sinal do botão (repouso em 1 pelo pull-up) desce quando você pressiona (t₁) e sobe quando
-solta (t₂) — a mesma ISR de `GPIO_INTR_ANYEDGE` é chamada nas duas bordas; é o
-`gpio_get_level(BTN)` lido *dentro* dela que decide qual dos dois ramos (`if`/`else`)
-executar em cada chamada. A caixa inferior faz a ponte com a Semana 12: o HC-SR04 usa
-exatamente esse esqueleto, só que medindo microssegundos em vez de milissegundos.*
+![Diagrama da Parte D: o próprio ESP32 gera o pulso pelo GPIO18, ligado por jumper ao GPIO4, com t1 na borda de descida e t2 na borda de subida, o que cada ramo da ISR faz em cada borda, e os dois pulsos de largura conhecida gerados pelo firmware](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab04_parte_d.png)
 
-14. Meça: quanto dura **sua** pressionada "curta"? E uma "longa" proposital? (Valores
-    típicos: 80–300 ms e >1 s.) Você acabou de implementar o esqueleto da medição do
-    HC-SR04 (semana 12) — só muda a escala: lá os pulsos terão centenas de **µs** e o
-    resultado vira distância via d = Δt × 340/2.
+*O sinal chega ao GPIO4 pelo mesmo fio que o GPIO18 comanda — desce quando o `gerador_task`
+zera o pino (t₁) e sobe quando ele volta a 1 (t₂). A mesma ISR de `GPIO_INTR_ANYEDGE` é
+chamada nas duas bordas; é o `gpio_get_level(IN_PIN)` lido *dentro* dela que decide qual dos
+dois ramos (`if`/`else`) executar — sem debounce nenhum, porque não há contato mecânico para
+quicar.*
+
+15. Implemente `gerador_task`: uma tarefa em loop que alterna dois pulsos de largura
+    **conhecida** — por exemplo, 150 ms ("curto") e 1200 ms ("longo") — com um intervalo de
+    repouso entre eles (`vTaskDelay`). É o seu próprio "gabarito": você sabe exatamente o
+    valor certo antes mesmo de rodar.
+16. **Compare**: os valores impressos pela ISR batem com os 150 ms / 1200 ms programados?
+    A diferença esperada é só o *jitter* do `vTaskDelay` do gerador (alguns ms, resolução de
+    tick) — não deve sobrar bounce nenhum. Você acabou de implementar o esqueleto da medição
+    do HC-SR04 (semana 12) — só muda a escala: lá os pulsos terão centenas de **µs** (gerados
+    por um sensor de verdade, não por outra tarefa sua) e o resultado vira distância via
+    d = Δt × 340/2.
 
 ---
 
@@ -156,6 +174,8 @@ exatamente esse esqueleto, só que medindo microssegundos em vez de milissegundo
 | Eventos param de contar | `gpio_isr_handler_add` esquecido | confira a instalação no `app_main` |
 | LED heartbeat não pisca | `esp_timer_start_periodic` faltando | confira a Parte A do firmware |
 | Latências sempre ~10 ms | está medindo o tick, não o evento | lembre: `vTaskDelay` tem resolução de 10 ms |
+| Parte D: duração sempre 0 ou nunca imprime | jumper GPIO18→GPIO4 não ligado (ou ligado no pino errado) | confira o fio; sem ele, IN_PIN nunca muda de nível |
+| Parte D: valores muito diferentes de 150/1200 ms | `larguras_ms[]` ou `vTaskDelay` do gerador com typo | confira `gerador_task`; o "gabarito" é o próprio código |
 
 ## Entrega (GitHub da bancada, `lab-04/relatorio.md`)
 
@@ -164,7 +184,8 @@ exatamente esse esqueleto, só que medindo microssegundos em vez de milissegundo
 2. Resposta do item 8: cenário numérico em que o polling do Lab 3 perderia eventos.
 3. Prints das duas falhas da Parte C (erro do printf-na-ISR e mensagem do task_wdt) + a
    explicação da cadeia do WDT.
-4. Código da Parte D (só a ISR modificada) + três medições de largura de pulso.
+4. Código da Parte D (a ISR modificada e a `gerador_task`) + três leituras de duração,
+   comparadas aos valores programados (150 ms / 1200 ms).
 5. Parágrafo final: por que `printf` dentro da ISR é proibido e **como** o firmware
    contorna (flag `volatile` lida pela tarefa)?
 
