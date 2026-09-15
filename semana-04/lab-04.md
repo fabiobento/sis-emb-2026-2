@@ -125,7 +125,7 @@ E (xxxxx) task_wdt:  - IDLE0 (CPU 0)
 > deveria setar (solução: `vTaskDelay` de 1 tick dentro do laço, ou melhor, semáforo da
 > semana 6).
 
-## Parte D — Medindo a largura de um pulso (25 min) — ponte com o Exemplo 4.3
+## Parte D — Medindo a largura de um pulso (25 min) — revise o  com o Exemplo 4.3 da [teoria da Aula 4](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-04/teoria-04.md)
 
 12. Reconfigure a interrupção do botão para **ambas as bordas**
    (`gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE)`).
