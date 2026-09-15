@@ -140,8 +140,8 @@ botão quica diferente do seu".
 > inclusive **vendo o pulso de verdade** com o `Logic Analyzer` do Wokwi, em vez de confiar
 > só no que o firmware imprime. Passo a passo:
 >
-> 1. Abra um novo projeto Wokwi (ESP-IDF) e adicione um `Logic Analyzer (8 channels)`
->    (`wokwi-logic-analyzer`) ao circuito — clique no botão azul **+** e procure por
+> 1. Abra um novo projeto Wokwi (ESP-IDF) e adicione um [`Logic Analyzer (8 channels)`]
+>    ([`wokwi-logic-analyzer`](https://docs.wokwi.com/guides/logic-analyzer)) ao circuito — clique no botão azul **+** e procure por
 >    "Logic Analyzer".
 > 2. Utilize como template de sua solução o projeto do Wokwi disponível nesse link: [lab-04-D](https://wokwi.com/projects/475239458696647681).
 >
