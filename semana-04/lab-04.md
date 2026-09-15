@@ -178,7 +178,15 @@ botão quica diferente do seu".
 > Essa ordem — gerar, ver na tela, só então medir por código — é a mesma lógica de
 > depuração que profissionais usam com osciloscópio/analisador de verdade: **nunca confie
 > cegamente numa medição de firmware sem uma segunda fonte independente para conferir**.
-)
+>
+> **Tem um analisador lógico USB físico na bancada?** Depois de validar em simulação, vale
+> repetir a mesma verificação em **hardware real**, sem precisar do Wokwi: ligue um canal do
+> analisador ao GPIO4 (ou ao GPIO18, já que são o mesmo sinal) e o `GND` dele ao `GND` do
+> ESP32, e capture com o PulseView. Passo a passo completo — driver, pacote de firmware
+> extra, e como configurar o trigger direto na interface (mais fácil que no Wokwi) — em
+> [`docs/instalacao.md`](https://github.com/fabiobento/sis-emb-2026-2/blob/main/docs/instalacao.md), seção 6.3. A vantagem: a defasagem que você vai medir aqui é a
+> latência **real** do chip, não uma aproximação do simulador — útil de novo no Desafio
+> (opcional), mais abaixo.
 
 12. **Religue o circuito**: desconecte o botão do GPIO4 (ele não é mais usado nesta parte) e
     ligue um **jumper físico** diretamente do **GPIO18** ao **GPIO4** — é o único fio novo.

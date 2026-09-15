@@ -193,6 +193,46 @@ sudo apt install -y pulseview
 📖 Guia oficial, com mais detalhes e exemplos de decodificação de protocolo:
 <https://docs.wokwi.com/guides/logic-analyzer> (seção "Viewing the data").
 
+### 6.3 Tem um analisador lógico USB físico? Use-o em vez do `.vcd` simulado
+
+Se sua bancada tiver um dos analisadores baratos "24MHz 8CH" (clone Saleae, chip Cypress
+FX2 — reconhecível pela etiqueta "Analyzer 24MHz8CH" e pinos `CH1`–`CH8`+`GND`), dá para
+capturar o sinal **direto do hardware real**, sem passar pelo Wokwi. O PulseView já
+suporta esse aparelho nativamente pelo driver `fx2lafw`.
+
+**Pacote extra necessário** (além do `pulseview` da seção 6.1):
+```bash
+sudo apt install -y sigrok-firmware-fx2lafw
+```
+Sem ele, o PulseView reconhece o aparelho mas falha ao subir o firmware nele (erro típico:
+`Failed to open resource 'fx2lafw...'`).
+
+**Ligação física:**
+
+| Pino do analisador | Onde ligar |
+|---|---|
+| `CH1` (ou qualquer canal livre) | o sinal digital que você quer capturar |
+| `GND` | **GND do circuito sob teste** — obrigatório; sem terra comum a leitura vem lixo |
+
+`PWR` não é necessário para os labs do curso — o ESP32 já se alimenta pelo próprio cabo USB.
+
+**No PulseView:**
+
+1. **File → Connect to Device**.
+2. Driver: **`fx2lafw (generic driver for FX2 based LAs)`**.
+3. **Scan for devices using driver above** — deve aparecer algo como `sigrok FX2 LA (8ch)`.
+4. Selecione o dispositivo → **OK**.
+5. Ajuste a taxa de amostragem para o sinal que for medir (sinais na faixa de ms, como os
+   pulsos do Lab 4, não precisam nem chegar perto dos 24 MHz do aparelho — 1–10 kHz já
+   sobra e evita estourar o buffer em capturas longas).
+6. **Trigger** (mais fácil que no Wokwi: aqui é botão de verdade): clique com o botão
+   direito no canal → **Trigger** → escolha a borda desejada (↓ para "início do pulso",
+   por exemplo).
+7. **Run** (captura contínua) ou **Single** (uma captura só) para começar a gravar.
+
+O resto — zoom, cursores, medir intervalo entre duas bordas — é idêntico ao fluxo da seção
+6.2, só que os dados vêm ao vivo do fio, não de um arquivo baixado.
+
 ## Acervo complementar da turma
 
 - Molloy (*Exploring Raspberry Pi*);
