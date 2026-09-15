@@ -149,8 +149,21 @@ botão quica diferente do seu".
 >    jumper físico que você vai fazer depois na protoboard.
 > ![lab-04-parte-d](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04-parte-d.png)
 >
-> 3. Configure o trigger do analisador para começar a gravar sozinho a cada pulso: clique no
->    componente e ajuste `triggerMode: "edge"`, `triggerPin: "D0"`, `triggerLevel: "low"`.
+> 3. **Trigger (opcional, mas recomendado)**: o Wokwi não tem um painel de propriedades
+>    para isso — só dá para configurar editando o `diagram.json` direto. Na barra lateral de
+>    arquivos do projeto, clique na aba **`diagram.json`**, ache a entrada do Logic Analyzer
+>    e preencha o `"attrs"` dela:
+>    ```json
+>    "attrs": {
+>      "triggerMode": "edge",
+>      "triggerPin": "D0",
+>      "triggerLevel": "low"
+>    }
+>    ```
+>    **Não quer mexer no JSON?** Sem problema — deixe `"attrs": {}` (trigger desligado) e o
+>    analisador grava a simulação inteira desde o "play". O buffer padrão aguenta 1 milhão
+>    de amostras, sobra bastante para os poucos segundos deste lab; só rode, espere uns 2-3
+>    pulsos passarem, e pare a simulação.
 > 4. **Antes de escrever a ISR**, implemente só a `gerador_task` (item 15) e rode a
 >    simulação por uns 5 segundos. Pare a simulação — o Wokwi baixa um `wokwi-logic.vcd`.
 > 5. Abra esse arquivo no **PulseView** (instalado no seu PC — veja
