@@ -147,6 +147,7 @@ botão quica diferente do seu".
 >
 >    Repare que `esp:18` e `esp:4` estão ligados **direto um no outro** — é a simulação do
 >    jumper físico que você vai fazer depois na protoboard.
+> ![](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04-parte-d.png)
 > 3. Configure o trigger do analisador para começar a gravar sozinho a cada pulso: clique no
 >    componente e ajuste `triggerMode: "edge"`, `triggerPin: "D0"`, `triggerLevel: "low"`.
 > 4. **Antes de escrever a ISR**, implemente só a `gerador_task` (item 15) e rode a
