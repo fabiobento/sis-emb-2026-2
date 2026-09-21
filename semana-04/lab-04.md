@@ -99,20 +99,16 @@ laço dela, não do hardware.*
    pouca — então **quando a diferença importaria?** Responda com o Exemplo resolvido 4.1
    (encoder a 1 kHz: pulsos de 1 ms contra varredura de 2 ms — o polling perderia metade
    deles).
-9. **Experimento de estresse do laço principal**: no firmware de hoje, aumente o
-   `vTaskDelay` do laço da tarefa para 500 ms. Os eventos ainda são todos contados? (Sim —
-   a ISR não depende do laço!) E a latência impressa? (Explode para até ~500 ms.) Registre
-   os novos valores e explique a diferença entre *capturar* o evento e *processá-lo*.
 
 ## Parte C — Quebrando as regras (30 min)
 
 Hora de errar em ambiente controlado.
 
-10. **printf na ISR**: adicione um `printf("isr!\n");` dentro de `btn_isr` e regrave.
+9. **printf na ISR**: adicione um `printf("isr!\n");` dentro de `btn_isr` e regrave.
    Pressione o botão. Você verá um **`panic_abort`** com backtrace no monitor — dê um print para o relatório. Remova o printf. (Regra 2 da
    teoria: violada e comprovada. O `printf` usa mutex e buffers da newlib — recursos que
    assumem um contexto de tarefa numa ISR! E eis que o chão some, rsrs)
-11. **Task WDT**: mude `#define PROVOCAR_WDT 0` para `1` e regrave. O `while(1){}` monopoliza a CPU; em ~5 s o monitor mostra:
+10. **Task WDT**: mude `#define PROVOCAR_WDT 0` para `1` e regrave. O `while(1){}` monopoliza a CPU; em ~5 s o monitor mostra:
 
 ```
 E (xxxxx) task_wdt: Task watchdog got triggered. The following tasks did not reset the watchdog in time:
@@ -246,11 +242,3 @@ quicar.*
    comparadas aos valores programados (150 ms / 1200 ms).
 5. Parágrafo final: por que `printf` dentro da ISR é proibido e **como** o firmware
    contorna (flag `volatile` lida pela tarefa)?
-
-## Desafio (opcional)
-
-Latência real da ISR: em vez de medir até a tarefa, meça da borda até a **primeira linha da
-ISR**. Como não dá para carimbar "antes" da ISR, use um truque de bancada: configure um
-segundo GPIO como saída, faça a ISR **setá-lo imediatamente**, e ligue os dois pinos ao componente
-`Logic Analyzer` do Wokwi! Compare a defasagem entre a borda do
-botão e a borda da saída. Reporte o valor em µs.
