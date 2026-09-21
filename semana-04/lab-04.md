@@ -90,7 +90,7 @@ laço dela, não do hardware.*
 8. Com o firmware da Parte A **ainda rodando** (a ISR conta toda borda, não importa a
    velocidade), faça uma "metralhadora de cliques": pressione o botão o mais rápido que
    conseguir por 5 segundos e confira no monitor — o contador bateu exatamente com o número
-   de cliques que você deu? Deve bater: é o ponto central da interrupção — ela não perde
+   de cliques que você deu? Deve bater(incluindo algum *bounce*): é o ponto central da interrupção — ela não perde
    borda nenhuma, por mais rápido que o evento chegue.
 
    Isso, sozinho, não prova que o *polling* perderia algo — dedos humanos são lentos demais
