@@ -88,8 +88,8 @@ laço dela, não do hardware.*
 ## Parte B — Polling × interrupção, na prática (25 min)
 
 8. Faça uma "metralhadora de cliques": pressione o botão o mais rápido que conseguir por
-   10 segundos e anote o total contado. Repita com o firmware do **Lab 3** (polling a
-   2 ms). Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
+   10 segundos e anote o total contado. Repita com o firmware do [**Lab 3** (polling a
+   2 ms)](https://github.com/fabiobento/sis-emb-2026-2-privado/blob/main/semana-03/src/botao_led/main.c). Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
    pouca — então **quando a diferença importaria?** Responda com o Exemplo resolvido 4.1
    (encoder a 1 kHz: pulsos de 1 ms contra varredura de 2 ms — o polling perderia metade
    deles).
