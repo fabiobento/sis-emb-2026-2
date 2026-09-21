@@ -22,7 +22,7 @@
 
 **Circuito**: o circuito é parecido com o do Lab. 03, parte B, mas o firmware mudou (e o botão agora vai no **GPIO4**, não no GPIO0/BOOT). Se quiser, você pode conferir a simulação [nesse link do Wokwi](https://wokwi.com/projects/475146701299637249).
 
-Monte o circuito da imagem abaixo (LED com R220 + botão com pull-up interno).
+Monte no protoboard o circuito da imagem abaixo (LED com R220 + botão com pull-up interno).
 ![circuito do lab 04](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04.png)
 
 ---
