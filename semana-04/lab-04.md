@@ -89,7 +89,13 @@ laço dela, não do hardware.*
 
 8. Faça uma "metralhadora de cliques": pressione o botão o mais rápido que conseguir por
    10 segundos e anote o total contado. Repita com o firmware do [**Lab 3** (polling a
-   2 ms)](https://github.com/fabiobento/sis-emb-2026-2-privado/blob/main/semana-03/src/botao_led/main.c). Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
+   2 ms)](https://github.com/fabiobento/sis-emb-2026-2-privado/blob/main/semana-03/src/botao_led/main.c).Lembre-se de modificar no código o pino utilizado agora. O circuito que você montou no protoboard é o mesmo, mas o firmware do Lab 3 ainda está configurado para usar o **GPIO0** (BOOT) — mude para o **GPIO4**. Portanto, apague a linha `#define BTN GPIO_NUM_0` e substitua por `#define BTN GPIO_NUM_4`:
+   ```diff
+   -#define BTN   GPIO_NUM_0
+   +#define BTN   GPIO_NUM_4
+   ```
+   
+    Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
    pouca — então **quando a diferença importaria?** Responda com o Exemplo resolvido 4.1
    (encoder a 1 kHz: pulsos de 1 ms contra varredura de 2 ms — o polling perderia metade
    deles).
