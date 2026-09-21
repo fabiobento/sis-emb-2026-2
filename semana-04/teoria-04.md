@@ -158,23 +158,25 @@ arquitetura, fora do seu alcance.
 ```
 
 **Exemplo resolvido 4.1 (latência de polling — e quando ela condena o projeto)** — Varredura
-a cada 2 ms (Lab 3): latência de pior caso = 2 ms + tempo de tratamento. Um encoder de motor
-a 3 000 RPM com 20 pulsos/volta sobrevive a esse polling?
+a cada 10 ms (Lab 3, `vTaskDelay(pdMS_TO_TICKS(10))`): latência de pior caso = 10 ms + tempo
+de tratamento. Um encoder de motor a 3 000 RPM com 20 pulsos/volta sobrevive a esse polling?
 
 *Solução passo a passo.*
 
 1. Frequência dos pulsos: f = (3 000/60) voltas/s × 20 pulsos/volta = **1 000 pulsos/s**.
-2. Período de um pulso: T = 1 ms **< 2 ms** (período da varredura).
-3. Conclusão: o pulso nasce e morre entre duas varreduras → **perderíamos pulsos**, e a
-   contagem de rotação ficaria errada de forma silenciosa. Com interrupção, cada borda é
-   capturada com latência de poucos µs — 100× mais rápido que o evento.
+2. Período de um pulso: T = 1 ms — **dez vezes menor** que o período de varredura (10 ms).
+3. Conclusão: a cada scan do polling, cerca de **10 pulsos já nasceram e morreram** entre
+   uma leitura e a próxima — o polling captura, na melhor das hipóteses, 1 em cada 10,
+   perdendo ~90% da contagem de forma silenciosa. Com interrupção, cada borda é capturada
+   com latência de poucos µs — mais de 1000× mais rápido que o próprio período do evento.
 
-> Critério geral para escolha entre pooling e interrupção:
+> Critério geral para escolha entre polling e interrupção:
 >
->- **eventos rápidos (período < ~10× a varredura) ou raros (custo de polling desperdiçado) ⇒ interrupção; >- sinais lentos e constantes ⇒ polling ainda é honesto** — e mais
-simples de depurar.
+> - **eventos rápidos (período < ~10× a varredura) ou raros (custo de polling desperdiçado)
+>   ⇒ interrupção; sinais lentos e constantes ⇒ polling ainda é honesto** — e mais simples
+>   de depurar.
 >
->Engenharia é escolher a ferramenta mais simples que atende ao requisito.
+> Engenharia é escolher a ferramenta mais simples que atende ao requisito.
 
 > **Observação — quem decide qual ISR roda?** Já vimos em detalhe na Figura 4-B (etapa 4):
 > a tabela de vetores é do hardware, mas para os 40 pinos de GPIO do ESP32 o roteamento

@@ -405,9 +405,10 @@ Três detalhes de projeto para discutir:
   apenas descarta bordas prematuras. Bloquear com `vTaskDelay(20)` dentro do `if` também
   funcionaria aqui, mas congelaria tudo o mais que o laço fizesse — má prática que a
   semana 5 substituirá por tarefas.
-- **Isto é *polling* a 500 Hz** — a CPU pergunta 500×/s "mudou?". Funciona, mas tem custo e
-  latência de até 2 ms. A pergunta "e se o evento durar menos de 2 ms?" abre a semana 4
-  (interrupções) — guarde-a.
+- **Isto é *polling* a 100 Hz** — a CPU pergunta 100×/s "mudou?" (o mesmo `configTICK_RATE_HZ
+  = 100` que você já viu na Semana 2 — `vTaskDelay(pdMS_TO_TICKS(10))` não tem como ser mais
+  fino que isso). Funciona, mas tem custo e latência de até 10 ms. A pergunta "e se o evento
+  durar menos de 10 ms?" abre a semana 4 (interrupções) — guarde-a.
 
 E a montagem correspondente, para quem quiser reproduzi-la também no Raspberry Pi (Lab 12):
 

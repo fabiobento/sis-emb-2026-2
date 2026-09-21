@@ -85,20 +85,20 @@ evento #2 | latencia ate a tarefa: 1204 us
 figura; o que você mede no lab é ela **mais** o tempo de a tarefa acordar — que depende do
 laço dela, não do hardware.*
 
-## Parte B — Polling × interrupção, na prática (25 min)
+## Parte B — Quando a interrupção realmente importa (15 min)
 
-8. Faça uma "metralhadora de cliques": pressione o botão o mais rápido que conseguir por
-   10 segundos e anote o total contado. Repita com o firmware do [**Lab 3** (polling a
-   2 ms)](https://github.com/fabiobento/sis-emb-2026-2-privado/blob/main/semana-03/src/botao_led/main.c).Lembre-se de modificar no código o pino utilizado agora. O circuito que você montou no protoboard é o mesmo, mas o firmware do Lab 3 ainda está configurado para usar o **GPIO0** (BOOT) — mude para o **GPIO4**. Portanto, apague a linha `#define BTN GPIO_NUM_0` e substitua por `#define BTN GPIO_NUM_4`:
-   ```diff
-   -#define BTN   GPIO_NUM_0
-   +#define BTN   GPIO_NUM_4
-   ```
-   
-    Compare os totais. Houve diferença? Com este botão e estas taxas, provavelmente
-   pouca — então **quando a diferença importaria?** Responda com o Exemplo resolvido 4.1
-   (encoder a 1 kHz: pulsos de 1 ms contra varredura de 2 ms — o polling perderia metade
-   deles).
+8. Com o firmware da Parte A **ainda rodando** (a ISR conta toda borda, não importa a
+   velocidade), faça uma "metralhadora de cliques": pressione o botão o mais rápido que
+   conseguir por 5 segundos e confira no monitor — o contador bateu exatamente com o número
+   de cliques que você deu? Deve bater: é o ponto central da interrupção — ela não perde
+   borda nenhuma, por mais rápido que o evento chegue.
+
+   Isso, sozinho, não prova que o *polling* perderia algo — dedos humanos são lentos demais
+   para expor a diferença. Para ver quando ela realmente importa, faça as contas do
+   **Exemplo resolvido 4.1** da teoria: um encoder a 3 000 RPM (20 pulsos/volta) gera pulsos
+   de **1 ms**; o polling do Lab 3 varre o pino a cada **10 ms**
+   (`vTaskDelay(pdMS_TO_TICKS(10))` em `botao_led/main.c`). Responda: esse polling
+   conseguiria contar os pulsos do encoder corretamente? Quantos, de cada 10, ele perderia?
 
 ## Parte C — Quebrando as regras (30 min)
 
@@ -166,7 +166,7 @@ botão quica diferente do seu".
 >    analisador grava a simulação inteira desde o "play". O buffer padrão aguenta 1 milhão
 >    de amostras, sobra bastante para os poucos segundos deste lab; só rode, espere uns 2-3
 >    pulsos passarem, e pare a simulação.
-> 4. **Antes de escrever a ISR**, implemente só a `gerador_task` (item 15) e rode a
+> 4. **Antes de escrever a ISR**, implemente só a `gerador_task` (item 14) e rode a
 >    simulação por uns 5 segundos. Pare a simulação — o Wokwi baixa um `wokwi-logic.vcd`.
 > 5. Abra esse arquivo no **PulseView** (instalado no seu PC — veja
 >    [`docs/instalacao.md`](https://github.com/fabiobento/sis-emb-2026-2/blob/main/docs/instalacao.md), seção 6) e confirme visualmente: os pulsos
@@ -189,13 +189,13 @@ botão quica diferente do seu".
 > latência **real** do chip, não uma aproximação do simulador — útil de novo no Desafio
 > (opcional), mais abaixo.
 
-12. **Religue o circuito**: desconecte o botão do GPIO4 (ele não é mais usado nesta parte) e
+11. **Religue o circuito**: desconecte o botão do GPIO4 (ele não é mais usado nesta parte) e
     ligue um **jumper físico** diretamente do **GPIO18** ao **GPIO4** — é o único fio novo.
-13. Configure `GPIO18` como saída (`GPIO_MODE_OUTPUT`) e `GPIO4` como entrada com
+12. Configure `GPIO18` como saída (`GPIO_MODE_OUTPUT`) e `GPIO4` como entrada com
     `gpio_set_intr_type(BTN, GPIO_INTR_ANYEDGE)` (ambas as bordas). Sem pull-up: quem define
     o nível do pino agora é sempre o `GPIO18`, ativamente — não há mais nível flutuante para
     proteger.
-14. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
+13. Na ISR, ao detectar borda de **descida** guarde `t1 = esp_timer_get_time()`; na de
     **subida**, calcule `s_duracao_us = agora - t1` e incremente o contador. Na tarefa,
     imprima a duração.
 
@@ -207,11 +207,11 @@ chamada nas duas bordas; é o `gpio_get_level(IN_PIN)` lido *dentro* dela que de
 dois ramos (`if`/`else`) executar — sem debounce nenhum, porque não há contato mecânico para
 quicar.*
 
-15. Implemente `gerador_task`: uma tarefa em loop que alterna dois pulsos de largura
+14. Implemente `gerador_task`: uma tarefa em loop que alterna dois pulsos de largura
     **conhecida** — por exemplo, 150 ms ("curto") e 1200 ms ("longo") — com um intervalo de
     repouso entre eles (`vTaskDelay`). É o seu próprio "gabarito": você sabe exatamente o
     valor certo antes mesmo de rodar.
-16. **Compare**: os valores impressos pela ISR batem com os 150 ms / 1200 ms programados?
+15. **Compare**: os valores impressos pela ISR batem com os 150 ms / 1200 ms programados?
     A diferença esperada é só o *jitter* do `vTaskDelay` do gerador (alguns ms, resolução de
     tick) — não deve sobrar bounce nenhum. Você acabou de implementar o esqueleto da medição
     do HC-SR04 (semana 12) — só muda a escala: lá os pulsos terão centenas de **µs** (gerados
@@ -233,8 +233,8 @@ quicar.*
 
 ## Entrega (GitHub da bancada, `lab-04/relatorio.md`)
 
-1. Tabela com as 10 latências da Parte A + média e máximo; e os valores do item 9 com a
-   explicação capturar × processar (≤ 5 linhas).
+1. Tabela com as 10 latências da Parte A + média e máximo, com a explicação capturar ×
+   processar (≤ 5 linhas).
 2. Resposta do item 8: cenário numérico em que o polling do Lab 3 perderia eventos.
 3. Prints das duas falhas da Parte C (erro do printf-na-ISR e mensagem do task_wdt) + a
    explicação da cadeia do WDT.

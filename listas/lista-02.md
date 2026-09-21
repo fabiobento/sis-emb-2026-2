@@ -17,7 +17,8 @@ complexidade. Em que situação o polling é a escolha **certa**?
 ![Linha do tempo da latência de interrupção: sincronização, salvamento de contexto, despacho](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/latencia_interrupcao.png)
 
 **Q2.** *(estilo Exemplo 4.1)* Um encoder gera pulsos de 400 µs a até 1 kHz. Mostre por que a
-varredura de 2 ms do Lab 3 perde pulsos e dimensione o período de polling que não perderia.
+varredura de 10 ms do Lab 3 (`vTaskDelay(pdMS_TO_TICKS(10))`) perde pulsos e dimensione o
+período de polling que não perderia.
 Conclua se ainda é razoável ou se a ISR se impõe.
 > 💡 *Critério da teoria-04: período de varredura ≤ período do evento ÷ 10. Faça as contas dos
 > dois lados antes de concluir.*
