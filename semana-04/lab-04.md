@@ -1,4 +1,4 @@
-# Lab 4 — Botão por interrupção, timer periódico e o watchdog em ação
+# Lab 4 — Botão por interrupção, timer periódico e o *watchdog*
 
 > **Antes de começar**: leia a [teoria-04](teoria-04.md) — as Figuras 4-A e 4-B explicam o
 > que você vai medir hoje, e a seção 2 lista as regras de ISR que você vai **violar de
