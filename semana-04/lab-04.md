@@ -60,7 +60,7 @@ cp ~/sis-emb-2026-2/semana-04/src/isr_timer/main.c ~/sis-emb/lab4/botao_led_inte
       (o callback do `esp_timer`, a ISR do botão e a tarefa principal — cada um com seu contexto  e suas restrições)
    
 
-5. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do simulador:
+5. Compile, grave o firmware na placa e abra o monitor serial em um único comando. Confirme se o comportamento físico é o mesmo do [simulador](https://wokwi.com/projects/475146701299637249):
 ```bash
 cd ~/sis-emb/lab4/botao_led_interrupt
 idf.py -p /dev/ttyUSB0 flash monitor 
