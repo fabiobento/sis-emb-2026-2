@@ -124,7 +124,7 @@ static void tarefa_d(void *arg)
 | vTaskDelay + corpo 50 ms | | |
 | vTaskDelayUntil + corpo 50 ms | | |
 
-> 🧠 **Por que isso é sério e não pedantismo**: na semana 7 você amostrará um sinal
+> **Por que isso é importante?**: na semana 7 você amostrará um sinal
 > esperando taxa constante, e na semana 13 o PID calculará `K_d·(e−e_ant)/T_s` assumindo
 > T_s exato. Uma deriva de 20 % no período vira 20 % de erro na derivada — invisível no
 > código, devastador no resultado.
