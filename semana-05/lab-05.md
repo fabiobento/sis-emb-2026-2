@@ -22,9 +22,42 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte A — Três tarefas, um escalonador (25 min)
 
-1. Grave `~/sis-emb/semana-05/src/tarefas/main.c` (detalhado na seção 2.3 da teoria). Três
-   instâncias da **mesma** função viram as tarefas A (prio 5), B (prio 3) e C (prio 1),
-   cada uma imprimindo seu período real medido:
+1. Abra o seu diretório de trabalho com o VS Code:
+```bash
+code ~/sis-emb
+```
+
+2. Dentro do VS Code, abra o terminal integrado, crie e acesse o diretório do lab 05:
+```bash
+mkdir ~/sis-emb/lab5
+cd ~/sis-emb/lab5
+idf.py create-project tarefas
+cd tarefas
+```
+
+3. Ainda no terminal integrado, copie o firmware do repositório do lab 05 para o seu
+   diretório de projeto:
+```bash
+cp ~/sis-emb-2026-2/semana-05/src/tarefas/main.c ~/sis-emb/lab5/tarefas/main/tarefas.c
+```
+
+4. Antes de gravar, abra no VS Code o programa
+   `~/sis-emb/lab5/tarefas/main/tarefas.c` **com a teoria do lado** (a seção 2.3 detalha,
+   linha a linha, como as três instâncias da mesma função viram tarefas independentes).
+   Repare: as tarefas A (prio 5), B (prio 3) e C (prio 1) rodam o mesmo código — só o que
+   muda é o parâmetro de criação. O que, exatamente, faz cada uma se comportar diferente?
+
+5. Compile, grave o firmware na placa e abra o monitor serial em um único comando:
+```bash
+cd ~/sis-emb/lab5/tarefas
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+   Não tem o ESP32 em mãos agora? Sem problema — como diz o material deste lab, ele roda
+   **100 % em simulação**: cole o conteúdo de `tarefas.c` num novo projeto ESP32 (ESP-IDF)
+   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3) e rode a
+   simulação em vez do `flash monitor` acima — o resto do roteiro funciona igual.
+
+6. O comportamento esperado é cada tarefa imprimindo seu período real medido:
 
 ```
 [A] core=0  periodo=500.0 ms
@@ -32,7 +65,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 [C] core=0  periodo=499.9 ms
 ```
 
-2. Observe por ~30 s: as três rodam "juntas" mesmo com prioridades diferentes. Por quê?
+7. Observe por ~30 s: as três rodam "juntas" mesmo com prioridades diferentes. Por quê?
    (Resposta esperada: cada uma dorme 499 ms a cada 500 — a CPU está ociosa ~99,9 % do
    tempo; prioridade só decide **disputas**, e quase não há disputa. É como três pessoas
    num corredor de 10 metros de largura: a "prioridade de passagem" só importa quando duas
@@ -40,27 +73,27 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte B — Starvation "ao vivo" (25 min)
 
-3. Descomente a função `cpu_bound` e a linha que a cria — mas **troque** o núcleo para 0 e
+8. Descomente a função `cpu_bound` e a linha que a cria — mas **troque** o núcleo para 0 e
    a prioridade para 6:
 
 ```c
 xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 0);
 ```
 
-4. Regrave e observe o monitor por 20 s. O que acontece com A, B e C? E que mensagem
+9. Regrave e observe o monitor por 20 s. O que acontece com A, B e C? E que mensagem
    aparece (~5 s depois)? Registre a saída — você deve reconhecer o `task_wdt`/IDLE0 do
    Lab 4, agora com nome de crime: **starvation** por uma tarefa CPU-bound de prioridade
    máxima (teoria, seção 2.1, "regra de convivência"). Como o HOG tem prioridade 6 e nunca
    bloqueia, ele **sempre** é a tarefa pronta mais prioritária do core 0 — A, B, C e a IDLE
    simplesmente nunca rodam. É a Figura 5-A da teoria com um vilão permanente.
-5. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. A, B voltam ao normal?
+10. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. A, B voltam ao normal?
    E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒ *time slicing* por tick —
    o escalonador reveza C e HOG a cada 10 ms, então C roda "na metade do tempo" e com
    período dobrado. Explique com a teoria em ≤ 3 linhas.)
 
 ## Parte C — Deriva de período: Exemplo 5.1 ao vivo (30 min)
 
-6. Crie uma 4ª tarefa `D` (prio 4) com **corpo lento e `vTaskDelay`** — a receita da
+11. Crie uma 4ª tarefa `D` (prio 4) com **corpo lento e `vTaskDelay`** — a receita da
    deriva:
 
 ```c
@@ -78,11 +111,11 @@ static void tarefa_d(void *arg)
 }
 ```
 
-7. Meça 10 períodos de D. Valor esperado: ~**250 ms**, não 200 (200 de sono + 50 de corpo)
+12. Meça 10 períodos de D. Valor esperado: ~**250 ms**, não 200 (200 de sono + 50 de corpo)
    — a deriva do Exemplo 5.1 com outros números. Calcule: em 1 minuto, quantas ativações D
    perde em relação às 300 ideais? (60 000/250 = 240 ativações → **60 perdidas**, 20 % da
    taxa!)
-8. Troque o `vTaskDelay` por `vTaskDelayUntil` (copie o padrão da tarefa A: variável
+13. Troque o `vTaskDelay` por `vTaskDelayUntil` (copie o padrão da tarefa A: variável
    `proximo` + chamada no **início** do laço) e meça de novo. Esperado: ~**200,0 ms**
    cravados, com o corpo de 50 ms "absorvido" dentro do período. Preencha:
 
@@ -98,13 +131,13 @@ static void tarefa_d(void *arg)
 
 ## Parte D — Pilha: medindo o high water mark (20 min)
 
-9. Na tarefa A, imprima a folga de pilha a cada ciclo:
+14. Na tarefa A, imprima a folga de pilha a cada ciclo:
 
 ```c
 printf("[A] pilha livre: %u palavras\n", (unsigned)uxTaskGetStackHighWaterMark(NULL));
 ```
 
-10. Anote o valor estabilizado. Agora **provoque**: declare na tarefa um
+15. Anote o valor estabilizado. Agora **provoque**: declare na tarefa um
     `char buf[1500];` e use-o (`snprintf(buf, sizeof buf, "x"); printf("%s", buf);`). O
     valor caiu quanto? Com pilha de 2048, sobrou margem? Relacione com a receita do
     Exemplo 5.3 (uso + 50 %) e proponha o tamanho certo para esta tarefa.
@@ -115,13 +148,13 @@ printf("[A] pilha livre: %u palavras\n", (unsigned)uxTaskGetStackHighWaterMark(N
 
 ## Parte E — Dual-core (20 min)
 
-11. Restaure o HOG com prioridade 6, mas agora **no core 1**:
+16. Restaure o HOG com prioridade 6, mas agora **no core 1**:
 
 ```c
 xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 1);
 ```
 
-12. Regrave: A, B e C (core 0) devem voltar a rodar em dia **mesmo com o HOG vivo** — os
+17. Regrave: A, B e C (core 0) devem voltar a rodar em dia **mesmo com o HOG vivo** — os
     núcleos trabalham em paralelo de verdade. Confirme pelos logs que as tarefas imprimem
     `core=0` e pelo desaparecimento do task_wdt. (Se quiser ver o HOG confessar o núcleo,
     dê um printf nele com `xPortGetCoreID()` + um `vTaskDelay(1000)` só para não afogar o
@@ -135,10 +168,10 @@ xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 1);
 
 ## Entrega (GitHub da bancada, `lab-05/relatorio.md`)
 
-1. Explicação da Parte A.2 (por que prioridades diferentes convivem em CPU ociosa), ≤ 3
+1. Explicação da Parte A.7 (por que prioridades diferentes convivem em CPU ociosa), ≤ 3
    linhas.
-2. Saída da Parte B.4 (starvation + task_wdt) e resposta da B.5 (time slicing).
-3. Tabela da Parte C preenchida + a conta de ativações perdidas (C.7).
+2. Saída da Parte B.9 (starvation + task_wdt) e resposta da B.10 (time slicing).
+3. Tabela da Parte C preenchida + a conta de ativações perdidas (C.12).
 4. Medições de pilha da Parte D e o tamanho de pilha que vocês recomendariam, com
    justificativa pelo Exemplo 5.3.
 5. Evidência da Parte E (log mostrando A/B/C saudáveis com HOG no core 1) + 2 linhas: por
