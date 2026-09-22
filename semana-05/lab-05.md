@@ -54,7 +54,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ```
    Não tem o ESP32 em mãos agora? Sem problema — como diz o material deste lab, ele roda
    **100 % em simulação**: cole o conteúdo de `tarefas.c` num novo projeto ESP32 (ESP-IDF)
-   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3), ou use [esse modelo](https://wokwi.com/projects/475867733789639681), e rode a
+   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3) e rode a
    simulação em vez do `flash monitor` acima — o resto do roteiro funciona igual.
 
 6. O comportamento esperado é cada tarefa imprimindo seu período real medido:
@@ -74,10 +74,45 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ## Parte B — Starvation "ao vivo" (25 min)
 
 8. Descomente a função `cpu_bound` e a linha que a cria — mas **troque** o núcleo para 0 e
-   a prioridade para 6:
+   a prioridade para 6. Código-fonte completo (as tarefas A/B/C são as mesmas da Parte A;
+   `cpu_bound` e a linha extra em `app_main` são novas):
 
 ```c
-xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 0);
+// Semana 5 — Parte B, item 8: starvation ao vivo (HOG monopoliza o core 0)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#include <stdio.h>
+
+static void tarefa(void *arg)
+{
+    const char *nome = (const char *)arg;
+    TickType_t proximo = xTaskGetTickCount();
+    int64_t t_ant = esp_timer_get_time();
+    while (1) {
+        vTaskDelayUntil(&proximo, pdMS_TO_TICKS(500));
+        int64_t t = esp_timer_get_time();
+        printf("[%s] core=%d  periodo=%.1f ms\n",
+               nome, xPortGetCoreID(), (t - t_ant) / 1000.0);
+        t_ant = t;
+    }
+}
+
+// item 8 — tarefa gulosa: nunca bloqueia, nunca cede a CPU de propósito
+static void cpu_bound(void *arg)
+{
+    volatile uint32_t x = 0;
+    while (1) { x++; }        // sem delay: monopoliza o núcleo
+}
+
+void app_main(void)
+{
+    xTaskCreate(tarefa, "A", 2048, "A", 5, NULL);
+    xTaskCreate(tarefa, "B", 2048, "B", 3, NULL);
+    xTaskCreate(tarefa, "C", 2048, "C", 1, NULL);
+
+    xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 0);   // item 8
+}
 ```
 
 9. Regrave e observe o monitor por 20 s. O que acontece com A, B e C? E que mensagem
@@ -86,35 +121,64 @@ xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 0);
    máxima (teoria, seção 2.1, "regra de convivência"). Como o HOG tem prioridade 6 e nunca
    bloqueia, ele **sempre** é a tarefa pronta mais prioritária do core 0 — A, B, C e a IDLE
    simplesmente nunca rodam. É a Figura 5-A da teoria com um vilão permanente.
-
-![Linha do tempo do escalonamento preemptivo por prioridade](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/escalonamento_preemptivo.png)
-
-*Figura 5-A — Preempção por prioridade: a tarefa de maior prioridade toma a CPU no instante
-em que fica pronta; as de menor prioridade usam as sobras. Leia da esquerda para a direita
-acompanhando quem está “dentro” da CPU.*
-
-10. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. A, B voltam ao normal?
-   E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒ *time slicing* por tick —
-   o escalonador reveza C e HOG a cada 10 ms, então C roda "na metade do tempo" e com
-   período dobrado. Explique com a teoria em ≤ 3 linhas.)
+10. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. Única mudança no código
+    acima é o parâmetro de prioridade:
+```c
+xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 1, NULL, 0);   // item 10
+```
+    A, B voltam ao normal? E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒
+    *time slicing* por tick — o escalonador reveza C e HOG a cada 10 ms, então C roda "na
+    metade do tempo" e com período dobrado. Explique com a teoria em ≤ 3 linhas.)
 
 ## Parte C — Deriva de período: Exemplo 5.1 ao vivo (30 min)
 
 11. Crie uma 4ª tarefa `D` (prio 4) com **corpo lento e `vTaskDelay`** — a receita da
-   deriva:
+   deriva. Código-fonte completo (as tarefas A/B/C são as mesmas da Parte A; só `tarefa_d`
+   e a linha extra em `app_main` são novas):
 
 ```c
+// Semana 5 — Parte C, item 11: deriva de período (versão com vTaskDelay)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#include <stdio.h>
+
+static void tarefa(void *arg)
+{
+    const char *nome = (const char *)arg;
+    TickType_t proximo = xTaskGetTickCount();
+    int64_t t_ant = esp_timer_get_time();
+    while (1) {
+        vTaskDelayUntil(&proximo, pdMS_TO_TICKS(500));
+        int64_t t = esp_timer_get_time();
+        printf("[%s] core=%d  periodo=%.1f ms\n",
+               nome, xPortGetCoreID(), (t - t_ant) / 1000.0);
+        t_ant = t;
+    }
+}
+
+// item 11 — corpo "lento" (50 ms de trabalho ocupado) + vTaskDelay (sono RELATIVO
+// ao instante em que é chamado) — a receita da deriva.
 static void tarefa_d(void *arg)
 {
     int64_t t_ant = esp_timer_get_time();
     while (1) {
         int64_t fim = esp_timer_get_time() + 50000;      // "trabalho" de 50 ms
-        while (esp_timer_get_time() < fim) { }           // (ocupado de propósito)
-        vTaskDelay(pdMS_TO_TICKS(200));                  // dorme 200 ms A PARTIR DE AGORA
+        while (esp_timer_get_time() < fim) { }            // (ocupado de propósito)
+        vTaskDelay(pdMS_TO_TICKS(200));                    // dorme 200 ms A PARTIR DE AGORA
         int64_t t = esp_timer_get_time();
         printf("[D] periodo=%.1f ms\n", (t - t_ant) / 1000.0);
         t_ant = t;
     }
+}
+
+void app_main(void)
+{
+    xTaskCreate(tarefa, "A", 2048, "A", 5, NULL);
+    xTaskCreate(tarefa, "B", 2048, "B", 3, NULL);
+    xTaskCreate(tarefa, "C", 2048, "C", 1, NULL);
+
+    xTaskCreate(tarefa_d, "D", 2048, NULL, 4, NULL);
 }
 ```
 
@@ -124,24 +188,79 @@ static void tarefa_d(void *arg)
    taxa!)
 13. Troque o `vTaskDelay` por `vTaskDelayUntil` (copie o padrão da tarefa A: variável
    `proximo` + chamada no **início** do laço) e meça de novo. Esperado: ~**200,0 ms**
-   cravados, com o corpo de 50 ms "absorvido" dentro do período. Preencha:
+   cravados, com o corpo de 50 ms "absorvido" dentro do período. Única mudança em relação
+   ao código acima é dentro de `tarefa_d`:
+
+```c
+// item 13 — mesma tarefa D, agora com vTaskDelayUntil: o corpo de 50 ms fica
+// "absorvido" dentro do período de 200 ms, em vez de somado a ele.
+static void tarefa_d(void *arg)
+{
+    TickType_t proximo = xTaskGetTickCount();
+    int64_t t_ant = esp_timer_get_time();
+    while (1) {
+        int64_t fim = esp_timer_get_time() + 50000;      // "trabalho" de 50 ms
+        while (esp_timer_get_time() < fim) { }            // (ocupado de propósito)
+        vTaskDelayUntil(&proximo, pdMS_TO_TICKS(200));     // dorme até o PRÓXIMO alvo absoluto
+        int64_t t = esp_timer_get_time();
+        printf("[D] periodo=%.1f ms\n", (t - t_ant) / 1000.0);
+        t_ant = t;
+    }
+}
+```
+
+Preencha:
 
 | Configuração | período médio (ms) | período máx (ms) |
 |---|---|---|
 | vTaskDelay + corpo 50 ms | | |
 | vTaskDelayUntil + corpo 50 ms | | |
 
-> **Por que isso é importante?**: na semana 7 você amostrará um sinal
+> 🧠 **Por que isso é sério e não pedantismo**: na semana 7 você amostrará um sinal
 > esperando taxa constante, e na semana 13 o PID calculará `K_d·(e−e_ant)/T_s` assumindo
 > T_s exato. Uma deriva de 20 % no período vira 20 % de erro na derivada — invisível no
 > código, devastador no resultado.
 
 ## Parte D — Pilha: medindo o high water mark (20 min)
 
-14. Na tarefa A, imprima a folga de pilha a cada ciclo:
+14. Na tarefa A, imprima a folga de pilha a cada ciclo. Código-fonte completo (a única
+    linha nova está marcada — pode remover a tarefa D da Parte C se não quiser rodar as
+    quatro juntas, o roteiro abaixo assume só A/B/C):
 
 ```c
-printf("[A] pilha livre: %u palavras\n", (unsigned)uxTaskGetStackHighWaterMark(NULL));
+// Semana 5 — Parte D, item 14: medindo o high water mark de pilha
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#include <stdio.h>
+#include <string.h>
+
+static void tarefa(void *arg)
+{
+    const char *nome = (const char *)arg;
+    TickType_t proximo = xTaskGetTickCount();
+    int64_t t_ant = esp_timer_get_time();
+    while (1) {
+        vTaskDelayUntil(&proximo, pdMS_TO_TICKS(500));
+        int64_t t = esp_timer_get_time();
+
+        if (strcmp(nome, "A") == 0) {                       // item 14 — só a tarefa A
+            printf("[A] pilha livre: %u palavras\n",
+                   (unsigned)uxTaskGetStackHighWaterMark(NULL));
+        }
+
+        printf("[%s] core=%d  periodo=%.1f ms\n",
+               nome, xPortGetCoreID(), (t - t_ant) / 1000.0);
+        t_ant = t;
+    }
+}
+
+void app_main(void)
+{
+    xTaskCreate(tarefa, "A", 2048, "A", 5, NULL);
+    xTaskCreate(tarefa, "B", 2048, "B", 3, NULL);
+    xTaskCreate(tarefa, "C", 2048, "C", 1, NULL);
+}
 ```
 
 15. Anote o valor estabilizado. Agora **provoque**: declare na tarefa um
@@ -155,17 +274,60 @@ printf("[A] pilha livre: %u palavras\n", (unsigned)uxTaskGetStackHighWaterMark(N
 
 ## Parte E — Dual-core (20 min)
 
-16. Restaure o HOG com prioridade 6, mas agora **no core 1**:
+16. Restaure o HOG com prioridade 6, mas agora **no core 1**. Código-fonte completo (as
+    tarefas A/B/C são as mesmas da Parte A; `cpu_bound` volta, mas agora pinada no core 1):
 
 ```c
-xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 1);
+// Semana 5 — Parte E, item 16: dual-core (HOG isolado no core 1)
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
+#include "esp_timer.h"
+#include <stdio.h>
+
+static void tarefa(void *arg)
+{
+    const char *nome = (const char *)arg;
+    TickType_t proximo = xTaskGetTickCount();
+    int64_t t_ant = esp_timer_get_time();
+    while (1) {
+        vTaskDelayUntil(&proximo, pdMS_TO_TICKS(500));
+        int64_t t = esp_timer_get_time();
+        printf("[%s] core=%d  periodo=%.1f ms\n",
+               nome, xPortGetCoreID(), (t - t_ant) / 1000.0);
+        t_ant = t;
+    }
+}
+
+// item 16 — tarefa gulosa, agora isolada no core 1: não compete mais com A/B/C (core 0)
+static void cpu_bound(void *arg)
+{
+    volatile uint32_t x = 0;
+    int64_t proximo_print = esp_timer_get_time();
+    while (1) {
+        x++;
+        // Descomente para o HOG "confessar" o núcleo sem afogar o monitor:
+        // if (esp_timer_get_time() >= proximo_print) {
+        //     printf("[HOG] core=%d\n", xPortGetCoreID());
+        //     proximo_print = esp_timer_get_time() + 1000000;   // a cada ~1 s
+        // }
+    }
+}
+
+void app_main(void)
+{
+    xTaskCreate(tarefa, "A", 2048, "A", 5, NULL);
+    xTaskCreate(tarefa, "B", 2048, "B", 3, NULL);
+    xTaskCreate(tarefa, "C", 2048, "C", 1, NULL);
+
+    xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 1);   // item 16
+}
 ```
 
 17. Regrave: A, B e C (core 0) devem voltar a rodar em dia **mesmo com o HOG vivo** — os
     núcleos trabalham em paralelo de verdade. Confirme pelos logs que as tarefas imprimem
-    `core=0` e pelo desaparecimento do task_wdt. (Se quiser ver o HOG confessar o núcleo,
-    dê um printf nele com `xPortGetCoreID()` + um `vTaskDelay(1000)` só para não afogar o
-    monitor.)
+    `core=0` e pelo desaparecimento do task_wdt. (Descomente o bloco de `printf` dentro de
+    `cpu_bound` acima se quiser ver o HOG confessar o núcleo — ele já vem com um limitador
+    de ~1 s entre prints, sem usar `vTaskDelay` dentro de um laço que não pode bloquear.)
 
 > 💡 **A lição de arquitetura**: no ESP32, o core 0 já carrega Wi-Fi/BT e serviços do
 > sistema. Cargas pesadas da sua aplicação → core 1. É a divisão de trabalho que os
