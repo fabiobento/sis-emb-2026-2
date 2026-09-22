@@ -38,7 +38,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
    num corredor de 10 metros de largura: a "prioridade de passagem" só importa quando duas
    chegam à porta juntas.) Anote — o contraste com a Parte B é o ponto do lab.
 
-## Parte B — Starvation ao vivo (25 min)
+## Parte B — Starvation "ao vivo" (25 min)
 
 3. Descomente a função `cpu_bound` e a linha que a cria — mas **troque** o núcleo para 0 e
    a prioridade para 6:
