@@ -86,6 +86,13 @@ xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 6, NULL, 0);
    máxima (teoria, seção 2.1, "regra de convivência"). Como o HOG tem prioridade 6 e nunca
    bloqueia, ele **sempre** é a tarefa pronta mais prioritária do core 0 — A, B, C e a IDLE
    simplesmente nunca rodam. É a Figura 5-A da teoria com um vilão permanente.
+
+![Linha do tempo do escalonamento preemptivo por prioridade](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/escalonamento_preemptivo.png)
+
+*Figura 5-A — Preempção por prioridade: a tarefa de maior prioridade toma a CPU no instante
+em que fica pronta; as de menor prioridade usam as sobras. Leia da esquerda para a direita
+acompanhando quem está “dentro” da CPU.*
+
 10. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. A, B voltam ao normal?
    E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒ *time slicing* por tick —
    o escalonador reveza C e HOG a cada 10 ms, então C roda "na metade do tempo" e com
