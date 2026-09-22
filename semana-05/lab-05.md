@@ -54,7 +54,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ```
    Não tem o ESP32 em mãos agora? Sem problema — como diz o material deste lab, ele roda
    **100 % em simulação**: cole o conteúdo de `tarefas.c` num novo projeto ESP32 (ESP-IDF)
-   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3), ou use [esse modelo](https://wokwi.com/projects/475867733789639681) e rode a
+   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3), ou use [esse modelo](https://wokwi.com/projects/475867733789639681), e rode a
    simulação em vez do `flash monitor` acima — o resto do roteiro funciona igual.
 
 6. O comportamento esperado é cada tarefa imprimindo seu período real medido:
