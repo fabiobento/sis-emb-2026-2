@@ -133,9 +133,9 @@ acompanhando quem está “dentro” da CPU.*
 ```c
 xTaskCreatePinnedToCore(cpu_bound, "HOG", 2048, NULL, 1, NULL, 0);   // item 10
 ```
-    A, B voltam ao normal? E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒
-    *time slicing* por tick — o escalonador reveza C e HOG a cada 10 ms, então C roda "na
-    metade do tempo" e com período dobrado. Explique com a teoria em ≤ 3 linhas.)
+A, B voltam ao normal? E C — roda sempre, às vezes, nunca? (Dica: mesma prioridade ⇒
+*time slicing* por tick — o escalonador reveza C e HOG a cada 10 ms, então C roda "na
+metade do tempo" e com período dobrado. Explique com a teoria em ≤ 3 linhas.)
 
 ## Parte C — Deriva de período: Exemplo 5.1 ao vivo (30 min)
 
