@@ -121,6 +121,13 @@ void app_main(void)
    máxima (teoria, seção 2.1, "regra de convivência"). Como o HOG tem prioridade 6 e nunca
    bloqueia, ele **sempre** é a tarefa pronta mais prioritária do core 0 — A, B, C e a IDLE
    simplesmente nunca rodam. É a Figura 5-A da teoria com um vilão permanente.
+
+![Linha do tempo do escalonamento preemptivo por prioridade](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/escalonamento_preemptivo.png)
+
+*Figura 5-A — Preempção por prioridade: a tarefa de maior prioridade toma a CPU no instante
+em que fica pronta; as de menor prioridade usam as sobras. Leia da esquerda para a direita
+acompanhando quem está “dentro” da CPU.*
+
 10. Abaixe a prioridade do HOG para **1** (igual à de C) e regrave. Única mudança no código
     acima é o parâmetro de prioridade:
 ```c
