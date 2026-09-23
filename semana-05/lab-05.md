@@ -139,8 +139,7 @@ metade do tempo" e com período dobrado. Explique com a teoria em ≤ 3 linhas.)
 
 ## Parte C — Deriva de período: Exemplo 5.1 ao vivo (30 min)
 
-11. Crie uma 4ª tarefa `D` (prio 4) com **corpo lento e `vTaskDelay`** — a receita da
-   deriva. Código-fonte completo (as tarefas A/B/C são as mesmas da Parte A; só `tarefa_d`
+11. Crie uma 4ª tarefa `D` (prio 4) com **corpo lento e `vTaskDelay`** — isso causa a deriva. Código-fonte completo (as tarefas A/B/C são as mesmas da Parte A; só `tarefa_d`
    e a linha extra em `app_main` são novas):
 
 ```c
@@ -244,7 +243,7 @@ desperdiçando SRAM); número baixo, perto de zero = a tarefa já encostou quase
 própria pilha alguma vez — sinal de perigo, a próxima chamada um pouco mais funda pode
 estourar (*stack overflow*).
 
-> ⚠️ **Pegadinha de unidade**: o valor retornado é em **palavras**, não em bytes. No ESP32
+> ⚠️ **Atenção**: o valor retornado é em **palavras**, não em bytes. No ESP32
 > (32 bits), 1 palavra = 4 bytes — se o print mostrar `384`, isso são `384 × 4 = 1536` bytes
 > de folga, não 384 bytes. Confira sempre antes de comparar com o tamanho que você passou em
 > `xTaskCreate` (que é em bytes).
