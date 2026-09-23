@@ -10,8 +10,7 @@ faz **várias coisas ao mesmo tempo**: amostra sensores a 100 Hz, atualiza um di
 atende botões "na hora", mantém Wi-Fi vivo. Espremer tudo num único `while(1)` transforma o
 firmware num castelo de cartas onde qualquer função lenta atrasa todas as outras. A solução
 da indústria é o **RTOS** (*Real-Time Operating System*) — e você já está usando um sem
-saber: todo programa ESP-IDF **nasce dentro do FreeRTOS**, o RTOS mais usado do mundo. Esta
-semana abrimos essa caixa.
+saber: todo programa ESP-IDF **nasce dentro do FreeRTOS**, o RTOS mais usado do mundo.
 
 **Objetivos de aprendizagem** — ao final desta aula você deve ser capaz de:
 
