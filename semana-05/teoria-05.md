@@ -106,8 +106,7 @@ contexto**, alguns µs no ESP32 — é o preço da ilusão de CPU exclusiva, e �
 > **Observação — a regra de convivência**: toda tarefa deve **bloquear** em algum ponto do
 > laço (delay, espera de fila/semáforo). Uma tarefa que nunca bloqueia monopoliza a CPU no
 > seu nível de prioridade — as de prioridade menor **nunca** rodam (*starvation*,
-> inanição), e o Task WDT da semana 4 denuncia (`IDLE0 not reset`). Provocaremos isso de
-> novo hoje, agora de propósito e sabendo o nome do crime.
+> inanição), e o Task WDT da semana 4 denuncia (`IDLE0 not reset`). Provocaremos isso de novo hoje, agora de propósito.
 
 ### 2.2 Estados de tarefa
 
