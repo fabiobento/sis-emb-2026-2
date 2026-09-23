@@ -144,23 +144,27 @@ manda.*
 
 O escalonador acorda numa interrupção periódica chamada **tick** — no ESP-IDF, **100 Hz** por
 padrão (você conferiu no menuconfig do Lab 2) ⇒ resolução de tempo de **10 ms** para as APIs
-de tick (`pdMS_TO_TICKS(5)` arredonda para zero ou um — cuidado!). Precisão sub-tick é
-trabalho do `esp_timer` (semana 4).
+de tick. Isso tem uma consequência prática e afiada: `pdMS_TO_TICKS(5)` calcula `5 / 10 = 0`
+(divisão inteira) — pedir "5 ms de delay" com essa resolução vira **zero ticks de espera**,
+ou seja, a tarefa nem chega a dormir. O sintoma no código é sutil (nada trava, nada avisa —
+só o delay que "some"), por isso vale o hábito: qualquer valor abaixo de 10 ms passado para
+uma API de tick merece desconfiança. Precisão sub-tick de verdade é trabalho do `esp_timer`
+(semana 4), não dessas APIs.
 
-Dois delays, uma diferença importante:
+Escolher a API errada de delay parece inofensivo — até o dia em que você precisa de um
+período confiável (amostragem, controle). Existem duas, e a diferença entre elas é exatamente
+esse "confiável ou não":
 
 ![Comparação entre vTaskDelay (período relativo, com deriva) e vTaskDelayUntil (período absoluto)](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/vtaskdelay_vs_until.png)
 
 *Figura 5-C — `vTaskDelay` mede “100 ms depois de terminar” → o período inclui o trabalho e
 deriva; `vTaskDelayUntil` agenda despertares absolutos → período cravado.*
 
-- `vTaskDelay(n)`: dorme n ticks **a partir de agora** — o período real = n + duração do
-  corpo.
+- `vTaskDelay(n)`: dorme n ticks **a partir de agora** — o período real = n + duração do corpo.
 - `vTaskDelayUntil(&ref, n)`: dorme **até o instante absoluto** ref + n e atualiza ref —
   período cravado, sem acúmulo, mesmo que o corpo demore (desde que caiba no período).
 
-**Exemplo resolvido 5.1 (deriva de período)** — Tarefa deve rodar a cada 100 ms; o corpo
-demora 7 ms. Compare as duas APIs ao longo de 1 minuto.
+**Exemplo resolvido 5.1 (deriva de período)** — Tarefa deve rodar a cada 100 ms; o corpo demora 7 ms. Compare as duas APIs ao longo de 1 minuto.
 
 *Solução passo a passo.* Com `vTaskDelay(100 ms)`: período real = 100 + 7 = 107 ms → em 1
 min acumula 60 × 7 = **420 ms de atraso** e a taxa efetiva cai para 1000/107 ≈ **9,35 Hz**
@@ -168,7 +172,8 @@ em vez de 10 Hz (erro de 6,5 %!). Com `vTaskDelayUntil`: período = 100,000 ms c
 Para amostragem (semana 7) e controle (semana 13), **só** o segundo serve — período
 irregular = espectro distorcido na análise de sinais e parcela derivada errada no PID.
 
-No firmware de hoje (`src/tarefas/main.c`), o padrão canônico:
+No firmware de hoje (`src/tarefas/main.c`), o mesmo padrão — agora com período de **500 ms**
+em vez dos 100 ms do exemplo acima (a lógica é idêntica; só o número mudou):
 
 ```c
 static void tarefa(void *arg)
@@ -208,10 +213,18 @@ tarefas criadas continuam vivas (quem morre é só a tarefa que rodava `app_main
 ### 2.4 Prioridades: quem merece a CPU?
 
 Regra prática (base do *rate-monotonic scheduling*, o teorema clássico de tempo real):
-**quanto menor o período/prazo, maior a prioridade**. E verifique a **utilização** total — a
-fração da CPU consumida:
+**quanto menor o período/prazo, maior a prioridade** (aqui tratamos período e prazo como a
+mesma coisa — a tarefa precisa terminar antes do próximo ciclo começar; é a simplificação
+padrão desse modelo). E verifique a **utilização** total — a fração do tempo em que a CPU
+precisa estar ocupada só para dar conta de todas as tarefas em dia:
 
 U = Σ (tempo de CPU por ativação / período)
+
+Cada termo da soma é "quanto dessa tarefa específica ocupa a CPU, proporcionalmente" — por
+exemplo, uma tarefa que gasta 2 ms de CPU a cada 10 ms consome 20 % do tempo, não importa o
+que mais esteja rodando. Somando todas as tarefas, U é o percentual mínimo de CPU que o
+sistema precisa ter livre para todo mundo cumprir seu prazo; o resto sobra para tarefas de
+menor prioridade (como um log que "roda quando der").
 
 **Exemplo resolvido 5.2 (prioridades e utilização)** — Tarefas: controle (2 ms de CPU a cada
 10 ms), display (30 ms a cada 200 ms), log (roda quando der). Atribua prioridades e avalie a
@@ -237,9 +250,10 @@ chamadas aninhadas ≈ 512 B. Quanto declarar?
 
 *Solução.* Soma: 1 536 B. Margem de 50 % (regra prática para absorver caminhos de código
 mais profundos que o medido): ≥ 2,3 KB → usar **3072 bytes** em `xTaskCreate`. Verificação
-empírica — a que manda: `uxTaskGetStackHighWaterMark(NULL)` devolve quantas palavras
-**sobraram** no pior momento desde o boot. Meça no lab rodando o pior cenário, ajuste com
-margem, documente o número no código.
+empírica — a que manda: `uxTaskGetStackHighWaterMark(NULL)` devolve quantas **palavras**
+(não bytes!) **sobraram** no pior momento desde o boot — no ESP32 (Xtensa, 32 bits), 1
+palavra = 4 bytes, então divida o número impresso por 4 para comparar em KB com os cálculos
+acima. Meça no lab rodando o pior cenário, ajuste com margem, documente o número no código.
 
 > **Observação:** `printf` é faminto de pilha (~1 KB, por causa das rotinas de formatação).
 > Tarefa que imprime com 1024 bytes de pilha é crash marcado. Nossos 2048 do firmware de
@@ -255,6 +269,14 @@ num núcleo:
 ```c
 xTaskCreatePinnedToCore(f, "nome", pilha, arg, prio, &h, 1);   // core 1 (APP_CPU)
 ```
+
+**Sem pin, a tarefa não fica presa a nenhum núcleo** — o escalonador pode colocá-la para
+rodar em qualquer um dos dois, inclusive migrando entre uma ativação e a próxima, conforme a
+disponibilidade de cada core no momento. No firmware de hoje, A/B/C aparecem sempre com
+`core=0` nos logs simplesmente porque não há nada disputando o core 1 — sem concorrência ali,
+o escalonador não tem motivo para mover ninguém para lá. Assim que você pinar o HOG no core 1
+(Parte E do lab), essa distribuição continua igual para A/B/C — só que agora por um motivo
+mais interessante: o core 1 está *ocupado*, não vazio.
 
 Boa prática do ecossistema: o **core 0** (PRO_CPU) carrega Wi-Fi/BT e serviços do sistema;
 cargas pesadas ou sensíveis a jitter da **sua** aplicação vão para o **core 1**. No
