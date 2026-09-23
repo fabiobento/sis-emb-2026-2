@@ -147,7 +147,7 @@ padrão (você conferiu no menuconfig do Lab 2) ⇒ resolução de tempo de **10
 de tick (`pdMS_TO_TICKS(5)` arredonda para zero ou um — cuidado!). Precisão sub-tick é
 trabalho do `esp_timer` (semana 4).
 
-Dois delays, uma diferença crucial:
+Dois delays, uma diferença importante:
 
 ![Comparação entre vTaskDelay (período relativo, com deriva) e vTaskDelayUntil (período absoluto)](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/vtaskdelay_vs_until.png)
 
