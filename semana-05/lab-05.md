@@ -54,7 +54,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ```
    Não tem o ESP32 em mãos agora? Sem problema — como diz o material deste lab, ele roda
    **100 % em simulação**: cole o conteúdo de `tarefas.c` num novo projeto ESP32 (ESP-IDF)
-   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3) e rode a
+   no [wokwi.com](https://wokwi.com) (veja `docs/instalacao.md`, seção 3), ou abra [esse projeto de referência](https://wokwi.com/projects/475867733789639681), e rode a
    simulação em vez do `flash monitor` acima — o resto do roteiro funciona igual.
 
 6. O comportamento esperado é cada tarefa imprimindo seu período real medido:
@@ -223,12 +223,31 @@ Preencha:
 | vTaskDelay + corpo 50 ms | | |
 | vTaskDelayUntil + corpo 50 ms | | |
 
-> 🧠 **Por que isso é sério e não pedantismo**: na semana 7 você amostrará um sinal
+> **Por que isso é importante?**: na semana 7 você amostrará um sinal
 > esperando taxa constante, e na semana 13 o PID calculará `K_d·(e−e_ant)/T_s` assumindo
 > T_s exato. Uma deriva de 20 % no período vira 20 % de erro na derivada — invisível no
 > código, devastador no resultado.
 
 ## Parte D — Pilha: medindo o high water mark (20 min)
+
+**O que é "high water mark"**: é a maior profundidade que a pilha (stack) de uma tarefa já
+atingiu desde que ela começou a rodar — não "quanto está em uso agora", e sim o **pior caso
+já registrado**. É a mesma ideia da marca d'água que fica na parede de um rio depois de uma
+enchente: mostra até onde a água chegou no pico, mesmo que o nível já tenha baixado. Com a
+pilha é igual — ela sobe e desce o tempo todo conforme a tarefa entra e sai de funções, mas o
+FreeRTOS guarda o ponto mais fundo que ela já alcançou.
+
+A função `uxTaskGetStackHighWaterMark()` **inverte** essa lógica: em vez de devolver o quanto
+já foi usado no pior momento, devolve o quanto **sobrou** de pilha nesse pior momento (a folga
+que nunca chegou a ser tocada). Número alto = pilha generosa (talvez generosa demais,
+desperdiçando SRAM); número baixo, perto de zero = a tarefa já encostou quase na borda da
+própria pilha alguma vez — sinal de perigo, a próxima chamada um pouco mais funda pode
+estourar (*stack overflow*).
+
+> ⚠️ **Pegadinha de unidade**: o valor retornado é em **palavras**, não em bytes. No ESP32
+> (32 bits), 1 palavra = 4 bytes — se o print mostrar `384`, isso são `384 × 4 = 1536` bytes
+> de folga, não 384 bytes. Confira sempre antes de comparar com o tamanho que você passou em
+> `xTaskCreate` (que é em bytes).
 
 14. Na tarefa A, imprima a folga de pilha a cada ciclo. Código-fonte completo (a única
     linha nova está marcada — pode remover a tarefa D da Parte C se não quiser rodar as
