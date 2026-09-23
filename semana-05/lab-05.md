@@ -71,7 +71,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
    num corredor de 10 metros de largura: a "prioridade de passagem" só importa quando duas
    chegam à porta juntas.) Anote — o contraste com a Parte B é o ponto do lab.
 
-## Parte B — Starvation "ao vivo" (25 min)
+## Parte B — Starvation(25 min)
 
 8. Descomente a função `cpu_bound` e a linha que a cria — mas **troque** o núcleo para 0 e
    a prioridade para 6. Código-fonte completo (as tarefas A/B/C são as mesmas da Parte A;
