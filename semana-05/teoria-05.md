@@ -38,13 +38,15 @@ while (1) {
 }
 ```
 
-Problema: os tempos ficam **acoplados**. O botão só é examinado a cada ~81 ms (latência
-perceptível — interfaces que respondem em mais de ~100 ms “parecem travadas”); se amanhã o
-display ganhar animação de 200 ms, *tudo* piora junto, inclusive o sensor que não tem nada a
-ver com displays. Dá para remendar com **máquinas de estado** que fatiam o display em
-pedacinhos de 5 ms intercalados com as outras funções — e firmwares reais dos anos 90 eram
-exatamente isso: remendos engenhosos e ilegíveis, em que cada função nova exigia refatorar o
-fatiamento de todas as outras. O custo de manutenção explode com o número de funcionalidades.
+Problema: os tempos ficam **acoplados**. Uma volta completa do laço demora
+1 + 80 + (tempo de `trata_botao`) ≈ 81 ms — e é exatamente esse número que se repete até o
+botão ser reexaminado (latência perceptível — interfaces que respondem em mais de ~100 ms
+“parecem travadas”); se amanhã o display ganhar animação de 200 ms, *tudo* piora junto,
+inclusive o sensor que não tem nada a ver com displays. Dá para remendar com **máquinas de
+estado** que fatiam o display em pedacinhos de 5 ms intercalados com as outras funções — e
+firmwares reais dos anos 90 eram exatamente isso: remendos engenhosos e ilegíveis, em que
+cada função nova exigia refatorar o fatiamento de todas as outras. O custo de manutenção
+explode com o número de funcionalidades.
 
 ### 1.2 A solução
 
@@ -79,8 +81,12 @@ MMU protegendo ninguém — daí a disciplina desta e da próxima semana).
 
 ### 2.1 Tarefa: anatomia e criação
 
-Uma tarefa é uma função com uma assinatura fixa, que **nunca retorna** (se retorna, ela deixa
-de existir — quase sempre um bug):
+Uma tarefa é uma função com uma assinatura fixa, que **nunca retorna**. Se a função chega ao
+fim (um `return` implícito ou explícito), o comportamento não é "a tarefa some direitinho" —
+é indefinido, e na prática costuma corromper a pilha/heap silenciosamente, um bug que só
+aparece muito depois, longe da causa. Se você realmente precisa que uma tarefa termine em
+algum momento, o jeito certo é chamar `vTaskDelete(NULL)` explicitamente antes do fim da
+função — nunca deixar a função simplesmente acabar:
 
 ```c
 void minha_tarefa(void *arg)     // arg: ponteiro genérico passado na criação
@@ -98,6 +104,11 @@ xTaskCreate(minha_tarefa,   // função
             5,              // prioridade: 0 (idle) a 24; MAIOR número = MAIOR prioridade
             NULL);          // handle (opcional, p/ suspender/deletar depois)
 ```
+
+> ⚠️ **Prioridade 0 é a da tarefa IDLE do sistema**, não uma prioridade "livre" como as
+> outras. Criar sua tarefa com prioridade 0 faz ela **disputar CPU com a IDLE** — que, como
+> vimos na semana 4, é quem alimenta o Task WDT por baixo dos panos. Nunca use 0 para código
+> seu; comece a contar prioridades reais a partir de 1.
 
 Cada tarefa tem **pilha própria** (suas variáveis locais vivem lá — por isso o tamanho
 importa) e o escalonador salva/restaura os registradores da CPU a cada troca (**troca de
@@ -131,14 +142,17 @@ manda.*
 ```
 
 - **Pronta**: quer a CPU, mas alguém de prioridade ≥ a sua está usando. Está na fila,
-  “de braço levantado”.
+  “de braço levantado” — pronta para rodar assim que for a vez dela, sem fazer nada
+  enquanto espera (não confunda com "bloqueada": aqui a tarefa já tem tudo que precisa, só
+  falta a CPU ficar livre).
 - **Executando**: com a CPU na mão (uma por núcleo — no ESP32, no máximo duas).
 - **Bloqueada**: o estado nobre — a tarefa espera tempo (`vTaskDelay`) ou evento (fila,
   semáforo) **sem gastar um ciclo de CPU** (compare com o polling da semana 3!). É o que
   torna o RTOS eficiente em energia — a ponte com o Exemplo 1.1: CPU sem tarefas prontas
   pode dormir.
 - **Suspensa**: congelada por `vTaskSuspend()`, só volta com `vTaskResume()` — uso raro
-  (depuração, modos especiais).
+  (depuração, modos especiais: por exemplo, pausar de propósito uma tarefa de log ruidosa
+  enquanto você investiga outro bug no monitor serial, sem precisar regravar o firmware).
 
 ### 2.3 O tick e os delays
 
@@ -237,6 +251,13 @@ acima disso, só análise mais fina.) Se o display tivesse prioridade **maior** 
 o laço de controle sofreria jitter de até 30 ms (o corpo inteiro do display) — inaceitável
 para a malha da semana 13. Moral: prioridade não é "importância para o usuário" — é
 **urgência temporal**. O display é mais visível que o controle; e ainda assim manda menos.
+
+![Rate-monotonic: quanto menor o período, maior a prioridade — e a utilização da CPU do Exemplo 5.2 em uma barra empilhada de 0 a 100%](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/prioridades_utilizacao.png)
+
+*Figura 5-D — Acima: a régua do rate-monotonic — controle (período mais curto) no topo com
+a prioridade mais alta, log (sem período fixo) na base. Abaixo: a mesma conta do Exemplo 5.2
+como barra de utilização — os 35 % ocupados por controle+display ficam bem longe do limite
+prático de ≈69 %, deixando folga confortável para o log usar o resto.*
 
 ### 2.5 Pilha: quanto dar a cada tarefa?
 

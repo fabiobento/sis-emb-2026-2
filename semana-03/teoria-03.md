@@ -391,7 +391,7 @@ void app_main(void)
             t_ok = agora + DEBOUNCE_MS;             // Exemplo 3.3: arma a janela
         }
         nivel_ant = nivel;
-        vTaskDelay(pdMS_TO_TICKS(2));               // varredura a ~500 Hz (POLLING)
+        vTaskDelay(pdMS_TO_TICKS(10));              // varredura a 100 Hz (POLLING)
     }
 }
 ```
@@ -409,6 +409,13 @@ Três detalhes de projeto para discutir:
   = 100` que você já viu na Semana 2 — `vTaskDelay(pdMS_TO_TICKS(10))` não tem como ser mais
   fino que isso). Funciona, mas tem custo e latência de até 10 ms. A pergunta "e se o evento
   durar menos de 10 ms?" abre a semana 4 (interrupções) — guarde-a.
+
+> ⚠️ **Por que o código acima usa `pdMS_TO_TICKS(10)`, e não um número menor**: com o tick
+> em 100 Hz, cada tick vale 10 ms — e `pdMS_TO_TICKS()` faz divisão **inteira**. Pedir
+> `pdMS_TO_TICKS(5)`, por exemplo, calcula `5 / 10 = 0` e vira **zero ticks de espera**: a
+> tarefa simplesmente não dorme, sem erro nenhum — o delay só "some" silenciosamente. Regra
+> prática: nunca passe para uma API de tick um valor menor que a resolução do tick (aqui,
+> 10 ms); abaixo disso, é trabalho do `esp_timer` (semana 4), não do `vTaskDelay`.
 
 E a montagem correspondente, para quem quiser reproduzi-la também no Raspberry Pi (Lab 12):
 
