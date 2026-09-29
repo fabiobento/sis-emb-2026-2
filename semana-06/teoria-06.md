@@ -81,6 +81,24 @@ desta aula tratam de *atomicidade*.
 
 ## 2. O arsenal: as cinco primitivas
 
+Antes da tabela, dois verbos que vão aparecer em quase toda linha de código desta aula —
+**tomar** (`take`) e **dar/devolver** (`give`). Mutex, semáforo binário e semáforo contador
+são todos, por baixo do capô, a mesma estrutura de dados do FreeRTOS (um "contador com fila
+de espera"); o que muda é como você a usa. `Take` é a tarefa dizendo "quero isto — se não
+tiver disponível, me bloqueia até ter"; `Give` é dizendo "aqui está, pode pegar quem estiver
+esperando" (ou, no caso do mutex, "terminei, estou devolvendo o cadeado"). Você já viu o
+padrão em ação sem o nome, lá na semana 5: `xSemaphoreTake`/`xSemaphoreGive` é para
+sincronização exatamente o que `vTaskDelay` é para tempo — uma chamada que pode colocar a
+tarefa no estado **Bloqueada**, sem gastar CPU, até a condição ficar verdadeira.
+
+Com isso, a coluna "Pode na ISR?" da tabela abaixo já faz sentido: como uma ISR nunca pode
+bloquear (regra da semana 4), ela **nunca pode chamar `Take`** — só pode `Give` (avisar "um
+evento aconteceu", sem esperar por nada), usando a variante `...FromISR` de cada API. É por
+isso que semáforo binário e contador aparecem como "**give sim**" na tabela: só a metade
+`Give` da dupla é seguro chamar de dentro de uma ISR; a `Take` fica sempre do lado da tarefa.
+Mutex está marcado **NÃO**: como você verá na seção 3, ele não tem nem versão `...FromISR`
+— não faz sentido "tomar posse" de um recurso a partir de uma interrupção.
+
 | Primitiva | O que transporta/sinaliza | Uso típico no curso | Pode na ISR? |
 |---|---|---|---|
 | **Fila (queue)** | **cópias de dados** (N itens) | amostras ADC → tarefa (Lab 6B) | `xQueueSendFromISR` |
