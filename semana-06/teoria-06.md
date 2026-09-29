@@ -10,7 +10,7 @@ novo. Tarefas independentes **precisam conversar**: a ISR do ADC produz amostras
 tarefa processa; duas tarefas querem usar a mesma UART; a lógica só pode começar quando
 "Wi-Fi conectou **E** sensor calibrou". Coordenar tarefas com variáveis globais soltas parece
 funcionar nos testes... e falha em campo, uma vez por semana, sem padrão reproduzível. Esta
-aula apresenta o vilão (**condição de corrida**) e o arsenal civilizado do FreeRTOS: filas,
+aula apresenta o vilão (**condição de corrida**) e as ferramentas do FreeRTOS: filas,
 semáforos, mutex e event groups. No laboratório você vai **ver a corrida acontecer** — um
 contador que deveria chegar a 2 000 000 e não chega — e consertá-la.
 
@@ -79,7 +79,7 @@ tarefa e ISR) passa por uma primitiva de sincronização. Sempre. E lembre da se
 ler-modificar-escrever seja indivisível. `volatile` trata de *visibilidade*; as primitivas
 desta aula tratam de *atomicidade*.
 
-## 2. O arsenal: as cinco primitivas
+## 2. As cinco primitivas
 
 | Primitiva | O que transporta/sinaliza | Uso típico no curso | Pode na ISR? |
 |---|---|---|---|
