@@ -10,7 +10,7 @@ novo. Tarefas independentes **precisam conversar**: a ISR do ADC produz amostras
 tarefa processa; duas tarefas querem usar a mesma UART; a lógica só pode começar quando
 "Wi-Fi conectou **E** sensor calibrou". Coordenar tarefas com variáveis globais soltas parece
 funcionar nos testes... e falha em campo, uma vez por semana, sem padrão reproduzível. Esta
-aula apresenta o vilão (**condição de corrida**) e as ferramentas do FreeRTOS: filas,
+aula apresenta o vilão (**condição de corrida**) e o arsenal civilizado do FreeRTOS: filas,
 semáforos, mutex e event groups. No laboratório você vai **ver a corrida acontecer** — um
 contador que deveria chegar a 2 000 000 e não chega — e consertá-la.
 
@@ -42,7 +42,7 @@ O escalonador preemptivo (semana 5) pode trocar de tarefa **entre quaisquer duas
 instruções**. E aí:
 
 **Exemplo resolvido 6.1 (a corrida, passo a passo)** — Tarefas A e B incrementam `g` (valor
-atual: 10). Siga o passo a passo, imaginando que A e B são preemptadas no instante indicado:
+atual: 10). Siga o fio:
 
 | passo | Tarefa A | Tarefa B | g na memória |
 |---|---|---|---|
@@ -79,7 +79,7 @@ tarefa e ISR) passa por uma primitiva de sincronização. Sempre. E lembre da se
 ler-modificar-escrever seja indivisível. `volatile` trata de *visibilidade*; as primitivas
 desta aula tratam de *atomicidade*.
 
-## 2. As cinco primitivas
+## 2. O arsenal: as cinco primitivas
 
 | Primitiva | O que transporta/sinaliza | Uso típico no curso | Pode na ISR? |
 |---|---|---|---|
@@ -112,6 +112,18 @@ Com o cadeado, a sequência do Exemplo 6.1 muda de destino: quando B toma o mute
 preempta para dentro** da seção crítica — ela bloqueia no `Take` e só entra quando B devolve.
 Os três passos (LOAD-ADD-STORE) voltam a ser indivisíveis *na prática*, e o contador chega a
 2 000 000 cravados.
+
+![Linha do tempo mostrando duas tarefas nunca executando a seção crítica ao mesmo tempo, graças ao mutex](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/mutex_serializacao.png)
+
+*Figura 6-C — O mesmo cenário do Exemplo 6.1, agora com mutex: B tenta tomar o cadeado
+enquanto A o segura, então **bloqueia** (fica na fila de espera do mutex, sem consumir CPU) até
+A devolver. As duas seções críticas nunca se sobrepõem — é exatamente essa não-sobreposição
+que garante o resultado certo.*
+
+Repare o que muda **e** o que não muda em relação à Figura 6-A: a preempção continua
+acontecendo normalmente (o escalonador da semana 5 não sabe nem precisa saber que existe um
+mutex); o que o mutex impede é que a tarefa preemptada **entre na seção crítica** enquanto
+outra está lá dentro. B é forçada a esperar, não a arriscar.
 
 Regras de bom uso: seção crítica **curta** (só o acesso ao dado, nunca I/O lento lá dentro —
 cada microssegundo dentro do cadeado é tempo de espera imposto a todos os outros usuários do
@@ -185,10 +197,26 @@ De onde saíram os 64 itens?
 *Solução passo a passo.* Acúmulo no pior caso: 1 kHz × 50 ms = **50 itens** → fila de **64**
 (folga + potência de 2, convenção que facilita aritmética de índices). RAM: 64 × 4 = 256 B ✔.
 Regra geral: **capacidade ≥ taxa de produção × maior "apagão" do consumidor**, com folga —
-porque o apagão real sempre supera o estimado. No Lab 6 você medirá o *high-water* da fila e
-comparará com a conta; e verá a fila estourar quando o apagão dobrar — com a perda
-**detectada** no log, jamais silenciosa. (Dado perdido sem aviso é como instrumento sem
-alarme: o sistema mente com cara de saudável.)
+porque o apagão real sempre supera o estimado. No Lab 6 você medirá o *high-water* da fila
+(mesma ideia de "marca d'água" da pilha, semana 5 — só que aqui é o **maior número de itens
+que já se acumularam de uma vez**, não a folga que sobrou) e comparará com a conta; e verá a
+fila estourar quando o apagão dobrar — com a perda **detectada** no log, jamais silenciosa.
+(Dado perdido sem aviso é como instrumento sem alarme: o sistema mente com cara de saudável.)
+
+![Gráfico do nível da fila subindo em serrote e sendo drenado periodicamente, com um painel mostrando estouro quando o apagão dobra](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/fila_nivel_tempo.png)
+
+*Figura 6-D — O nível da fila (itens aguardando) em forma de serrote: sobe a 100 Hz enquanto o
+produtor insere, e zera de uma vez quando o consumidor drena a rajada inteira. Com apagão de
+300 ms (painel esquerdo) o pico fica bem abaixo da capacidade; com 700 ms (painel direito) o
+pico ultrapassa 64 a cada rajada, e o excedente é a perda que aparece como `FILA CHEIA!` no
+monitor.*
+
+Note a assimetria do gráfico: a subida é uma rampa suave (chegada regular, um item a cada
+10 ms) e a descida é praticamente vertical (o consumidor esvazia tudo de uma vez, num único
+laço `while (xQueueReceive(...))`). É esse formato de dente de serra — não uma linha reta —
+que faz a conta "capacidade ≥ taxa × apagão" ser sobre o **pico**, não sobre a média: a fila
+pode passar 99% do tempo quase vazia e mesmo assim estourar no instante do pico, se a
+capacidade for dimensionada pela média.
 
 ### 2.4 Semáforos: sinalizando eventos
 
@@ -231,29 +259,77 @@ quando *contar* importa: quantos buffers livres restam, quantos pulsos de encode
 
 ### 2.5 Event group: esperando combinações
 
-O **event group** é um conjunto de bits de evento; uma tarefa pode bloquear esperando
-"bit X **e** bit Y" ou "X **ou** Y". É a ferramenta para partidas coordenadas — e é
-exatamente como o firmware da semana 14 espera `BIT_GOT_IP` e depois `BIT_MQTT_OK` antes de
-publicar:
+As primitivas anteriores resolvem "esperar 1 evento" (semáforo) ou "esperar 1 recurso"
+(mutex). Mas e quando a lógica depende de **vários** eventos independentes, e a ordem em que
+eles chegam não é previsível? É o caso clássico de "só posso publicar no MQTT depois que o
+Wi-Fi conectou **e** o broker respondeu" — duas coisas que podem terminar em qualquer ordem,
+em tarefas ou callbacks diferentes.
+
+O **event group** é um conjunto de até 24 bits de evento (num único `EventBits_t`), onde
+qualquer tarefa pode: (1) **setar** um bit quando algo acontece (`xEventGroupSetBits`), de
+dentro de uma tarefa ou de um *handler* de evento; (2) **bloquear** esperando uma combinação
+de bits (`xEventGroupWaitBits`) — "todos estes" ou "qualquer um destes" — até que ela se
+torne verdadeira. É a ferramenta certa para **partidas coordenadas**: várias inicializações
+assíncronas que precisam terminar antes de um próximo passo poder começar.
 
 ```c
-xEventGroupWaitBits(eg, BIT_GOT_IP, pdFALSE, pdTRUE, portMAX_DELAY);  // dorme até o Wi-Fi
-// ... e no handler de evento, em outro contexto:
-xEventGroupSetBits(eg, BIT_GOT_IP);
+#define BIT_GOT_IP   (1 << 0)
+#define BIT_MQTT_OK  (1 << 1)
+
+// A tarefa que só pode agir depois que TUDO estiver pronto:
+EventBits_t bits = xEventGroupWaitBits(
+        eg,                          // handle do event group (criado com xEventGroupCreate())
+        BIT_GOT_IP | BIT_MQTT_OK,    // máscara: quais bits importam
+        pdFALSE,                     // xClearOnExit: NÃO limpa os bits ao sair (outros podem checar depois)
+        pdTRUE,                      // xWaitForAllBits: espera TODOS (troque por pdFALSE p/ "qualquer um")
+        portMAX_DELAY);              // dorme aqui, sem gastar CPU, até a condição bater
+
+// ... e em dois lugares diferentes do código, cada um sinalizando seu próprio evento:
+xEventGroupSetBits(eg, BIT_GOT_IP);    // no handler de evento de rede, quando o IP chega
+xEventGroupSetBits(eg, BIT_MQTT_OK);   // na tarefa MQTT, quando o CONNACK volta
 ```
 
-Os dois booleanos do meio respondem às perguntas naturais: “limpo os bits ao consumir?” e
-“espero TODOS ou QUALQUER UM?”. Guarde a assinatura: você a reencontrará pronta no
-`no_mqtt/main.c`.
+Os dois booleanos do meio (`xClearOnExit`, `xWaitForAllBits`) respondem às duas perguntas que
+toda espera por combinação precisa responder: *"depois que eu acordar, os bits continuam
+setados para quem mais estiver esperando, ou eu 'consumo' o evento?"* e *"minha condição é E
+ou OU?"*. A ordem de chegada dos dois `SetBits` acima **não importa** — o event group resolve
+sozinho qual bit falta, e a tarefa que espera só acorda quando a combinação pedida fica
+verdadeira, venha o Wi-Fi primeiro ou o MQTT primeiro. Guarde a assinatura: você a
+reencontrará pronta, com esses mesmos dois bits, no `no_mqtt/main.c` da semana 14.
 
 ## 3. Seções críticas de emergência
 
-E quando o dado é compartilhado **com uma ISR** e a operação é minúscula (mutex não pode em
-ISR!)? `portENTER_CRITICAL(&mux)` / `portEXIT_CRITICAL(&mux)`: desliga interrupções no núcleo
-por algumas instruções. É a marreta — eficaz e perigosa: cada nanossegundo lá dentro é
-latência adicionada a **todas** as interrupções do sistema. Use para 2–3 instruções
-(ler-e-zerar um contador da ISR), jamais em torno de I/O. Se a proteção precisa durar mais
-que isso, o design está errado: use fila.
+E quando o dado é compartilhado **com uma ISR** e a operação é minúscula? Lembre a tabela da
+seção 2: mutex está marcado **NÃO** na coluna "pode na ISR?" — e faz sentido, porque
+`xSemaphoreTake` pode bloquear a tarefa chamadora, e uma ISR não é uma tarefa; ela não pode
+"dormir" esperando ninguém. Para esse caso restrito — variável pequena, tocada tanto pela
+tarefa quanto pela ISR — existe uma ferramenta mais primitiva que qualquer uma das quatro
+vistas até aqui:
+
+```c
+static portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;   // um "spinlock" leve, declarado uma vez
+
+// na tarefa (ou em qualquer contexto que precise ler/zerar com segurança):
+portENTER_CRITICAL(&mux);
+uint32_t copia = g_contador_isr;
+g_contador_isr = 0;
+portEXIT_CRITICAL(&mux);
+
+// na ISR, a versão que não pode bloquear:
+portENTER_CRITICAL_ISR(&mux);
+g_contador_isr++;
+portEXIT_CRITICAL_ISR(&mux);
+```
+
+`portENTER_CRITICAL` / `portEXIT_CRITICAL` desligam as interrupções no núcleo local por
+algumas instruções (no ESP32, de dois núcleos, o `mux` também impede que o *outro* núcleo
+entre na mesma seção ao mesmo tempo — por isso é preciso declará-lo, não é gratuito como um
+simples `cli()/sei()` de um chip de núcleo único). É a marreta do arsenal — eficaz e
+perigosa: cada nanossegundo lá dentro é latência adicionada a **todas** as interrupções do
+sistema, inclusive o próprio watchdog (semana 4) e o tick do escalonador. Use para 2–3
+instruções (ler-e-zerar um contador da ISR, como no exemplo acima), jamais em torno de I/O
+ou de qualquer chamada que possa demorar. Se a proteção precisa durar mais que isso, o
+design está errado: use fila.
 
 > 💡 **Mapa mental de decisão** (cole na bancada): preciso passar **dados**? → fila.
 > Sinalizar **um evento**? → semáforo binário. **Contar** eventos/recursos? → semáforo
@@ -290,6 +366,8 @@ que isso, o design está errado: use fila.
 | herança de prioridade | dono do mutex herda a prioridade de quem espera |
 | deadlock | espera circular de mutexes |
 | Heisenbug | bug que muda/some ao ser observado |
+| high-water da fila | maior nº de itens já acumulados de uma vez (pico, não média) |
+| spinlock (`portMUX_TYPE`) | trava leve usada por `portENTER/EXIT_CRITICAL`, também protege entre núcleos |
 
 ## 📖 Onde aprofundar (opcional)
 
