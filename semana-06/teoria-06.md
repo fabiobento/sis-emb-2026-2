@@ -42,7 +42,7 @@ O escalonador preemptivo (semana 5) pode trocar de tarefa **entre quaisquer duas
 instruções**. E aí:
 
 **Exemplo resolvido 6.1 (a corrida, passo a passo)** — Tarefas A e B incrementam `g` (valor
-atual: 10). Siga o fio:
+atual: 10). Siga o passo a passo, imaginando que A e B são preemptadas no instante indicado:
 
 | passo | Tarefa A | Tarefa B | g na memória |
 |---|---|---|---|
