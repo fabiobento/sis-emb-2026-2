@@ -323,24 +323,33 @@ static void tarefa_botao(void *arg)
 
 void app_main(void)
 {
-    gpio_reset_pin(BTN);
-    gpio_set_direction(BTN, GPIO_MODE_INPUT);
-    gpio_pullup_en(BTN);
-    gpio_set_intr_type(BTN, GPIO_INTR_NEGEDGE);   // borda de descida (ativo-baixo)
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(BTN, isr_botao, NULL);
-
+    // O semáforo tem que existir ANTES de a ISR poder disparar: gpio_isr_handler_add() já
+    // arma a interrupção na hora. Se o pino "piscar" um único ciclo enquanto o pull-up ainda
+    // está assentando (comum — não é preciso apertar o botão), a ISR roda imediatamente e
+    // chama xSemaphoreGiveFromISR(sem, ...) com sem == NULL — configASSERT do FreeRTOS,
+    // sempre na mesma linha, sempre no boot. Por isso a ordem abaixo é obrigatória.
 #if USAR_CONTADOR
     sem = xSemaphoreCreateCounting(10, 0);        // até 10 eventos pendentes, começa em 0
 #else
     sem = xSemaphoreCreateBinary();               // satura em 1: rajada rápida "come" eventos
 #endif
 
+    gpio_reset_pin(BTN);
+    gpio_set_direction(BTN, GPIO_MODE_INPUT);
+    gpio_pullup_en(BTN);
+    gpio_set_intr_type(BTN, GPIO_INTR_NEGEDGE);   // borda de descida (ativo-baixo)
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(BTN, isr_botao, NULL);   // a partir daqui a ISR pode disparar
+
     xTaskCreate(tarefa_botao, "botao", 2048, NULL, 4, NULL);
 }
 ```
 
-    Note o debounce: ele acontece **dentro da própria ISR**, como no desafio da Semana 4 —
+    Note a ordem: o semáforo é criado **antes** de instalar a ISR. Se fosse o contrário, a
+    ISR poderia disparar (um simples ruído no pino enquanto o pull-up assenta já basta) e
+    chamar `xSemaphoreGiveFromISR` sobre um `sem` ainda `NULL` — é exatamente o tipo de bug
+    que gera um `assert failed` reproduzível em todo boot, sem precisar apertar nada. E note
+    o debounce: ele acontece **dentro da própria ISR**, como no desafio da Semana 4 —
     só aritmética de carimbo de tempo (`esp_timer_get_time()`), nada de `vTaskDelay`. É o
     único "trabalho" que a ISR faz além do `give`; tudo o mais (imprimir, contar eventos)
     fica na tarefa, que pode gastar o tempo que precisar porque não está mais em contexto de

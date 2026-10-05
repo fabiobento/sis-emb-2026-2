@@ -45,18 +45,23 @@ static void tarefa_botao(void *arg)
 
 void app_main(void)
 {
-    gpio_reset_pin(BTN);
-    gpio_set_direction(BTN, GPIO_MODE_INPUT);
-    gpio_pullup_en(BTN);
-    gpio_set_intr_type(BTN, GPIO_INTR_NEGEDGE);   // borda de descida (ativo-baixo)
-    gpio_install_isr_service(0);
-    gpio_isr_handler_add(BTN, isr_botao, NULL);
-
+    // O semaforo tem que existir ANTES de a ISR poder disparar. gpio_isr_handler_add() ja
+    // arma a interrupcao na hora: se o pino "piscar" um unico ciclo enquanto o pull-up ainda
+    // esta assentando (comum, nao e preciso apertar o botao), a ISR roda imediatamente e
+    // chama xSemaphoreGiveFromISR(sem, ...) com sem == NULL -> configASSERT do FreeRTOS,
+    // sempre na mesma linha, sempre no boot. Por isso a ordem abaixo e obrigatoria.
 #if USAR_CONTADOR
     sem = xSemaphoreCreateCounting(10, 0);        // ate 10 eventos pendentes, comeca em 0
 #else
     sem = xSemaphoreCreateBinary();               // satura em 1: rajada rapida "come" eventos
 #endif
+
+    gpio_reset_pin(BTN);
+    gpio_set_direction(BTN, GPIO_MODE_INPUT);
+    gpio_pullup_en(BTN);
+    gpio_set_intr_type(BTN, GPIO_INTR_NEGEDGE);   // borda de descida (ativo-baixo)
+    gpio_install_isr_service(0);
+    gpio_isr_handler_add(BTN, isr_botao, NULL);   // a partir daqui a ISR pode disparar
 
     xTaskCreate(tarefa_botao, "botao", 2048, NULL, 4, NULL);
 }
