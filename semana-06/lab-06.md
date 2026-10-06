@@ -55,7 +55,7 @@ cp ~/sis-emb-2026-2/semana-06/src/corrida_mutex/main.c ~/sis-emb/lab6/corrida/ma
 ```
 
 4. Antes de gravar, abra no VS Code o programa `~/sis-emb/lab6/corrida/main/corrida.c`
-   **com a teoria do lado** (a seção 2.1 detalha, linha a linha, o `take`/`give` do mutex).
+   **com a teoria do lado** (a [seção 2.1](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-06/teoria-06.md#21-mutex-exclus%C3%A3o-m%C3%BAtua) detalha, linha a linha, o `take`/`give` do mutex).
    Código-fonte completo, para referência:
 
 ```c
