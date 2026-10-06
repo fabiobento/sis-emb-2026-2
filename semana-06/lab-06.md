@@ -160,7 +160,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
    que você acabou de copiar o firmware, então só confira.
 
 7. Grave e anote o valor final impresso pela última tarefa a terminar. Rode **5 vezes**
-   (basta resetar a placa com o botão EN) e preencha:
+   (basta resetar a placa com o botão RST) e preencha:
 
 | execução | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
@@ -449,10 +449,3 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
 5. Uma frase honesta: qual primitiva você usaria para proteger o barramento I2C que duas
    tarefas compartilharão na semana 9 — e por que não um semáforo binário? (Dica: Mars
    Pathfinder.)
-
-## Desafio (opcional)
-
-Deadlock didático: crie os mutexes `mA` e `mB` e duas tarefas — T1 toma `mA`, dorme 100 ms,
-toma `mB`; T2 toma `mB`, dorme 100 ms, toma `mA`. Rode, observe o congelamento (e o
-task_wdt eventual), e então conserte **apenas reordenando** as aquisições. Relate o
-antes/depois — você acabou de demonstrar a regra da ordem global de aquisição.
