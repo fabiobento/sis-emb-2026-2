@@ -3,6 +3,7 @@
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_task_wdt.h"
+#include "esp_random.h"
 #include <stdio.h>
 
 #define USAR_MUTEX 0
@@ -16,9 +17,17 @@ static SemaphoreHandle_t g_mutex;
 // em 1 milhao de tentativas. Esta funcao alarga essa janela de proposito (so para tornar
 // a corrida observavel neste experimento), sem mudar a natureza do bug: continua sendo
 // leitura-modificacao-escrita nao atomica, so que agora com tempo de sobra para colidir.
+//
+// O tamanho da pausa e sorteado a cada chamada com esp_random() (gerador de numeros
+// aleatorios por hardware do ESP32). Sem isso, a pausa fixa colide sempre no MESMO ponto
+// relativo entre T1 e T2 a cada reset -- sem Wi-Fi/Bluetooth/botao rodando, nao ha nenhum
+// evento assincrono do mundo real para desalinhar o encontro, e o resultado final sai
+// identico run apos run (determinismo "escondido" dentro do proprio hardware, nao so no
+// simulador). Sorteando a pausa, o ponto exato da colisao muda a cada execucao de verdade.
 static inline void amplia_janela_de_risco(void)
 {
-    for (volatile int k = 0; k < 30; k++) { }
+    int n = 10 + (esp_random() % 40);     // entre 10 e 49 iteracoes, sorteado agora
+    for (volatile int k = 0; k < n; k++) { }
 }
 
 static void incrementador(void *arg)

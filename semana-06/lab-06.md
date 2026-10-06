@@ -64,6 +64,7 @@ cp ~/sis-emb-2026-2/semana-06/src/corrida_mutex/main.c ~/sis-emb/lab6/corrida/ma
 #include "freertos/task.h"
 #include "freertos/semphr.h"
 #include "esp_task_wdt.h"
+#include "esp_random.h"
 #include <stdio.h>
 
 #define USAR_MUTEX 0
@@ -77,9 +78,18 @@ static SemaphoreHandle_t g_mutex;
 // em 1 milhão de tentativas. Esta função alarga essa janela de propósito (só para tornar
 // a corrida observável neste experimento), sem mudar a natureza do bug: continua sendo
 // leitura-modificação-escrita não atômica, só que agora com tempo de sobra para colidir.
+//
+// O tamanho da pausa é sorteado a cada chamada com esp_random() (gerador de números
+// aleatórios por hardware do ESP32). Sem isso, a pausa fixa colide sempre no MESMO ponto
+// relativo entre T1 e T2 a cada reset — sem Wi-Fi/Bluetooth/botão rodando, não há nenhum
+// evento assíncrono do mundo real para desalinhar o encontro, e o resultado final sai
+// idêntico execução após execução (um determinismo "escondido" dentro do próprio
+// hardware, não só no simulador). Sorteando a pausa, o ponto exato da colisão muda a cada
+// execução de verdade.
 static inline void amplia_janela_de_risco(void)
 {
-    for (volatile int k = 0; k < 30; k++) { }
+    int n = 10 + (esp_random() % 40);     // entre 10 e 49 iterações, sorteado agora
+    for (volatile int k = 0; k < n; k++) { }
 }
 
 static void incrementador(void *arg)
@@ -125,12 +135,19 @@ void app_main(void)
      `g_contador` é `volatile`, mas isso só garante que a leitura vá à memória (semana 3) —
      não protege o incremento de ser interrompido no meio, que é exatamente o bug que você
      vai ver. `amplia_janela_de_risco()` troca o que seria um único `g_contador++;` por um
-     LOAD, um atraso artificial e um STORE separados: em hardware real a janela de risco de
-     um `++` puro dura poucos nanossegundos — curta demais para o escalonador (que troca de
-     tarefa a cada 10 ms, por padrão) "acertar" o meio dela com frequência em 1 milhão de
-     tentativas. Alargar a janela não inventa um bug novo: é a mesma leitura-modificação-
-     escrita não atômica da teoria, só que com tempo de sobra para a colisão acontecer de
-     forma confiável *neste* experimento, em vez de depender de sorte;
+     LOAD, um atraso artificial (de duração **sorteada** com `esp_random()`) e um STORE
+     separados: em hardware real a janela de risco de um `++` puro dura poucos
+     nanossegundos — curta demais para o escalonador (que troca de tarefa a cada 10 ms, por
+     padrão) "acertar" o meio dela com frequência em 1 milhão de tentativas. Alargar a
+     janela não inventa um bug novo: é a mesma leitura-modificação-escrita não atômica da
+     teoria, só que com tempo de sobra para a colisão acontecer de forma confiável *neste*
+     experimento. E por que sortear o tamanho em vez de usar um valor fixo? Porque sem
+     Wi-Fi, Bluetooth ou botão rodando, não existe nenhum evento assíncrono "do mundo real"
+     para desalinhar o encontro entre T1 e T2 — com uma pausa fixa, a colisão cai sempre no
+     mesmo ponto relativo a cada reset, e o resultado final sairia **idêntico a cada
+     execução** (o mesmo determinismo que você já viu no Wokwi, só que agora escondido
+     dentro do próprio hardware). Sorteando a pausa, o ponto exato da colisão muda a cada
+     execução de verdade, e os valores finais voltam a variar como a teoria prevê;
    - as duas tarefas são **pinadas no mesmo núcleo** (`xTaskCreatePinnedToCore(..., 1)`) de
      propósito: queremos maximizar preempções entre elas. Com uma em cada núcleo o problema
      seria *pior* ainda, mas de outra natureza — aí as escritas aconteceriam
@@ -160,7 +177,7 @@ idf.py -p /dev/ttyUSB0 flash monitor
    que você acabou de copiar o firmware, então só confira.
 
 7. Grave e anote o valor final impresso pela última tarefa a terminar. Rode **5 vezes**
-   (basta resetar a placa com o botão RST) e preencha:
+   (basta resetar a placa com o botão EN) e preencha:
 
 | execução | 1 | 2 | 3 | 4 | 5 |
 |---|---|---|---|---|---|
@@ -432,7 +449,7 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
     (`xSemaphoreCreateCounting(10, 0)`), e os cinco eventos aparecem. Explique a diferença em
     2 linhas (teoria, seção 2.4, último parágrafo).
 
->  **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
+> 🧠 **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
 > e no callback de dados MQTT (semana 14) — sempre "interrupção sinaliza, tarefa processa".
 > Você acabou de aprender a estrutura de todo driver profissional.
 
@@ -449,3 +466,10 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
 5. Uma frase honesta: qual primitiva você usaria para proteger o barramento I2C que duas
    tarefas compartilharão na semana 9 — e por que não um semáforo binário? (Dica: Mars
    Pathfinder.)
+
+## Desafio (opcional)
+
+Deadlock didático: crie os mutexes `mA` e `mB` e duas tarefas — T1 toma `mA`, dorme 100 ms,
+toma `mB`; T2 toma `mB`, dorme 100 ms, toma `mA`. Rode, observe o congelamento (e o
+task_wdt eventual), e então conserte **apenas reordenando** as aquisições. Relate o
+antes/depois — você acabou de demonstrar a regra da ordem global de aquisição.
