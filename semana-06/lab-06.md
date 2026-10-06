@@ -432,7 +432,7 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
     (`xSemaphoreCreateCounting(10, 0)`), e os cinco eventos aparecem. Explique a diferença em
     2 linhas (teoria, seção 2.4, último parágrafo).
 
-> 🧠 **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
+>  **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
 > e no callback de dados MQTT (semana 14) — sempre "interrupção sinaliza, tarefa processa".
 > Você acabou de aprender a estrutura de todo driver profissional.
 
