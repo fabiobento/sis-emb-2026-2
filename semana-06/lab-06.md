@@ -68,116 +68,19 @@ cp ~/sis-emb-2026-2/semana-06/src/corrida_mutex/main.c ~/sis-emb/lab6/corrida/ma
 
 #define USAR_MUTEX 0
 #define N 1000000
-#define N_ESPERADO (2 * N)
-
-// BONUS: se você tiver um display 16x2 + adaptador I2C (módulo "LCM1602 IIC", chip
-// PCF8574), troque para 1 e ligue SDA->GPIO21, SCL->GPIO22, VCC->5V, GND->GND. O
-// display mostra o contador subindo em tempo real e, ao final, se o resultado deu
-// "OK! 2000000" ou "PERDEU <n>" — sem precisar olhar o monitor serial. O barramento
-// I2C será estudado formalmente na Semana 9; aqui é só uma prévia prática.
-#define USAR_LCD 0
 
 static volatile uint32_t g_contador = 0;
 static SemaphoreHandle_t g_mutex;
 
-#if USAR_LCD
-#include "driver/i2c.h"
-#include "rom/ets_sys.h"
-
-#define LCD_ADDR 0x27   // se não responder, troque para 0x3F (segundo endereço mais comum)
-#define SDA 21
-#define SCL 22
-
-// --- driver mínimo do HD44780 em modo 4 bits através do expansor PCF8574 ---
-// Pinagem padrão do módulo "LCM1602 IIC": P0=RS P1=RW P2=EN P3=luz de fundo P4..P7=D4..D7
-#define LCD_RS 0x01
-#define LCD_EN 0x04
-#define LCD_BL 0x08
-
-static void lcd_wr_byte(uint8_t b)
+// Em hardware real (240 MHz), a janela de risco entre o LOAD e o STORE de "g_contador++"
+// dura poucos nanossegundos — curta demais para o escalonador "acertar" com frequência
+// em 1 milhão de tentativas. Esta função alarga essa janela de propósito (só para tornar
+// a corrida observável neste experimento), sem mudar a natureza do bug: continua sendo
+// leitura-modificação-escrita não atômica, só que agora com tempo de sobra para colidir.
+static inline void amplia_janela_de_risco(void)
 {
-    i2c_master_write_to_device(I2C_NUM_0, LCD_ADDR, &b, 1, pdMS_TO_TICKS(20));
+    for (volatile int k = 0; k < 30; k++) { }
 }
-static void lcd_pulse(uint8_t nibble)
-{
-    lcd_wr_byte(nibble | LCD_EN);
-    ets_delay_us(1);
-    lcd_wr_byte(nibble & ~LCD_EN);
-    ets_delay_us(50);
-}
-static void lcd_send(uint8_t valor, uint8_t rs)
-{
-    uint8_t base = LCD_BL | (rs ? LCD_RS : 0);
-    lcd_pulse(base | (valor & 0xF0));
-    lcd_pulse(base | ((valor << 4) & 0xF0));
-}
-static void lcd_cmd(uint8_t c)  { lcd_send(c, 0); }
-static void lcd_data(uint8_t d) { lcd_send(d, 1); }
-
-static void lcd_init(void)
-{
-    i2c_config_t cfg = { .mode = I2C_MODE_MASTER, .sda_io_num = SDA, .scl_io_num = SCL,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE, .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 100000 };
-    i2c_param_config(I2C_NUM_0, &cfg);
-    i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
-    vTaskDelay(pdMS_TO_TICKS(50));          // tempo de ligar exigido pelo HD44780
-
-    // sequência de "despertar" em 4 bits (página de inicialização do datasheet HD44780)
-    lcd_pulse(LCD_BL | 0x30); vTaskDelay(pdMS_TO_TICKS(5));
-    lcd_pulse(LCD_BL | 0x30); ets_delay_us(150);
-    lcd_pulse(LCD_BL | 0x30);
-    lcd_pulse(LCD_BL | 0x20);               // a partir daqui, 4 bits para sempre
-    lcd_cmd(0x28);                           // 4 bits, 2 linhas, fonte 5x8
-    lcd_cmd(0x0C);                           // display ligado, cursor e blink desligados
-    lcd_cmd(0x06);                           // incrementa cursor, sem deslocar a tela
-    lcd_cmd(0x01);                           // limpa
-    vTaskDelay(pdMS_TO_TICKS(2));
-}
-static void lcd_goto(uint8_t linha, uint8_t col)
-{
-    lcd_cmd(0x80 | ((linha ? 0x40 : 0x00) + col));
-}
-static void lcd_print(const char *s) { while (*s) lcd_data(*s++); }
-
-// Tarefa de prioridade baixa: só LÊ g_contador (leitura solta, nunca escreve) a cada
-// 150 ms — não participa da corrida, só a exibe. Detecta o fim "pela estabilidade": se
-// o valor parar de mudar por ~500 ms, as duas tarefas já terminaram e já se autodeletaram.
-static void tarefa_lcd(void *arg)
-{
-    lcd_init();
-    lcd_goto(0, 0);
-    lcd_print(USAR_MUTEX ? "COM mutex" : "SEM mutex");
-
-    uint32_t anterior = 0, estavel_ms = 0;
-    while (1) {
-        uint32_t atual = g_contador;
-        char linha[17];
-        snprintf(linha, sizeof(linha), "cont=%-10lu", (unsigned long)atual);
-        lcd_goto(1, 0);
-        lcd_print(linha);
-
-        if (atual == anterior) {
-            estavel_ms += 150;
-        } else {
-            estavel_ms = 0;
-            anterior = atual;
-        }
-        if (estavel_ms >= 500 && atual > 0) {
-            lcd_goto(0, 0);
-            if (atual == N_ESPERADO) {
-                lcd_print("OK! 2000000   ");
-            } else {
-                char resumo[17];
-                snprintf(resumo, sizeof(resumo), "PERDEU %6lu", (unsigned long)(N_ESPERADO - atual));
-                lcd_print(resumo);
-            }
-            vTaskDelete(NULL);
-        }
-        vTaskDelay(pdMS_TO_TICKS(150));
-    }
-}
-#endif // USAR_LCD
 
 static void incrementador(void *arg)
 {
@@ -213,27 +116,21 @@ void app_main(void)
     // mesmo núcleo p/ maximizar preempções visíveis
     xTaskCreatePinnedToCore(incrementador, "T1", 2048, "T1", 3, NULL, 1);
     xTaskCreatePinnedToCore(incrementador, "T2", 2048, "T2", 3, NULL, 1);
-
-#if USAR_LCD
-    // prioridade baixa e de leitura apenas: não disputa CPU com T1/T2, só observa.
-    xTaskCreate(tarefa_lcd, "lcd", 2560, NULL, 1, NULL);
-#endif
 }
 ```
 
-   Repare cinco detalhes que fazem toda a diferença no experimento:
+   Repare quatro detalhes que fazem toda a diferença no experimento:
    - `#if USAR_MUTEX` **compila dois firmwares diferentes** a partir do mesmo arquivo — nada
      de comentar/descomentar código manualmente, só trocar o `0`/`1` no topo;
      `g_contador` é `volatile`, mas isso só garante que a leitura vá à memória (semana 3) —
      não protege o incremento de ser interrompido no meio, que é exatamente o bug que você
-     vai ver;
-   - `amplia_janela_de_risco()` troca o que seria um único `g_contador++;` por um LOAD, um
-     atraso artificial e um STORE separados. Em hardware real a janela de risco de um `++`
-     puro dura poucos nanossegundos — tempo demais curto para o escalonador (que troca de
-     tarefa a cada 10 ms, por padrão) "acertar" o meio dessa janela com frequência em
-     1 milhão de tentativas. Alargar a janela não inventa um bug novo: é a mesma
-     leitura-modificação-escrita não atômica da teoria, só que com tempo de sobra para a
-     colisão acontecer de forma confiável *neste* experimento, em vez de depender de sorte;
+     vai ver. `amplia_janela_de_risco()` troca o que seria um único `g_contador++;` por um
+     LOAD, um atraso artificial e um STORE separados: em hardware real a janela de risco de
+     um `++` puro dura poucos nanossegundos — curta demais para o escalonador (que troca de
+     tarefa a cada 10 ms, por padrão) "acertar" o meio dela com frequência em 1 milhão de
+     tentativas. Alargar a janela não inventa um bug novo: é a mesma leitura-modificação-
+     escrita não atômica da teoria, só que com tempo de sobra para a colisão acontecer de
+     forma confiável *neste* experimento, em vez de depender de sorte;
    - as duas tarefas são **pinadas no mesmo núcleo** (`xTaskCreatePinnedToCore(..., 1)`) de
      propósito: queremos maximizar preempções entre elas. Com uma em cada núcleo o problema
      seria *pior* ainda, mas de outra natureza — aí as escritas aconteceriam
@@ -297,85 +194,6 @@ idf.py -p /dev/ttyUSB0 flash monitor
 *Figura — Compare o que você acabou de medir com a Figura 6-C da teoria: com
 `USAR_MUTEX 1`, T2 fica bloqueada (0 % de CPU) sempre que T1 está dentro da seção crítica —
 é essa não-sobreposição, e não "sorte", que garante os 2 000 000 cravados do item 9.*
-
-### Bônus — mostrando a corrida num display 16x2 (quem tiver o hardware)
-
-Se você tem em mãos um **display de caracteres 16x2** com **adaptador I2C** (aquele
-módulo pequeno soldado atrás do display, chip **PCF8574**, às vezes vendido como
-"LCM1602 IIC"), dá para ver a corrida acontecer sem precisar olhar o monitor serial —
-útil inclusive para demonstrar em sala, segurando só o display. O barramento **I2C**
-será estudado formalmente na Semana 9; esta é só uma prévia prática, com um driver
-mínimo já escrito dentro do próprio `corrida.c` (bloco `#if USAR_LCD`).
-
-- Ligue o display ao ESP32: **SDA → GPIO21**, **SCL → GPIO22**, **VCC → 5V**,
-  **GND → GND** (mesmos pinos I2C padrão que você vai reencontrar na Semana 9).
-- No arquivo `corrida.c`, troque `#define USAR_LCD 0` para `#define USAR_LCD 1` e
-  regrave. Se a tela ficar em branco ou só com quadradinhos, o endereço I2C do seu
-  módulo provavelmente é `0x3F` em vez de `0x27` — troque a linha `#define LCD_ADDR`
-  e regrave de novo (são os dois endereços mais comuns desses adaptadores; não tem
-  como saber qual o seu vem configurado só olhando a placa).
-- O que esperar na tela: a primeira linha mostra `SEM mutex` ou `COM mutex`
-  (conforme `USAR_MUTEX`); a segunda linha mostra o contador **subindo em tempo real**
-  enquanto T1/T2 trabalham. Quando o valor parar de mudar por meio segundo (sinal de
-  que as duas tarefas já terminaram e se autodeletaram), a primeira linha troca para
-  `OK! 2000000` ou `PERDEU <n>` — o mesmo resultado que você já vê no monitor serial,
-  só que cravado na tela, sem precisar rolar o terminal para achar.
-- Repita os itens 6 a 9 (os cinco `USAR_MUTEX 0`, depois os cinco `USAR_MUTEX 1`) com
-  o display ligado e confirme: o padrão de resultados é **o mesmo**, já que a tarefa
-  do display só *lê* `g_contador` a cada 150 ms (nunca escreve) e roda em prioridade
-  mais baixa que T1/T2 — ela observa a corrida, não participa dela.
-
-**Não tem o display físico? Simule no Wokwi.** O Wokwi tem o LCD1602 com um modo I2C
-embutido (o atributo `"pins": "i2c"` troca os 16 pinos paralelos por só 4: `GND`, `VCC`,
-`SDA`, `SCL` — exatamente o módulo PCF8574 que você ligaria na vida real). Substitua o
-`diagram.json` do seu projeto `corrida` por este:
-
-```json
-{
-  "version": 1,
-  "author": "sua-bancada",
-  "editor": "wokwi",
-  "parts": [
-    {
-      "type": "board-esp32-devkit-c-v4",
-      "id": "esp",
-      "top": -67.2,
-      "left": 43.24,
-      "attrs": { "builder": "esp-idf" }
-    },
-    {
-      "type": "wokwi-lcd1602",
-      "id": "lcd1",
-      "top": -40,
-      "left": 160,
-      "attrs": { "pins": "i2c" }
-    }
-  ],
-  "connections": [
-    [ "esp:TX", "$serialMonitor:RX", "", [] ],
-    [ "esp:RX", "$serialMonitor:TX", "", [] ],
-
-    [ "lcd1:SDA", "esp:21", "green", [ "v0" ] ],
-    [ "lcd1:SCL", "esp:22", "yellow", [ "v0" ] ],
-    [ "lcd1:VCC", "esp:5V", "red", [ "v0" ] ],
-    [ "lcd1:GND", "esp:GND.1", "black", [ "v0" ] ]
-  ],
-  "dependencies": {}
-}
-```
-
-O LCD1602 do Wokwi em modo I2C responde no endereço `0x27` por padrão — o mesmo que já
-está em `#define LCD_ADDR` no `corrida.c` — então no simulador você não deve precisar
-trocar para `0x3F`. Rode a simulação com `USAR_LCD 1` e confira: o visor do Wokwi mostra
-exatamente as mesmas duas linhas (`SEM mutex`/`COM mutex` e o contador) que apareceriam
-no display físico.
-
-> 💡 Se preferir montar pelo painel em vez de colar o JSON: adicione o LCD1602 pelo **+**,
-> clique nele e mude o atributo **pins** para **i2c** no painel de propriedades (canto
-> direito) — os 16 pinos somem e sobram só `GND`/`VCC`/`SDA`/`SCL` para ligar à mão.
-
-> ⚠️ **Sem o hardware?** Sem problema — `USAR_LCD 0` é o padrão, e nada nesta parte do
-> roteiro depende do display: itens 1 a 9 funcionam sozinhos, no simulador ou na placa.
 
 ## Parte B — Produtor–consumidor com fila (40 min)
 
