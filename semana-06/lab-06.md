@@ -325,6 +325,55 @@ mínimo já escrito dentro do próprio `corrida.c` (bloco `#if USAR_LCD`).
   do display só *lê* `g_contador` a cada 150 ms (nunca escreve) e roda em prioridade
   mais baixa que T1/T2 — ela observa a corrida, não participa dela.
 
+**Não tem o display físico? Simule no Wokwi.** O Wokwi tem o LCD1602 com um modo I2C
+embutido (o atributo `"pins": "i2c"` troca os 16 pinos paralelos por só 4: `GND`, `VCC`,
+`SDA`, `SCL` — exatamente o módulo PCF8574 que você ligaria na vida real). Substitua o
+`diagram.json` do seu projeto `corrida` por este:
+
+```json
+{
+  "version": 1,
+  "author": "sua-bancada",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": -67.2,
+      "left": 43.24,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-lcd1602",
+      "id": "lcd1",
+      "top": -40,
+      "left": 160,
+      "attrs": { "pins": "i2c" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+
+    [ "lcd1:SDA", "esp:21", "green", [ "v0" ] ],
+    [ "lcd1:SCL", "esp:22", "yellow", [ "v0" ] ],
+    [ "lcd1:VCC", "esp:5V", "red", [ "v0" ] ],
+    [ "lcd1:GND", "esp:GND.1", "black", [ "v0" ] ]
+  ],
+  "dependencies": {}
+}
+```
+
+O LCD1602 do Wokwi em modo I2C responde no endereço `0x27` por padrão — o mesmo que já
+está em `#define LCD_ADDR` no `corrida.c` — então no simulador você não deve precisar
+trocar para `0x3F`. Rode a simulação com `USAR_LCD 1` e confira: o visor do Wokwi mostra
+exatamente as mesmas duas linhas (`SEM mutex`/`COM mutex` e o contador) que apareceriam
+no display físico.
+
+> 💡 Se preferir montar pelo painel em vez de colar o JSON: adicione o LCD1602 pelo **+**,
+> clique nele e mude o atributo **pins** para **i2c** no painel de propriedades (canto
+> direito) — os 16 pinos somem e sobram só `GND`/`VCC`/`SDA`/`SCL` para ligar à mão.
+
 > ⚠️ **Sem o hardware?** Sem problema — `USAR_LCD 0` é o padrão, e nada nesta parte do
 > roteiro depende do display: itens 1 a 9 funcionam sozinhos, no simulador ou na placa.
 
