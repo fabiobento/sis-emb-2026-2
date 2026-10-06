@@ -63,6 +63,7 @@ cp ~/sis-emb-2026-2/semana-06/src/corrida_mutex/main.c ~/sis-emb/lab6/corrida/ma
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "esp_task_wdt.h"
 #include <stdio.h>
 
 #define USAR_MUTEX 0
@@ -89,6 +90,14 @@ static void incrementador(void *arg)
 
 void app_main(void)
 {
+    // T1 e T2 ficam no mesmo núcleo, mesma prioridade, e (com USAR_MUTEX 1) fazem
+    // 2 milhões de Take/Give SEM nunca ceder a CPU — a IDLE1 daquele núcleo fica sem
+    // rodar tempo suficiente para alimentar o Task Watchdog (timeout padrão 5 s), e o
+    // sistema reiniciaria antes de você ler o resultado. Provocar o watchdog não é o
+    // assunto desta parte (isso já foi coberto nos Labs 4 e 5) — desligamos aqui de
+    // propósito, só para esta medição.
+    esp_task_wdt_deinit();
+
     g_mutex = xSemaphoreCreateMutex();
     // mesmo núcleo p/ maximizar preempções visíveis
     xTaskCreatePinnedToCore(incrementador, "T1", 2048, "T1", 3, NULL, 1);
@@ -96,7 +105,7 @@ void app_main(void)
 }
 ```
 
-   Repare três detalhes que fazem toda a diferença no experimento:
+   Repare quatro detalhes que fazem toda a diferença no experimento:
    - `#if USAR_MUTEX` **compila dois firmwares diferentes** a partir do mesmo arquivo — nada
      de comentar/descomentar código manualmente, só trocar o `0`/`1` no topo;
      `g_contador` é `volatile`, mas isso só garante que a leitura vá à memória (semana 3) —
@@ -107,7 +116,13 @@ void app_main(void)
      **simultaneamente de verdade**, não só intercaladas, um passo de cada vez;
    - cada tarefa chama `vTaskDelete(NULL)` ao terminar o `for` — sem isso, a função retornaria
      e a tarefa ficaria num estado indefinido (lembre da semana 5: uma tarefa **nunca
-     retorna**, ou termina num laço infinito, ou se autodeleta).
+     retorna**, ou termina num laço infinito, ou se autodeleta);
+   - `esp_task_wdt_deinit()` é chamado **antes** de criar as tarefas, e só existe por causa do
+     custo do mutex: 2 milhões de `Take`/`Give` a ~1–2 µs cada passam dos 5 s de timeout
+     padrão do watchdog, e como T1/T2 nunca cedem a CPU nesse laço, a `IDLE1` do núcleo onde
+     elas rodam fica sem chance de "alimentar" o watchdog. Sem essa linha, o firmware com
+     `USAR_MUTEX 1` reiniciaria sozinho antes de você conseguir ler o resultado — não é um bug
+     do seu código, é esperado dado o volume de operações deste experimento específico.
 
 5. Compile, grave o firmware na placa e abra o monitor serial em um único comando:
 ```bash
@@ -133,6 +148,14 @@ idf.py -p /dev/ttyUSB0 flash monitor
 8. O que você deve observar: valores **diferentes a cada execução**, todos < 2 000 000 —
    incrementos evaporaram, e a quantidade evaporada depende de *quando* o escalonador
    preemptou. Este é o bug intermitente da teoria (seção 1.2), reproduzido em bancada.
+
+> 🖥️ **Rodando no Wokwi em vez de hardware real?** É esperado ver o **mesmo valor se
+> repetindo** em todas as 5 execuções, em vez de variar. O simulador reproduz o escalonamento
+> de forma determinística (sem o jitter elétrico de um chip físico), então a mesma disputa
+> entre T1 e T2 tende a se resolver sempre da mesma forma. O valor abaixo de 2 000 000
+> continua provando a corrida (os incrementos somem do mesmo jeito); só a *variação* entre
+> execuções é um fenômeno mais fácil de observar em hardware real do que em simulação — se
+> tiver um ESP32 físico disponível, vale repetir o teste lá para ver os números mudarem.
 
 > **Observação:** se por acaso uma execução der exatamente 2 000 000, rode de novo —
 > corrida é probabilística. É exatamente por isso que ela passa nos testes e explode em
@@ -166,7 +189,7 @@ cd fila
 cp ~/sis-emb-2026-2/semana-06/src/fila_prod_cons/main.c ~/sis-emb/lab6/fila/fila/main/fila.c
 ```
 
-12. Abra o arquivo copiado **com a teoria do lado** (seção 2.3 — produtor, consumidor e o
+12. Abra o arquivo copiado **com a teoria do lado** ([seção 2.3 — produtor, consumidor](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-06/teoria-06.md#23-fila-transportando-dados-produtorconsumidor) e o
     dimensionamento do Exemplo 6.2). Código-fonte completo:
 
 ```c

@@ -2,6 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/semphr.h"
+#include "esp_task_wdt.h"
 #include <stdio.h>
 
 #define USAR_MUTEX 0
@@ -28,6 +29,14 @@ static void incrementador(void *arg)
 
 void app_main(void)
 {
+    // T1 e T2 ficam no mesmo nucleo, mesma prioridade, e (com USAR_MUTEX 1) fazem
+    // 2 milhoes de Take/Give SEM nunca ceder a CPU -> a IDLE1 daquele nucleo fica
+    // sem rodar tempo suficiente para alimentar o Task Watchdog (timeout padrao 5 s),
+    // e o sistema reiniciaria antes de voce ler o resultado. Provocar o watchdog nao
+    // e o assunto desta parte (isso ja foi coberto nos Labs 4 e 5) - desligamos aqui
+    // de proposito, so para esta medicao.
+    esp_task_wdt_deinit();
+
     g_mutex = xSemaphoreCreateMutex();
     // mesmo nucleo p/ maximizar preempcoes visiveis
     xTaskCreatePinnedToCore(incrementador, "T1", 2048, "T1", 3, NULL, 1);
