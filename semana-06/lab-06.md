@@ -405,24 +405,26 @@ void app_main(void)
     xTaskCreate(tarefa_botao, "botao", 2048, NULL, 4, NULL);
 }
 ```
-
-    Note a ordem: o semáforo é criado **antes** de instalar a ISR. Se fosse o contrário, a
-    ISR poderia disparar (um simples ruído no pino enquanto o pull-up assenta já basta) e
-    chamar `xSemaphoreGiveFromISR` sobre um `sem` ainda `NULL` — é exatamente o tipo de bug
-    que gera um `assert failed` reproduzível em todo boot, sem precisar apertar nada. E note
-    o debounce: ele acontece **dentro da própria ISR**, como no desafio da Semana 4 —
-    só aritmética de carimbo de tempo (`esp_timer_get_time()`), nada de `vTaskDelay`. É o
-    único "trabalho" que a ISR faz além do `give`; tudo o mais (imprimir, contar eventos)
-    fica na tarefa, que pode gastar o tempo que precisar porque não está mais em contexto de
-    interrupção.
+> **Observe a ordem**:
+> 
+> o semáforo é criado **antes** de instalar a ISR. Se fosse o contrário, a
+ISR poderia disparar (um simples ruído no pino enquanto o pull-up assenta já basta) e
+chamar `xSemaphoreGiveFromISR` sobre um `sem` ainda `NULL` — é exatamente o tipo de bug
+que gera um `assert failed` reproduzível em todo boot, sem precisar apertar nada. E note
+o debounce: ele acontece **dentro da própria ISR**, como no desafio da Semana 4 —
+só aritmética de carimbo de tempo (`esp_timer_get_time()`), nada de `vTaskDelay`. É o
+único "trabalho" que a ISR faz além do `give`; tudo o mais (imprimir, contar eventos)
+fica na tarefa, que pode gastar o tempo que precisar porque não está mais em contexto de
+interrupção.
 
 21. Compile, grave e abra o monitor:
 ```bash
 cd ~/sis-emb/lab6/isr_sem/isr_sem
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
-    Precisa do botão físico para esta parte (ou simule com um `wokwi-pushbutton` ligado ao
-    GPIO4 num novo projeto ESP32 no Wokwi — mesma configuração de pino do circuito do Lab 4).
+
+Precisa do botão físico para esta parte (ou simule com um `wokwi-pushbutton` ligado ao
+GPIO4 num novo projeto ESP32 no Wokwi — mesma configuração de pino do circuito do Lab 4).
 
 22. Pressione o botão algumas vezes e observe a latência impressa. Compare com a do Lab 4
     (onde a tarefa fazia polling da flag a cada `vTaskDelay`): o semáforo deve derrubá-la de
@@ -449,7 +451,7 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
     (`xSemaphoreCreateCounting(10, 0)`), e os cinco eventos aparecem. Explique a diferença em
     2 linhas (teoria, seção 2.4, último parágrafo).
 
-> 🧠 **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
+> **Onde esse padrão reaparece**: na ISR do ADC com DMA, na recepção de CAN (semana 10)
 > e no callback de dados MQTT (semana 14) — sempre "interrupção sinaliza, tarefa processa".
 > Você acabou de aprender a estrutura de todo driver profissional.
 
