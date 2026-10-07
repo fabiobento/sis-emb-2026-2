@@ -342,9 +342,4 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
    tarefas compartilharão na semana 9 — e por que não um semáforo binário? (Dica: Mars
    Pathfinder.)
 
-## Desafio (opcional)
 
-Deadlock didático: crie os mutexes `mA` e `mB` e duas tarefas — T1 toma `mA`, dorme 100 ms,
-toma `mB`; T2 toma `mB`, dorme 100 ms, toma `mA`. Rode, observe o congelamento (e o
-task_wdt eventual), e então conserte **apenas reordenando** as aquisições. Relate o
-antes/depois — você acabou de demonstrar a regra da ordem global de aquisição.
