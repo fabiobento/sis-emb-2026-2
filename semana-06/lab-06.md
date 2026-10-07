@@ -334,7 +334,6 @@ tarefa acorda assim que a ISR dá o semáforo. Preencha a tabela abaixo com os v
 ## Entrega (GitHub da bancada, `lab-06/relatorio.md`)
 
 1. (CANCELADO)
-   valores sem mutex variam e por que com mutex não.
 2. Números da Parte B (itens por rajada do item 14, perdas com 700 ms do item 15) + a conta
    e o novo tamanho da fila do item 16.
 3. Tabela de latências do item 22 + código da sua ISR e da tarefa (só os dois blocos).
