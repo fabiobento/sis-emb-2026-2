@@ -278,7 +278,7 @@ void app_main(void)
 `vTaskDelay` — se a taxa de produção derivasse, toda a conta de dimensionamento abaixo
 ficaria errada. `xQueueSend(..., 0)` com timeout **0** é a escolha certa aqui: o produtor
 nunca deve esperar a fila abrir espaço (desacoplamento temporal, teoria seção 2.3); se
-não coube, a perda é **detectada e logada**, nunca engolida em silêncio.
+não coube, a perda é **detectada e logada**.
 
 13. Compile, grave e abra o monitor:
 ```bash
