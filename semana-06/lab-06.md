@@ -321,8 +321,50 @@ FILA CHEIA! amostra 4471 perdida
 Hora de aposentar de vez o polling do botão: o padrão profissional do Exemplo resolvido 6.3.
 
 17. **Circuito**: é o mesmo do Lab 4 — botão entre **GPIO4** e GND, pull-up interno cuidando
-    do repouso em nível alto (veja a figura do circuito em `semana-04/lab-04.md`, se precisar
-    remontar). Nenhum fio novo é necessário se seu protoboard ainda está montado da Semana 4.
+    do repouso em nível alto. Nenhum fio novo é necessário se seu protoboard ainda está
+    montado da Semana 4 (o LED da figura abaixo não é usado nesta parte — só o botão).
+
+![Circuito do Lab 4 reaproveitado na Parte C: botão entre GPIO4 e GND com pull-up interno; o LED e o resistor da imagem pertencem ao Lab 4 e ficam de fora desta parte](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab-04.png)
+
+   Não tem o botão físico em mãos agora? Monte este mesmo circuito em simulação: crie um
+   projeto ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e substitua o `diagram.json`
+   do projeto por este:
+
+```json
+{
+  "version": 1,
+  "author": "sua-bancada",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp",
+      "top": -38.4,
+      "left": -33.56,
+      "attrs": { "builder": "esp-idf" }
+    },
+    {
+      "type": "wokwi-pushbutton-6mm",
+      "id": "btn1",
+      "top": 30.6,
+      "left": 131.2,
+      "rotate": 270,
+      "attrs": { "color": "blue", "xray": "1" }
+    }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "btn1:2.l", "esp:GND.2", "green", [ "h38.8", "v-67.2" ] ],
+    [ "btn1:1.l", "esp:4", "green", [ "h-48", "v57.6", "h-19.2" ] ]
+  ],
+  "dependencies": {}
+}
+```
+
+   Mesma lógica do botão da Semana 3 (Parte B) — só troca de pino: aqui vai no **GPIO4**,
+   não no GPIO0/BOOT (regra da Semana 3/4). Não precisa de resistor: o código habilita o
+   pull-up interno.
 
 18. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
@@ -419,19 +461,32 @@ só aritmética de carimbo de tempo (`esp_timer_get_time()`), nada de `vTaskDela
 fica na tarefa, que pode gastar o tempo que precisar porque não está mais em contexto de
 interrupção.
 
+![Linha do tempo do que acontece entre a borda no pino e a primeira linha da sua ISR: evento, sincronização do sinal, salvamento de contexto, despacho para o vetor de interrupção, seu código, restauração de contexto e retomada do programa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/latencia_interrupcao.png)
+
+*Figura — Antes mesmo da primeira linha de `isr_botao` executar, o hardware já gastou um
+tempo fixo (sincronização do sinal, salvamento de registradores, despacho para o vetor).
+É por isso que a regra de ouro é manter **sua parte** (o bloco azul) a menor possível — foi
+exatamente o que você fez ao tirar todo o trabalho pesado da ISR e deixar só o `give`.*
+
 21. Compile, grave e abra o monitor:
 ```bash
 cd ~/sis-emb/lab6/isr_sem/isr_sem
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
-Precisa do botão físico para esta parte (ou simule com um `wokwi-pushbutton` ligado ao
-GPIO4 num novo projeto ESP32 no Wokwi — mesma configuração de pino do circuito do Lab 4).
+   Sem o botão físico em mãos? Use o mesmo projeto Wokwi montado no item 17.
 
 22. Pressione o botão algumas vezes e observe a latência impressa. Compare com a do Lab 4
     (onde a tarefa fazia polling da flag a cada `vTaskDelay`): o semáforo deve derrubá-la de
     "até o período do laço" para **dezenas de µs** — a tarefa acorda *no ato*, cortesia do
     `portYIELD_FROM_ISR`.
+
+![Comparação temporal entre polling e interrupção: no polling a tarefa só percebe o evento na próxima verificação periódica, enquanto a interrupção atende no mesmo instante em que o evento ocorre](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/polling_vs_interrupcao.png)
+
+*Figura — É exatamente esta diferença que você acabou de medir na prática: no Lab 4
+(polling) o evento espera a próxima verificação do laço; aqui (interrupção) a ISR já
+dispara no mesmo instante do evento, e a tarefa acorda em seguida, assim que o `give`
+acontece — sem esperar sua "vez" num laço de `vTaskDelay`.*
 
 ![Gráfico de barras comparando a latência típica e máxima entre polling no Lab 4 e semáforo no Lab 6, em escala logarítmica](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab06_latencia_isr_semaforo.png)
 
