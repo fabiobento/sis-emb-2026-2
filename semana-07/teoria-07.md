@@ -32,7 +32,7 @@ Um ADC de **N bits** divide sua faixa de entrada (0 a $V_{ref}$) em **2^N nívei
 pergunta "em qual degrau está a tensão?". O tamanho do degrau é o **LSB** (*least significant
 bit* — o valor de um passo):
 
-LSB = V_ref / 2^N
+$$ LSB = \frac{V_{ref}}{2^N}  $$
 
 Tudo que cair dentro do mesmo degrau vira o **mesmo número** — essa perda irreversível é o
 **erro de quantização**, no máximo ±LSB/2. Mais bits ⇒ degraus menores ⇒ mais fidelidade (e
