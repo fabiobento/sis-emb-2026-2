@@ -75,8 +75,7 @@ leitura `raw = 2418` corresponde a que tensão?
 2. Conversão: V ≈ 2418 × 3,1/4095 ≈ **1,83 V**. (Divide-se por 4095 e não 4096 porque o
    código máximo, 4095, corresponde ao topo da escala.)
 
-Essa conversão `raw → volts` é a linha `filtrado * 3.1 / 4095.0` do firmware de hoje — cada
-constante da fórmula agora tem nome e sobrenome.
+Essa conversão `raw → volts` é a linha `filtrado * 3.1 / 4095.0` do firmware de hoje.
 
 > **Observação — o ADC do ESP32 é honesto, não excelente.** Ele é do tipo **SAR**
 > (*successive approximation* — aproximações sucessivas: uma "busca binária" em hardware,
