@@ -207,7 +207,7 @@ da amostra e a "segura" estável enquanto o conversor trabalha, como no SAR da s
 ![Em cima, sinal contínuo com as amostras marcadas a cada Ts. Embaixo, a sequência de números resultante, vista como degraus segurados entre as amostras](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_sample_hold.png)
 
 *Figura 7-G — Amostragem em duas etapas. Em cima: o mundo real é contínuo, mas o ADC só olha
-nos instantes marcados (a cada $T_s$ = 40 ms, ou $f_s$ = 25 Hz). Embaixo: o que o firmware
+nos instantes marcados (a cada $`T_s`$ = 40 ms, ou $`f_s`$ = 25 Hz). Embaixo: o que o firmware
 recebe é uma sequência de números; o que acontece **entre** as amostras é informação que não
 chegou ao programa.*
 
