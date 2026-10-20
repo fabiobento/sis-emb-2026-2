@@ -103,6 +103,38 @@ divisores alimentados em 3,3 V. Tensão acima da faixa não quebra o pino (até 
 3,2 V ou em 5 V — saturação também é perda de informação, e diagnóstico comum de “sensor que
 não muda”.
 
+**O que "atenuar X dB" significa matematicamente.** O decibel compara duas tensões pela
+razão entre elas. Atenuar o sinal em $A$ dB quer dizer que a tensão que chega ao núcleo do
+conversor é menor que a do pino por um fator $10^{A/20}$ (usa-se 20·log₁₀ porque a razão é
+de *tensões*, ou seja, de amplitudes):
+
+$$ A_{dB} = 20\,\log_{10}\!\left(\frac{V_{pino}}{V_{ADC}}\right) \quad\Rightarrow\quad V_{ADC} = V_{pino}\cdot 10^{-A_{dB}/20} $$
+
+O núcleo SAR só enxerga ~0–1,1 V. Se o sinal é dividido por $10^{A/20}$ *antes* de chegar
+lá, o fundo de escala **no pino** é multiplicado pelo mesmo fator:
+
+$$ V_{FS}(A) \approx 1{,}1\ \text{V}\cdot 10^{A/20} $$
+
+| Atenuação | Fator de tensão $10^{A/20}$ | $V_{FS}$ nominal no pino |
+|---|---|---|
+| 0 dB | 1,00 | 1,1 V |
+| 2,5 dB | 1,33 | ≈ 1,5 V |
+| 6 dB | 2,00 | ≈ 2,2 V |
+| 11 dB | 3,55 | ≈ 3,9 V (nominal) → usamos ≈ 3,1 V |
+
+Regra de bolso: **6 dB ≈ ×2 em tensão** (e 20 dB = ×10). Quanto ao 11 dB, a conta nominal dá
+3,9 V, mas perto do topo a curva do ESP32 deixa de ser linear e o fundo de escala varia de
+chip para chip; por isso a disciplina adota ≈ 3,1 V como faixa **útil** (e é esse o valor
+que entra no LSB e na conversão `raw → volts` do Exemplo 7.1).
+
+**O preço é resolução.** O ADC continua com 4096 degraus, só que agora eles cobrem uma
+faixa maior: $LSB = V_{FS}/4096$ cresce pelo mesmo fator da atenuação. Com 0 dB o degrau é
+≈ 0,27 mV; com 11 dB (faixa de 3,1 V) é ≈ 0,76 mV. Escolher a atenuação é, portanto, uma
+troca: *faixa maior* (cabe um sinal de até 3,1 V sem saturar) contra *degrau mais grosso*
+(menos detalhe fino). Em linguagem de projeto: use a **menor** atenuação cuja faixa ainda
+comporta o seu sinal inteiro; na nossa bancada, com divisores alimentados em 3,3 V, isso
+significa 11 dB.
+
 ![Esquerda: curvas de transferência do ADC do ESP32 para as atenuações de 0, 2,5, 6 e 11 dB, cada uma saturando em 4095 no seu fundo de escala (≈1,1; 1,5; 2,2 e 3,1 V). Direita: um sensor variando entre 1,3 V e 2,8 V lido com 0 dB fica travado em 4095, enquanto com 11 dB a leitura acompanha o sinal](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_atenuacao_saturacao.png)
 
 *Figura 7-E — Esquerda: cada atenuação estica a faixa do conversor, mas todas terminam num
