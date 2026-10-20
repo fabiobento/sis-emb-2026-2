@@ -108,7 +108,7 @@ razão entre elas. Atenuar o sinal em $A$ dB quer dizer que a tensão que chega 
 conversor é menor que a do pino por um fator $10^{A/20}$ (usa-se 20·log₁₀ porque a razão é
 de *tensões*, ou seja, de amplitudes):
 
-$$ A_{dB} = 20\,\log_{10}\left(\frac{V_{pino}}{V_{ADC}}\right) \quad\Rightarrow\quad V_{ADC} = V_{pino}\cdot 10^{-A_{dB}/20} $$
+$$ A_{dB} = 20\log_{10}\left(\frac{V_{pino}}{V_{ADC}}\right) \quad\Rightarrow\quad V_{ADC} = V_{pino}\cdot 10^{-A_{dB}/20} $$
 
 O núcleo SAR só enxerga ~0–1,1 V. Se o sinal é dividido por $10^{A/20}$ *antes* de chegar
 lá, o fundo de escala **no pino** é multiplicado pelo mesmo fator:
@@ -122,7 +122,7 @@ $$ V_{FS}(A) \approx 1{,}1\ \text{V}\cdot 10^{A/20} $$
 | 6 dB | 2,00 | ≈ 2,2 V |
 | 11 dB | 3,55 | ≈ 3,9 V (nominal) → usamos ≈ 3,1 V |
 
-Regra de bolso: **6 dB ≈ ×2 em tensão** (e 20 dB = ×10). Quanto ao 11 dB, a conta nominal dá
+Resumo: **6 dB ≈ ×2 em tensão** (e 20 dB = ×10). Quanto ao 11 dB, a conta nominal dá
 3,9 V, mas perto do topo a curva do ESP32 deixa de ser linear e o fundo de escala varia de
 chip para chip; por isso a disciplina adota ≈ 3,1 V como faixa **útil** (e é esse o valor
 que entra no LSB e na conversão `raw → volts` do Exemplo 7.1).
