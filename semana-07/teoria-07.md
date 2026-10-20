@@ -108,7 +108,7 @@ razão entre elas. Atenuar o sinal em $A$ dB quer dizer que a tensão que chega 
 conversor é menor que a do pino por um fator $10^{A/20}$ (usa-se 20·log₁₀ porque a razão é
 de *tensões*, ou seja, de amplitudes):
 
-$$ A_{dB} = 20\,\log_{10}\!\left(\frac{V_{pino}}{V_{ADC}}\right) \quad\Rightarrow\quad V_{ADC} = V_{pino}\cdot 10^{-A_{dB}/20} $$
+$$ A_{dB} = 20\,\log_{10}\left(\frac{V_{pino}}{V_{ADC}}\right) \quad\Rightarrow\quad V_{ADC} = V_{pino}\cdot 10^{-A_{dB}/20} $$
 
 O núcleo SAR só enxerga ~0–1,1 V. Se o sinal é dividido por $10^{A/20}$ *antes* de chegar
 lá, o fundo de escala **no pino** é multiplicado pelo mesmo fator:
