@@ -75,7 +75,8 @@ leitura `raw = 2418` corresponde a que tensão?
 2. Conversão: V ≈ 2418 × 3,1/4095 ≈ **1,83 V**. (Divide-se por 4095 e não 4096 porque o
    código máximo, 4095, corresponde ao topo da escala.)
 
-Essa conversão `raw → volts` é a linha `filtrado * 3.1 / 4095.0` do firmware de hoje.
+Essa conversão `raw → volts` é a linha `filtrado * 3.1 / 4095.0` do firmware de hoje — cada
+constante da fórmula agora tem nome e sobrenome.
 
 > **Observação — o ADC do ESP32 é honesto, não excelente.** Ele é do tipo **SAR**
 > (*successive approximation* — aproximações sucessivas: uma "busca binária" em hardware,
@@ -83,6 +84,15 @@ Essa conversão `raw → volts` é a linha `filtrado * 3.1 / 4095.0` do firmware
 > não linearidade e ruído conhecidos. Para a nossa bancada e para controle, serve bem — com
 > filtro. Para instrumentação de precisão, a indústria usa ADCs externos (ADS1115 I2C,
 > MCP3008 SPI — que reaparecerão na semana 12, quando o RPi, *sem* ADC, precisar de um).
+
+![Esquerda: diagrama de blocos do ADC SAR — comparador, registrador SAR e DAC interno em laço fechado. Direita: a busca binária convergindo para Vin em 5 comparações, uma por bit, do MSB ao LSB, com o registrador SAR sendo preenchido a cada passo](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_sar_busca_binaria.png)
+
+*Figura 7-D — Como o ADC SAR chega ao código final: o registrador testa um bit por vez,
+do mais significativo ao menos significativo, comparando a tensão que o DAC interno produz
+para aquele "chute" com $V_{in}$. Se o chute ficou **abaixo** de $V_{in}$, o bit fica marcado
+como 1 e o registrador segue para o próximo bit somando esse peso; se ficou **acima**, o bit
+vira 0 e aquele peso é descartado. N bits ⇒ exatamente N comparações — nem mais, nem menos —
+o que também explica por que resolução maior tem um custo direto em tempo de conversão.*
 
 ### 1.2 A atenuação do ESP32
 
