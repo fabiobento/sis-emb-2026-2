@@ -28,21 +28,21 @@ da disciplina — a média móvel. No laboratório, um LDR vira seu primeiro sen
 
 ### 1.1 Quantização e resolução
 
-Um ADC de **N bits** divide sua faixa de entrada (0 a $V_{ref}$) em **2^N níveis** e responde à
+Um ADC de **N bits** divide sua faixa de entrada (0 a $V_{ref}$) em **$2^N$ níveis** e responde à
 pergunta "em qual degrau está a tensão?". O tamanho do degrau é o **LSB** (*least significant
 bit* — o valor de um passo):
 
 $$ LSB = \frac{V_{ref}}{2^N}  $$
 
 Tudo que cair dentro do mesmo degrau vira o **mesmo número** — essa perda irreversível é o
-**erro de quantização**, no máximo ±LSB/2. Mais bits ⇒ degraus menores ⇒ mais fidelidade (e
+**erro de quantização**, no máximo $±\frac{LSB}{2}$. Mais bits ⇒ degraus menores ⇒ mais fidelidade (e
 mais custo, e mais sensibilidade a ruído: degrau menor que o ruído do circuito é bit
 desperdiçado).
 
-As figuras abaixo mostram a matemática ganhando corpo: a primeira é a função de
+Na primeira figura abaixo temos a função de
 transferência de um ADC ideal de 3 bits (8 degraus — repare que toda uma faixa de tensões
-vira o mesmo código); a segunda é o erro de quantização correspondente, o “dente de serra”
-confinado entre ±½ LSB.
+vira o mesmo código); Na segunda é o erro de quantização correspondente, o “dente de serra”
+confinado entre $±\frac{LSB}{2}$.
 
 ![Função de transferência de um ADC ideal de 3 bits](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_3bits.png)
 
@@ -59,7 +59,9 @@ E o efeito de aumentar N, lado a lado:
 
 ![Comparação das funções de transferência de ADCs de 4, 8 e 12 bits](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_transferencia.png)
 
-*Figura 7-C — Esquerda: mais bits, escada mais fina (4, 8 e 12 bits sobre a mesma faixa).
+*Figura 7-C — Esquerda: mais bits, escada mais fina (4, 8 e 12 bits sobre a mesma faixa). Em
+0–3,3 V inteiros as escadas de 8 e 12 bits quase coincidem a olho nu — por isso o retângulo
+de zoom amplia uma fatia estreita (1,0–1,3 V), onde as três ficam visivelmente distintas.
 Direita: a quantização aplicada a uma senoide — o erro colore o sinal com “textura” digital.*
 
 **Exemplo resolvido 7.1 (resolução e conversão raw→volts)** — ESP32: N = 12, atenuação
