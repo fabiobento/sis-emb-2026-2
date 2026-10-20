@@ -231,7 +231,7 @@ Três observações para não errar a leitura do teorema:
 - **"Fiel" supõe reconstrução ideal.** Com $f_s$ um pouco acima de $2f$ a informação *existe*
   nas amostras, mas recuperá-la exige o interpolador ideal de Shannon (somas de funções
   $\text{sinc}$), que não conseguimos construir. Na prática, usa-se bem mais que o mínimo
-  (regra de bolso: **5–10× a banda de interesse**).
+  (regra geral: **5–10× a banda de interesse**).
 
 ![Quatro painéis com uma senoide de 5 Hz amostrada a 50, 12, 10 e 6 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_taxas.png)
 
@@ -250,7 +250,7 @@ a mostra girando devagar... e, se gira um pouco *menos* que uma volta por quadro
 
 O impostor aparece na frequência
 
-$$ f_{alias} = \left| f_{sinal} - k\,f_s \right|, \qquad k = \text{inteiro mais próximo de } f_{sinal}/f_s $$
+$$ f_{alias} = \left| f_{sinal} - kf_s \right|, \qquad k = \text{inteiro mais próximo de } f_{sinal}/f_s $$
 
 que, para $f_s/2 < f_{sinal} < f_s$ (o caso mais comum), simplifica para
 $f_{alias} = f_s - f_{sinal}$. Note que o alias é **sempre** uma frequência entre $0$ e $f_s/2$:
