@@ -28,7 +28,7 @@ da disciplina — a média móvel. No laboratório, um LDR vira seu primeiro sen
 
 ### 1.1 Quantização e resolução
 
-Um ADC de **N bits** divide sua faixa de entrada (0 a V_ref) em **2^N níveis** e responde à
+Um ADC de **N bits** divide sua faixa de entrada (0 a $V_{ref}$) em **2^N níveis** e responde à
 pergunta "em qual degrau está a tensão?". O tamanho do degrau é o **LSB** (*least significant
 bit* — o valor de um passo):
 
@@ -248,8 +248,10 @@ impede fantasmas na entrada, o outro limpa degraus na saída).
 
 ## Resumindo
 
-- ADC de N bits: 2^N níveis; LSB = V_ref/2^N; erro de quantização ±LSB/2 — irreversível.
-  ESP32: 12 bits, ~0–3,1 V com atenuação 11 dB (Exemplo 7.1).
+- ADC de N bits: $2^N$ níveis
+- $LSB = \frac{V_{ref}}{2^N}$;
+- erro de quantização $±\frac{LSB}{2}$ — irreversível.
+- ESP32: 12 bits, ~0–3,1 V com atenuação 11 dB (Exemplo 7.1).
 - Sensor resistivo → divisor de tensão; excursão máxima com R_fixo ≈ média geométrica dos
   extremos (Exemplo 7.2); sem R_fixo, resistência não vira tensão.
 - Nyquist: f_s > 2·f_max, **com espaçamento uniforme**; violou ⇒ alias em |f_s − f| que
