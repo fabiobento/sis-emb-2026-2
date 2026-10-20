@@ -155,8 +155,10 @@ mais importante da disciplina — o **divisor de tensão**:
                       ADC (GPIO34)          V_out = 3,3 · R_fixo / (R_sensor + R_fixo)
 ```
 
-A fórmula sai da lei de Ohm em duas linhas: a mesma corrente atravessa os dois resistores,
-I = 3,3 / (R_sensor + R_fixo); e V_out é a queda sobre R_fixo, I × R_fixo. Substitua e pronto.
+A fórmula sai da lei de Ohm em duas linhas:
+- a mesma corrente atravessa os dois resistores,
+$$I = \frac{3,3}{(R_{sensor} + R_{fixo})} $$
+- $V_{out}$ é a queda de tensão $I\times R_{fixo}$.
 
 A foto mostra o componente real: um LDR (*light-dependent resistor* — resistor dependente de
 luz) e seus símbolos esquemáticos. A resistência cai quando a luz bate no material
@@ -168,7 +170,7 @@ semicondutor da superfície serpentada — fotóns liberam portadores de carga.
 IoT (Packt), cap. 9, Fig. 9.4.*
 
 **Exemplo resolvido 7.2 (LDR + divisor)** — LDR varia de 8 kΩ (claro) a 120 kΩ (escuro), em
-série com R_fixo = 10 kΩ (LDR em cima, como no desenho). Calcule a excursão de tensão.
+série com $R_{fixo}$ = 10 kΩ (LDR em cima, como no desenho). Calcule a excursão de tensão.
 
 *Solução passo a passo.*
 
@@ -176,8 +178,7 @@ série com R_fixo = 10 kΩ (LDR em cima, como no desenho). Calcule a excursão d
 - Escuro: V = 3,3 × 10/(120+10) = **0,25 V**
 - Excursão: 1,83 − 0,25 ≈ **1,58 V** — mais da metade da faixa do ADC, ótimo aproveitamento.
 
-E o valor de R_fixo? A regra do **máximo contraste** é R_fixo ≈ √(R_claro × R_escuro) =
-√(8k × 120k) ≈ 31 kΩ; nosso 10 kΩ (o que há aos montes no inventário) entrega um pouco menos
+E o valor de $R_{fixo}$? A regra do **máximo contraste** é $R_{fixo}$ ≈ √(R_claro × R_escuro) = √(8k × 120k) ≈ 31 kΩ; nosso 10 kΩ (o que há aos montes no inventário) entrega um pouco menos
 de excursão e mais corrente — compromisso consciente, típico de projeto real (“usa o que
 tem” é uma restrição legítima). Repare na lógica: mais luz ⇒ menos resistência ⇒ **mais**
 tensão. Se quiser a lógica invertida (mais luz, menos tensão), troque sensor e resistor de
@@ -185,23 +186,22 @@ lugar — e a semana 13 precisará saber qual é a sua convenção antes de fech
 
 > 💡 **Pense aí**: por que não ligar o LDR direto entre 3,3 V e o ADC, sem resistor? *Porque
 > resistor não “gera” tensão sozinho: a variação de resistência só vira variação de tensão
-> quando uma corrente a atravessa — e é o R_fixo quem fecha o caminho da corrente e cria o
+> quando uma corrente a atravessa — e é o $R_{fixo}$ quem fecha o caminho da corrente e cria o
 > ponto de comparação. Sem ele, o pino veria 3,3 V sempre (até a corrente de fuga mudar
 > isso de forma imprevisível).*
 
 ## 3. Amostragem: o teorema que não perdoa
 
-O ADC não enxerga o sinal contínuo: tira **fotografias** a cada T_s segundos (taxa
-f_s = 1/T_s). O **teorema de Nyquist–Shannon** diz o preço da discrição:
+O ADC não enxerga o sinal contínuo: tira **fotografias** a cada ${T_s}$ segundos (taxa
+$f_s = \frac{1}{T_s}$). O **teorema de Nyquist–Shannon** diz o preço da discrição:
 
-> Para representar fielmente um sinal com componentes até f_max, é preciso amostrar a
-> **f_s > 2·f_max**.
+> Para representar fielmente um sinal com componentes até $f_{max}$, é preciso amostrar a **$f_s > 2·f_{max}$**.
 
 Violou? O sinal rápido demais não desaparece — ele se **disfarça** de um sinal lento,
 fenômeno chamado **aliasing** (o efeito "roda de carroça girando para trás" do cinema: a
 câmera amostra a roda 24× por segundo; se ela gira quase nessa taxa, o filme a mostra
-girando devagar... para trás). A frequência do impostor: f_alias = |f_s − f_sinal| (para
-f_sinal entre f_s/2 e f_s).
+girando devagar... para trás). A frequência do impostor: $f_{alias} = |f_s − f_{sinal}|$ (para
+$f_{sinal}$ entre $f_s/2$ e $f_s$).
 
 ![Sinal de 9 Hz amostrado a 10 Hz produzindo um alias de 1 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_nyquist.png)
 
@@ -209,22 +209,22 @@ f_sinal entre f_s/2 e f_s).
 **idênticas** às de um sinal de 1 Hz. Depois de amostrado, não há como distinguir o
 verdadeiro do impostor.*
 
-**Exemplo resolvido 7.3 (aliasing)** — Senoide de 600 Hz amostrada a f_s = 1 kHz. O que o
+**Exemplo resolvido 7.3 (aliasing)** — Senoide de $600 Hz$ amostrada a $f_s = 1 kHz$. O que o
 sistema registra?
 
-*Solução.* A taxa exigida seria f_s > 2 × 600 = 1,2 kHz — violada. As amostras são
+*Solução.* A taxa exigida seria $f_s > 2 × 600 = 1,2 kHz$ — violada. As amostras são
 **indistinguíveis** das de uma senoide de |1000 − 600| = **400 Hz**. Pior: nenhum
 processamento posterior desfaz o disfarce — depois de amostrado, o alias é matematicamente
 idêntico a um sinal legítimo de 400 Hz. Por isso a defesa é **antes** do ADC: filtro
-*anti-aliasing* analógico (um RC passa-baixas já ajuda) e/ou f_s com folga (regra prática:
+*anti-aliasing* analógico (um RC passa-baixas já ajuda) e/ou $f_s$ com folga (regra prática:
 5–10× a banda de interesse, não o mínimo teórico — o teorema assume filtros ideais que não
 existem).
 
 E uma condição escondida no teorema: as fotografias devem ser **igualmente espaçadas**.
-Período irregular (jitter) distorce o espectro tanto quanto f_s baixa — é *por isso* que o
+Período irregular (jitter) distorce o espectro tanto quanto $f_s$ baixa — é *por isso* que o
 firmware de hoje amostra com `vTaskDelayUntil` (Exemplo 5.1) e é por isso que a malha PID da
-semana 13 rodará no ESP32 e não no RPi (o Linux do Pi tem jitter de milissegundos; a malha
-de controle não perdoa).
+semana 13 rodará no ESP32 e não no RPi (o Linux do Pi tem jitter de milissegundos; isso afeta a malha
+de controle).
 
 ## 4. O primeiro filtro digital: média móvel
 
