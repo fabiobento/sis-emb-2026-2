@@ -103,6 +103,14 @@ divisores alimentados em 3,3 V. Tensão acima da faixa não quebra o pino (até 
 3,2 V ou em 5 V — saturação também é perda de informação, e diagnóstico comum de “sensor que
 não muda”.
 
+![Esquerda: curvas de transferência do ADC do ESP32 para as atenuações de 0, 2,5, 6 e 11 dB, cada uma saturando em 4095 no seu fundo de escala (≈1,1; 1,5; 2,2 e 3,1 V). Direita: um sensor variando entre 1,3 V e 2,8 V lido com 0 dB fica travado em 4095, enquanto com 11 dB a leitura acompanha o sinal](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_atenuacao_saturacao.png)
+
+*Figura 7-E — Esquerda: cada atenuação estica a faixa do conversor, mas todas terminam num
+"teto" em 4095; com `ADC_ATTEN_DB_11` esse teto está em ≈3,1 V, então 3,2 V e 3,3 V
+(ainda seguros para o pino) viram o mesmo número. Direita: o sintoma no firmware — um
+sensor que varia de 1,3 V a 2,8 V lido com atenuação de 0 dB (teto em 1,1 V) devolve 4095 o
+tempo todo, e parece "morto"; trocando para 11 dB a leitura volta a acompanhar o sinal.*
+
 ## 2. Condicionamento: o divisor de tensão
 
 O ADC lê **tensão**; muitos sensores baratos variam **resistência** (LDR: luz; NTC:
