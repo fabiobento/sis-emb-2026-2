@@ -166,7 +166,7 @@ semicondutor da superfície serpentada — fotóns liberam portadores de carga.
 
 ![Fotografia de um LDR e seus símbolos esquemáticos](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/ldr_componente.png)
 
-*Figura 7-D — O LDR: componente físico e símbolos. Fonte: Practical Python Programming for
+*Figura 7-F — O LDR: componente físico e símbolos. Fonte: Practical Python Programming for
 IoT (Packt), cap. 9, Fig. 9.4.*
 
 **Exemplo resolvido 7.2 (LDR + divisor)** — LDR varia de 8 kΩ (claro) a 120 kΩ (escuro), em
@@ -192,39 +192,185 @@ lugar — e a semana 13 precisará saber qual é a sua convenção antes de fech
 
 ## 3. Amostragem: o teorema que não perdoa
 
-O ADC não enxerga o sinal contínuo: tira **fotografias** a cada ${T_s}$ segundos (taxa
-$f_s = \frac{1}{T_s}$). O **teorema de Nyquist–Shannon** diz o preço da discrição:
+Até aqui falamos de **quanto** o ADC mede (resolução: eixo vertical). Agora falamos de
+**quando** ele mede (taxa: eixo horizontal). As duas decisões são independentes — e o erro
+em qualquer uma delas é irreversível.
 
-> Para representar fielmente um sinal com componentes até $f_{max}$, é preciso amostrar a **$f_s > 2·f_{max}$**.
+### 3.1 O que é amostrar
 
-Violou? O sinal rápido demais não desaparece — ele se **disfarça** de um sinal lento,
-fenômeno chamado **aliasing** (o efeito "roda de carroça girando para trás" do cinema: a
-câmera amostra a roda 24× por segundo; se ela gira quase nessa taxa, o filme a mostra
-girando devagar... para trás). A frequência do impostor: $f_{alias} = |f_s − f_{sinal}|$ (para
-$f_{sinal}$ entre $f_s/2$ e $f_s$).
+O ADC não enxerga o sinal contínuo: ele tira **fotografias** a cada $T_s$ segundos, ou seja,
+com **taxa de amostragem** $f_s = \frac{1}{T_s}$. Entre duas fotografias, o conversor não sabe
+nada sobre o sinal; o que sobra para o firmware é uma **lista de números** igualmente
+espaçados no tempo. (Por dentro, um circuito *sample-and-hold* captura a tensão no instante
+da amostra e a "segura" estável enquanto o conversor trabalha, como no SAR da seção 1.1.)
+
+![Em cima, sinal contínuo com as amostras marcadas a cada Ts. Embaixo, a sequência de números resultante, vista como degraus segurados entre as amostras](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_sample_hold.png)
+
+*Figura 7-G — Amostragem em duas etapas. Em cima: o mundo real é contínuo, mas o ADC só olha
+nos instantes marcados (a cada $T_s$ = 40 ms, ou $f_s$ = 25 Hz). Embaixo: o que o firmware
+recebe é uma sequência de números; o que acontece **entre** as amostras é informação que não
+chegou ao programa.*
+
+A pergunta natural é: *quão rápido preciso fotografar para não perder nada importante?*
+
+### 3.2 O teorema de Nyquist–Shannon
+
+O **teorema de Nyquist–Shannon** responde:
+
+> Para representar fielmente um sinal cujas componentes vão até $f_{max}$, é preciso amostrar a **$f_s > 2·f_{max}$**.
+
+Chamamos $f_s/2$ de **frequência de Nyquist**: é o teto do que o sistema consegue "enxergar".
+Três observações para não errar a leitura do teorema:
+
+- **$f_{max}$ é a maior frequência *presente* no sinal, não a que você quer medir.** Ruído,
+  harmônicos (uma onda quadrada tem harmônicos muito além da fundamental) e interferências
+  (rede elétrica, luz de LED) contam — se existem no pino, o ADC as amostra.
+- **A desigualdade é estrita.** Com $f_s = 2f$ exatos, tudo depende de *onde* as amostras
+  caem no ciclo: no pior caso, caem sobre os zeros e o sinal desaparece (painel de baixo à
+  esquerda da figura abaixo).
+- **"Fiel" supõe reconstrução ideal.** Com $f_s$ um pouco acima de $2f$ a informação *existe*
+  nas amostras, mas recuperá-la exige o interpolador ideal de Shannon (somas de funções
+  $\text{sinc}$), que não conseguimos construir. Na prática, usa-se bem mais que o mínimo
+  (regra de bolso: **5–10× a banda de interesse**).
+
+![Quatro painéis com uma senoide de 5 Hz amostrada a 50, 12, 10 e 6 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_taxas.png)
+
+*Figura 7-H — A mesma senoide de 5 Hz amostrada com quatro taxas diferentes. Com 50 Hz
+(10×) e 12 Hz (2,4×) a curva reconstruída (tracejada) coincide com o original. Com 10 Hz
+(exatamente 2×), as amostras caem nos zeros e o sinal some. Com 6 Hz (1,2×), as mesmas
+poucas amostras passam a descrever, perfeitamente bem, uma senoide **lenta de 1 Hz** — que
+não existe no mundo real.*
+
+### 3.3 Aliasing: quando o sinal rápido se disfarça de lento
+
+Violou Nyquist? O sinal rápido demais não desaparece — ele se **disfarça** de um sinal lento,
+fenômeno chamado **aliasing** (*alias* = pseudônimo). É o efeito "roda de carroça girando para
+trás" do cinema: a câmera amostra a roda 24× por segundo; se ela gira quase nessa taxa, o filme
+a mostra girando devagar... e, se gira um pouco *menos* que uma volta por quadro, para trás.
+
+O impostor aparece na frequência
+
+$$ f_{alias} = \left| f_{sinal} - k\,f_s \right|, \qquad k = \text{inteiro mais próximo de } f_{sinal}/f_s $$
+
+que, para $f_s/2 < f_{sinal} < f_s$ (o caso mais comum), simplifica para
+$f_{alias} = f_s - f_{sinal}$. Note que o alias é **sempre** uma frequência entre $0$ e $f_s/2$:
+qualquer frequência acima do teto de Nyquist é "dobrada" de volta para dentro da faixa.
 
 ![Sinal de 9 Hz amostrado a 10 Hz produzindo um alias de 1 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_nyquist.png)
 
-*Figura 7-E — Aliasing: as amostras (bolas vermelhas) do sinal de 9 Hz colhidas a 10 Hz são
-**idênticas** às de um sinal de 1 Hz. Depois de amostrado, não há como distinguir o
-verdadeiro do impostor.*
+*Figura 7-I — Aliasing: as amostras (bolas vermelhas) do sinal de 9 Hz colhidas a 10 Hz são
+**idênticas** às de um sinal de 1 Hz. Repare que o impostor tem a **fase invertida** (a
+senoide verde começa descendo): é a "roda girando para trás". Depois de amostrado, não há
+como distinguir o verdadeiro do impostor.*
 
-**Exemplo resolvido 7.3 (aliasing)** — Senoide de $600 Hz$ amostrada a $f_s = 1 kHz$. O que o
+Para visualizar *para onde* cada frequência vai, imagine o eixo de frequências dobrado como um
+leque (ou como uma fita colada em ziguezague): a cada múltiplo de $f_s/2$ a fita reflete.
+
+![Esquerda: frequência aparente em função da frequência real, uma onda triangular que sobe até fs/2, desce até fs e se repete. Direita: o exemplo de 600 Hz amostrado a 1 kHz refletindo em 500 Hz e aparecendo em 400 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_dobra.png)
+
+*Figura 7-J — Esquerda: a "dobra" (com $f_s$ = 10 Hz). Só até $f_s/2$ a frequência vista é a
+real; acima disso, a curva volta a descer — 6 Hz aparece como 4 Hz, 9 Hz como 1 Hz, 11 Hz também
+como 1 Hz, e assim indefinidamente. Direita: o Exemplo 7.3 no eixo de frequências — o
+espelho fica em $f_s/2$, e o impostor surge à mesma distância dele, do lado de dentro.*
+
+**Exemplo resolvido 7.3 (aliasing)** — Senoide de 600 Hz amostrada a $f_s = 1$ kHz. O que o
 sistema registra?
 
-*Solução.* A taxa exigida seria $f_s > 2 × 600 = 1,2 kHz$ — violada. As amostras são
-**indistinguíveis** das de uma senoide de |1000 − 600| = **400 Hz**. Pior: nenhum
-processamento posterior desfaz o disfarce — depois de amostrado, o alias é matematicamente
-idêntico a um sinal legítimo de 400 Hz. Por isso a defesa é **antes** do ADC: filtro
-*anti-aliasing* analógico (um RC passa-baixas já ajuda) e/ou $f_s$ com folga (regra prática:
-5–10× a banda de interesse, não o mínimo teórico — o teorema assume filtros ideais que não
-existem).
+*Solução.* A taxa exigida seria $f_s > 2 × 600 = 1{,}2$ kHz — violada (a frequência de Nyquist
+é 500 Hz, e 600 Hz está acima). As amostras são **indistinguíveis** das de uma senoide de
+|1000 − 600| = **400 Hz**. Pior: nenhum processamento posterior desfaz o disfarce — depois de
+amostrado, o alias é matematicamente idêntico a um sinal legítimo de 400 Hz.
 
-E uma condição escondida no teorema: as fotografias devem ser **igualmente espaçadas**.
-Período irregular (jitter) distorce o espectro tanto quanto $f_s$ baixa — é *por isso* que o
-firmware de hoje amostra com `vTaskDelayUntil` (Exemplo 5.1) e é por isso que a malha PID da
-semana 13 rodará no ESP32 e não no RPi (o Linux do Pi tem jitter de milissegundos; isso afeta a malha
-de controle).
+Uma tabelinha ajuda a "sentir" a dobra neste mesmo $f_s = 1$ kHz:
+
+| $f_{sinal}$ | 100 Hz | 400 Hz | 500 Hz | 600 Hz | 900 Hz | 1000 Hz | 1100 Hz |
+|---|---|---|---|---|---|---|---|
+| $f_{alias}$ visto | 100 | 400 | *limite* | **400** | **100** | **0** (CC!) | **100** |
+
+Note o caso de 1000 Hz: uma senoide com frequência igual a $f_s$ é amostrada sempre no mesmo
+ponto do ciclo e vira um **valor constante** — um "nível CC" que não existe.
+
+**Exemplo resolvido 7.3b (a luz da sala no seu LDR)** — No Lab 7 o LDR é lido a $f_s = 20$ Hz,
+e lâmpadas de LED/fluorescentes eletrônicas piscam a 100 ou 120 Hz (o dobro da frequência da
+rede). O que o ESP32 enxerga?
+
+*Solução.* A frequência de Nyquist é 20/2 = 10 Hz; 120 Hz está *muito* acima. Como
+120 = 6 × 20 e 100 = 5 × 20 são múltiplos exatos de $f_s$, o alias cai em
+|120 − 6·20| = |100 − 5·20| = **0 Hz**: o cintilar rápido vira um **nível constante** somado à
+leitura. Se a luz piscar um pouquinho fora do múltiplo (por exemplo, 120,3 Hz), o alias será
+0,3 Hz: uma "respiração" lenta e fantasma na leitura — que ninguém gerou, e que nenhuma média
+móvel de poucas amostras consegue remover (é lenta demais). É exatamente a linha da tabela de
+problemas do roteiro: *"desvio alto com LDR parado — luz fluorescente/LED da sala"*.
+
+### 3.4 A defesa: filtro anti-aliasing
+
+Como o alias é indistinguível de um sinal verdadeiro, **a defesa precisa vir antes do ADC**,
+no mundo analógico: um filtro **passa-baixas** que derruba tudo acima de $f_s/2$ *antes* que
+a amostragem aconteça. O mais simples é um RC (um resistor em série e um capacitor para o
+terra), com frequência de corte
+
+$$ f_c = \frac{1}{2\pi R C} $$
+
+![Em cima, diagrama de blocos sensor, filtro RC, ADC e código. Embaixo, resposta em frequência do RC com as atenuações em fs/2 para fs de 1 kHz e de 5 kHz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/antialiasing_filtro_rc.png)
+
+*Figura 7-K — Em cima: o filtro fica entre o sensor e o pino do ADC. Embaixo: um RC de
+1ª ordem (R = 10 kΩ, C = 100 nF, $f_c$ ≈ 159 Hz) deixa passar quase intacto o sinal útil
+(−1,4 dB em 100 Hz), mas atenua só −10,4 dB em 500 Hz e −23,9 dB em 2,5 kHz: o filtro não é
+uma "parede", é uma **rampa** de −20 dB por década.*
+
+O detalhe que muita gente esquece: o RC **não** é uma parede. Seu ganho cai suavemente
+($-20$ dB por década) e, em $f_s/2$, ainda deixa passar uma fração relevante do que deveria
+ter barrado. Por isso a regra prática tem *duas* partes:
+
+1. um filtro analógico simples antes do pino; **e**
+2. $f_s$ com folga (5–10× a banda de interesse), para empurrar $f_s/2$ para longe de $f_c$,
+   onde o filtro já atenua bastante. Cada vez que você dobra $f_s$, ganha ~6 dB a mais de
+   barreira no mesmo RC.
+
+**Exemplo resolvido 7.3c (dimensionando o RC)** — Sensor com informação útil até 100 Hz,
+$f_s = 1$ kHz, e uma interferência de 600 Hz no pino. Com R = 10 kΩ e C = 100 nF, quanto da
+interferência chega ao ADC?
+
+*Solução.* $f_c = 1/(2\pi \cdot 10^4 \cdot 10^{-7}) \approx 159$ Hz. O ganho de um RC de 1ª
+ordem é $|H| = 1/\sqrt{1 + (f/f_c)^2}$:
+
+- em 100 Hz (sinal útil): $|H| = 0{,}85$ → **−1,4 dB** (perda de ~15% na amplitude, aceitável);
+- em 600 Hz (interferência): $|H| = 1/\sqrt{1 + 3{,}77^2} \approx 0{,}26$ → **−11,8 dB**.
+
+Ou seja, a interferência ainda chega com **26%** da amplitude original e aparecerá como um
+alias de |1000 − 600| = 400 Hz, só que menor. Para barrá-la de verdade: subir $f_s$ (com
+$f_s$ = 5 kHz, 600 Hz fica *abaixo* de Nyquist e deixa de ser alias — vira um sinal legítimo,
+que a média móvel ou outro filtro digital da seção 4 pode tratar) e/ou usar um filtro de
+ordem maior.
+
+> **Detalhe de bancada.** O pino do ESP32 tem um capacitor de amostragem interno que precisa
+> recarregar a cada leitura; resistores muito grandes na entrada (dezenas de kΩ) deixam essa
+> recarga lenta e causam erro de leitura. Ficar na faixa de alguns kΩ, com o capacitor de filtro
+> ao lado do pino (que funciona como reservatório de carga), é uma boa partida.
+
+### 3.5 A condição escondida: amostras igualmente espaçadas
+
+O teorema tem uma condição tácita: as fotografias devem ser **igualmente espaçadas**. Se o
+instante real de cada amostra erra por $\Delta t$ (**jitter**), o programa acredita ter lido o
+sinal em $kT_s$, mas leu em $kT_s + \Delta t$: o erro de amplitude é aproximadamente a
+inclinação do sinal vezes $\Delta t$, no máximo
+
+$$ \varepsilon_{max} \approx 2\pi\,f\,A\,\Delta t $$
+
+![Em cima, senoide de 25 Hz com as amostras ideais e as amostras com jitter de ±1,5 ms ligadas por segmentos. Embaixo, erro de cada amostra limitado por duas linhas tracejadas em ±0,24 A](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_jitter.png)
+
+*Figura 7-L — Jitter distorce o sinal mesmo com $f_s$ bem acima de Nyquist (200 Hz para um
+sinal de 25 Hz). Cada amostra vermelha foi lida um pouco antes ou depois do instante
+previsto (círculo vazio); o erro (embaixo) é maior onde o sinal é mais inclinado e fica
+dentro do limite 2π·f·A·Δt.*
+
+Quanto mais rápido o sinal e maior o desvio, pior: um sinal de 50 Hz amostrado com jitter de
+2 ms (típico de uma tarefa em Linux disputando CPU) já erra até 2π·50·0,002 ≈ **63% da
+amplitude**. Já uma tarefa FreeRTOS de prioridade adequada e disparada por `vTaskDelayUntil`
+tem jitter bem menor que 1 ms (tipicamente dezenas de µs). É *por isso* que o firmware de hoje
+amostra com `vTaskDelayUntil` (Exemplo 5.1), e é por isso que a malha PID da semana 13 rodará
+no ESP32 e não no RPi (o Linux do Pi tem jitter de milissegundos; isso afeta a malha de
+controle).
 
 ## 4. O primeiro filtro digital: média móvel
 
@@ -269,7 +415,7 @@ correspondente (é o ADC de trás para frente — compare a figura abaixo com a 
 
 ![Função de transferência de um DAC de 3 bits](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_3bits.png)
 
-*Figura 7-F — DAC de 3 bits: a cada código, uma tensão degrau. Fonte: Hands-On Industrial
+*Figura 7-M — DAC de 3 bits: a cada código, uma tensão degrau. Fonte: Hands-On Industrial
 Internet of Things (Packt), cap. 3, Fig. 3.4.*
 
 O ESP32 tem 2 canais de **8 bits** (GPIO25/26): 256 degraus de 3,3/256 ≈ 13 mV. Serve para
@@ -306,7 +452,8 @@ impede fantasmas na entrada, o outro limpa degraus na saída).
 - Sensor resistivo → divisor de tensão; excursão máxima com R_fixo ≈ média geométrica dos
   extremos (Exemplo 7.2); sem R_fixo, resistência não vira tensão.
 - Nyquist: f_s > 2·f_max, **com espaçamento uniforme**; violou ⇒ alias em |f_s − f| que
-  nenhum filtro digital remove depois (Exemplo 7.3) — anti-aliasing é analógico e vem antes.
+  nenhum filtro digital remove depois (Exemplos 7.3, 7.3b) — anti-aliasing é analógico e vem
+  antes, e um RC sozinho é uma rampa (−20 dB/década), não uma parede (Exemplo 7.3c).
 - Média móvel O(1) com soma corrente + buffer circular: atenua ruído contínuo, atrasa
   (M−1)/2 amostras; spikes pedem mediana (Exemplo 7.4). Filtro = compromisso com atraso.
 - DAC 8 bits por tabela: f = taxa/pontos; poucos pontos por ciclo = escada + harmônicos;
@@ -328,6 +475,7 @@ impede fantasmas na entrada, o outro limpa degraus na saída).
 | SAR | ADC de aproximações sucessivas (busca binária em hardware) |
 | saturação | leitura travada no fim de escala |
 | divisor de tensão | dois resistores em série que fatiam a fonte |
+| frequência de Nyquist | $f_s/2$: teto do que o sistema enxerga |
 | aliasing | disfarce de frequência por subamostragem |
 | anti-aliasing | filtro analógico antes do ADC |
 | média móvel | média das últimas M amostras |
