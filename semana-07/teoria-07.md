@@ -89,7 +89,7 @@ constante da fórmula agora tem nome e sobrenome.
 
 *Figura 7-D — Como o ADC SAR chega ao código final: o registrador testa um bit por vez,
 do mais significativo ao menos significativo, comparando a tensão que o DAC interno produz
-para aquele "chute" com $V_{in}$. Se o chute ficou **abaixo** de $V_{in}$, o bit fica marcado
+para aquele "chute" com $`V_{in}`$. Se o chute ficou **abaixo** de $`V_{in}`$, o bit fica marcado
 como 1 e o registrador segue para o próximo bit somando esse peso; se ficou **acima**, o bit
 vira 0 e aquele peso é descartado. N bits ⇒ exatamente N comparações — nem mais, nem menos —
 o que também explica por que resolução maior tem um custo direto em tempo de conversão.*
@@ -186,7 +186,7 @@ lugar — e a semana 13 precisará saber qual é a sua convenção antes de fech
 
 > 💡 **Pense aí**: por que não ligar o LDR direto entre 3,3 V e o ADC, sem resistor? *Porque
 > resistor não “gera” tensão sozinho: a variação de resistência só vira variação de tensão
-> quando uma corrente a atravessa — e é o $R_{fixo}$ quem fecha o caminho da corrente e cria o
+> quando uma corrente a atravessa — e é o $`R_{fixo}`$ quem fecha o caminho da corrente e cria o
 > ponto de comparação. Sem ele, o pino veria 3,3 V sempre (até a corrente de fuga mudar
 > isso de forma imprevisível).*
 
@@ -359,7 +359,7 @@ $$ \varepsilon_{max} \approx 2\pi\,f\,A\,\Delta t $$
 
 ![Em cima, senoide de 25 Hz com as amostras ideais e as amostras com jitter de ±1,5 ms ligadas por segmentos. Embaixo, erro de cada amostra limitado por duas linhas tracejadas em ±0,24 A](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_jitter.png)
 
-*Figura 7-L — Jitter distorce o sinal mesmo com $f_s$ bem acima de Nyquist (200 Hz para um
+*Figura 7-L — Jitter distorce o sinal mesmo com $`f_s`$ bem acima de Nyquist (200 Hz para um
 sinal de 25 Hz). Cada amostra vermelha foi lida um pouco antes ou depois do instante
 previsto (círculo vazio); o erro (embaixo) é maior onde o sinal é mais inclinado e fica
 dentro do limite 2π·f·A·Δt.*
