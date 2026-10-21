@@ -1,4 +1,4 @@
-# Lab 7 — Lendo o mundo: LDR no ADC, filtro em ação e senoide no DAC
+# Lab 7 — LDR no ADC, filtro e senoide no DAC
 
 > **Antes de começar**: leia a [teoria-07](teoria-07.md) — o Exemplo 7.2 (divisor com LDR) é
 > a conta que você calibrará na Parte A, as Figuras 7-A/7-B mostram o que o ADC faz com a
