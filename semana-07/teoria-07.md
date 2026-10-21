@@ -271,7 +271,7 @@ leque (ou como uma fita colada em ziguezague): a cada múltiplo de $f_s/2$ a fit
 *Figura 7-J — Esquerda: a "dobra" (com $`f_s`$ = 10 Hz). Só até $`f_s/2`$ a frequência vista é a
 real; acima disso, a curva volta a descer — 6 Hz aparece como 4 Hz, 9 Hz como 1 Hz, 11 Hz também
 como 1 Hz, e assim indefinidamente. Direita: o Exemplo 7.3 no eixo de frequências — o
-espelho fica em $f_s/2$, e o impostor surge à mesma distância dele, do lado de dentro.*
+espelho fica em $`f_s/2`$, e o impostor surge à mesma distância dele, do lado de dentro.*
 
 **Exemplo resolvido 7.3 (aliasing)** — Senoide de 600 Hz amostrada a $f_s = 1$ kHz. O que o
 sistema registra?
