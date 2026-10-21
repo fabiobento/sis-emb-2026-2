@@ -35,7 +35,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
    digital, que **não** serve ao ADC), então vamos simular o **nó do divisor** com um
    potenciômetro: girar o potenciômetro equivale a "iluminar/escurecer" o LDR, e o GPIO34
    recebe uma tensão de 0 a 3,3 V exatamente como receberá do divisor real. Crie um projeto
-   ESP32 (ESP-IDF) no [wokwi](https://wokwi.com/projects/478494071670963201) e substitua o `diagram.json` por este
+   ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e substitua o `diagram.json` por este
    (saída no **GPIO34**, canal 6 do ADC1):
 
 ```json
@@ -234,7 +234,9 @@ O firmware imprime, a cada 1 s, média e **desvio-padrão** do sinal filtrado �
 | 32 | | 775 ms |
 
 11. O desvio caiu com M na razão ~√M prevista na teoria? (De M = 1 para M = 4, o desvio
-    deveria cair à metade; de M = 1 para M = 32, a menos de 20 %.) Se não caiu, pense: o
+    deveria cair à metade; de M = 1 para M = 32, a menos de 20 % — e, para M grande, até
+    *mais* que 1/√M, porque o firmware calcula o desvio sobre só 20 amostras e a saída da
+    média móvel varia devagar dentro dessa janela de 1 s.) Se não caiu, pense: o
     ruído do seu LDR é mesmo "branco" (independente de amostra para amostra) ou há uma
     oscilação lenta da luz da sala, que a média não consegue remover?
 
@@ -339,7 +341,7 @@ void app_main(void)
 > o `sin()` roda **32 vezes, uma só vez**, no início; dentro do callback do timer só há uma
 > consulta à tabela e um incremento circular de índice — barato o bastante para rodar a
 > 3200 Hz sem pesar na CPU. O `app_main` retorna logo depois de armar o timer: quem toca a
-> senoide dali em diante é o `esp_timer` (a "ISR" da geração de onda). E repare na conta
+> senoide dali em diante é o `esp_timer`, que chama o callback periodicamente. E repare na conta
 > da frequência de saída: **f = taxa de atualização ÷ pontos por ciclo = 3200 / 32 =
 > 100 Hz**. Para mudar a frequência você mexe em `F_HZ`; para mudar a *qualidade* da
 > senoide, em `NPTS`.
