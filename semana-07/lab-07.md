@@ -10,7 +10,7 @@ medir o ruído do ADC com e sem média móvel; provocar a saturação; gerar e "
 do DAC; e (opcional) **ver o aliasing acontecer** ligando o DAC ao ADC na mesma placa.
 
 **Duração**: 2 aulas (a Parte E é opcional e pode ficar para casa).
-**Material**: ESP32, LDR (temos 10), resistor 10 kΩ, protoboard, jumpers; multímetro;
+**Material**: ESP32, LDR, resistor 10 kΩ, protoboard, jumpers; multímetro;
 lanterna do celular; (opcional, Parte D) buzzer passivo ou fone velho + resistor 220 Ω.
 As Partes A–C rodam no Wokwi para validar o código antes do hardware; a Parte D (DAC) e a
 Parte E (loopback) pedem a placa real.
