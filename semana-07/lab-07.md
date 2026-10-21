@@ -260,14 +260,23 @@ partida a frio do buffer. Seus números reais serão diferentes; o **formato** d
 
 ## Parte C — Saturação e limites da faixa (15 min)
 
-14. Tire o resistor de 10 kΩ e ligue o GPIO34 **direto no 3V3** por um instante (3V3, e só
+14. Tire o resistor de 10 kΩ e ligue o GPIO34 **direto no 3V3** (Figura L7-D, painel esquerdo) por um instante (3V3, e só
     ele — veja o aviso no topo). Leitura esperada: `raw=4095` cravado — **saturação**
     (teoria, seção 1.2). Tensões entre ≈ 3,1 e 3,3 V "desaparecem" no teto. Anote e devolva
     o circuito ao normal.
 
+![Esquemático à esquerda: LDR ligado ao 3V3 e ao GPIO34, jumper do 3V3 ao GPIO34 e resistor de 10 kΩ removido. À direita: sensor de 0–5 V ligado ao GPIO34 por um divisor de dois resistores de 10 kΩ, com GND comum](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab07_esq_saturacao.png)
+
+*Figura L7-D — Esquemáticos da Parte C. **Esquerda (item 14):** o único fio novo é o jumper
+do **3V3 direto no GPIO34**; o resistor de 10 kΩ sai do circuito (ou fica solto, sem tocar
+em nada) e o LDR pode continuar onde está, porque agora os dois lados dele estão em 3V3 e
+nenhuma corrente passa. **Direita (item 15):** o projeto **no papel** para um sensor de
+0–5 V — R1 em série, R2 para o GND, o GPIO34 lendo o nó do meio e o GND do sensor
+ligado ao GND do ESP32. Não monte este circuito; use-o para conferir a sua conta.*
+
 ![Curvas de transferência do ADC do ESP32 para diferentes atenuações saturando em 4095, e um sensor travado em 0 dB mas acompanhado com 11 dB](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_atenuacao_saturacao.png)
 
-*Figura L7-D — O que você acabou de provocar: cada atenuação satura no seu fundo de escala
+*Figura L7-E — O que você acabou de provocar: cada atenuação satura no seu fundo de escala
 (à esquerda). Usamos 11 dB, cujo teto é ~3,1 V; com 0 dB, o teto seria ~1,1 V e o mesmo
 sensor ficaria "travado" em 4095 (à direita) — o diagnóstico clássico de "sensor que não
 muda".*
@@ -275,7 +284,7 @@ muda".*
 15. Pergunta de projeto para o relatório: se o seu sensor entregasse 0–5 V, o que fazer
     antes do ADC? (Duas respostas válidas: divisor de tensão — a semana 3 — ou ADC externo
     de faixa maior; você reverá ambas no HC-SR04 da semana 12.) Se escolher o divisor,
-    calcule **dois resistores iguais** (por exemplo, 10 kΩ + 10 kΩ): quanto sobra na faixa
+    calcule **dois resistores iguais** (esquema no painel direito da Figura L7-D; por exemplo, 10 kΩ + 10 kΩ): quanto sobra na faixa
     do ADC quando o sensor está em 5 V? E o que isso faz com o LSB efetivo, em volts do
     sensor?
 
@@ -353,19 +362,28 @@ cd ~/sis-emb/lab7/dac_senoide/dac_senoide
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
+![Esquemático com o GPIO25 do ESP32 alimentando, em três montagens alternativas: um multímetro entre GPIO25 e GND, um osciloscópio com ponta no GPIO25 e garra no GND, e um buzzer passivo em série com um resistor de 220 ohms](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab07_esq_dac.png)
+
+*Figura L7-F — Como ligar o GPIO25 para os itens 20 e 21. São três montagens
+**alternativas** (faça uma de cada vez): o instrumento sempre fica entre o GPIO25 e o GND.
+No multímetro, a ponta vermelha vai ao GPIO25 e a preta ao GND (VAC para o valor eficaz,
+VDC para o nível médio); no osciloscópio, a ponta do canal no GPIO25 e a garra no GND; no
+buzzer, o resistor de 220 Ω fica em série (ele limita a corrente que o pino entrega) e a
+perna "+" do buzzer vai para o lado do resistor. Em nenhuma delas algo vai ao 5 V.*
+
 ![Esquerda: dois ciclos da senoide de 100 Hz do DAC, mostrando os 32 degraus por ciclo de 312 microssegundos cada, com eixo de código 0 a 255 e de tensão 0 a 3,3 V. Direita: a senoide com nível CC de 1,65 V e amplitude A, explicando que o valor eficaz em VAC é A dividido por raiz de 2](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab07_dac_escada.png)
 
-*Figura L7-E — O que sai do GPIO25. À esquerda: a "senoide" é uma escada de 32 degraus por
+*Figura L7-G — O que sai do GPIO25. À esquerda: a "senoide" é uma escada de 32 degraus por
 ciclo, cada um com ~312 µs (é a Figura 7-M da teoria no tempo). À direita: a senoide fica
 em torno de 1,65 V (nível CC) com amplitude A = 1,65 V — por isso o multímetro em VDC lê
 ~1,65 V e, em VAC, só enxerga a parte alternada: V_rms = A/√2.*
 
-20. **Vendo**: se a bancada tiver osciloscópio, observe a escada de 32 degraus. Sem
+20. **Vendo** (ligações na Figura L7-F): se a bancada tiver osciloscópio, observe a escada de 32 degraus. Sem
     osciloscópio, o multímetro em VAC lê o valor eficaz (~1,1–1,2 V para senoide de
     amplitude 1,65 V — senoide: V_rms = A/√2 = 1,65/1,41 ≈ 1,17 V; anote). Em VDC, o que
-    ele deveria ler? (Figura L7-E, painel direito.)
+    ele deveria ler? (Figura L7-G, painel direito.)
 
-21. **Ouvindo** (opcional): buzzer passivo (ou fone) em série com 220 Ω entre GPIO25 e GND.
+21. **Ouvindo** (opcional, terceira montagem da Figura L7-F): buzzer passivo (ou fone) em série com 220 Ω entre GPIO25 e GND.
     100 Hz é um grave; mude `F_HZ` para 440 (o lá musical) e ouça. Agora reduza `NPTS` para
     8 mantendo 440 Hz: o timbre fica áspero (harmônicos da escada — questão 5 da Lista 3
     respondida pelo ouvido). Anote o período do `esp_timer` nos dois casos: a 440 Hz com 8
@@ -379,7 +397,7 @@ jumper. Assim o DAC gera uma senoide de frequência conhecida e o ADC a amostra 
 $f_s$ = 20 Hz (frequência de Nyquist = 10 Hz) — é a seção 3 da teoria, em bancada.
 
 22. Ligue um jumper **GPIO25 → GPIO34** (tire o circuito do LDR do GPIO34 para não
-    competir com o DAC). Crie o projeto e copie o firmware:
+    competir com o DAC; confira a montagem na Figura L7-H, painéis da esquerda e do centro). Crie o projeto e copie o firmware:
 ```bash
 mkdir -p ~/sis-emb/lab7/loopback
 cd ~/sis-emb/lab7/loopback
@@ -387,6 +405,16 @@ idf.py create-project loopback
 cd loopback
 cp ~/sis-emb-2026-2/semana-07/src/loopback_alias/main.c ~/sis-emb/lab7/loopback/loopback/main/loopback.c
 ```
+
+![Três esquemáticos: o loopback correto, só com um jumper entre GPIO25 e GPIO34; o erro de manter o divisor do LDR ligado ao GPIO34 ao mesmo tempo; e a variante do item 25 com um filtro RC entre o DAC e o ADC](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/lab07_esq_loopback.png)
+
+*Figura L7-H — A montagem da Parte E. **Esquerda (certa):** um único jumper do GPIO25 ao
+GPIO34, e o divisor da Parte A **desmontado** (nada de LDR nem de 10 kΩ no GPIO34).
+**Centro (errada):** se o divisor continuar ligado, o DAC (que impõe uma tensão) e o
+divisor (que só oferece resistências) disputam o mesmo pino — a leitura vira lixo, e o
+sintoma é um gráfico "serrilhado" que não segue o F_HZ. **Direita:** a variante do item 25,
+com um RC de 10 kΩ e 4,7 µF entre o DAC e o ADC (use só depois de ver o alias sem filtro,
+para comparar antes e depois).*
 
 23. Código-fonte completo (junta o DAC da Parte D com o ADC da Parte A):
 
@@ -488,7 +516,7 @@ void app_main(void)
 
 ![A dobra de frequências: esquerda, frequência aparente em função da frequência real; direita, exemplo de 600 Hz a 1 kHz aparecendo em 400 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_dobra.png)
 
-*Figura L7-F — O mapa que prevê o que você anotou na tabela (a figura usa $f_s$ = 10 Hz; no
+*Figura L7-I — O mapa que prevê o que você anotou na tabela (a figura usa $f_s$ = 10 Hz; no
 seu experimento $f_s$ = 20 Hz, então o "espelho" fica em 10 Hz). Em qualquer $f_s$, tudo
 acima de $f_s/2$ é dobrado de volta para a faixa 0 … $f_s/2$.*
 
