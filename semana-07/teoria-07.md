@@ -314,7 +314,7 @@ $$ f_c = \frac{1}{2\pi R C} $$
 ![Em cima, diagrama de blocos sensor, filtro RC, ADC e código. Embaixo, resposta em frequência do RC com as atenuações em fs/2 para fs de 1 kHz e de 5 kHz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/antialiasing_filtro_rc.png)
 
 *Figura 7-K — Em cima: o filtro fica entre o sensor e o pino do ADC. Embaixo: um RC de
-1ª ordem (R = 10 kΩ, C = 100 nF, $f_c$ ≈ 159 Hz) deixa passar quase intacto o sinal útil
+1ª ordem (R = 10 kΩ, C = 100 nF, $`f_c`$ ≈ 159 Hz) deixa passar quase intacto o sinal útil
 (−1,4 dB em 100 Hz), mas atenua só −10,4 dB em 500 Hz e −23,9 dB em 2,5 kHz: o filtro não é
 uma "parede", é uma **rampa** de −20 dB por década.*
 
