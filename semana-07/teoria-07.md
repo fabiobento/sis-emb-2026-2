@@ -268,7 +268,7 @@ leque (ou como uma fita colada em ziguezague): a cada múltiplo de $f_s/2$ a fit
 
 ![Esquerda: frequência aparente em função da frequência real, uma onda triangular que sobe até fs/2, desce até fs e se repete. Direita: o exemplo de 600 Hz amostrado a 1 kHz refletindo em 500 Hz e aparecendo em 400 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_dobra.png)
 
-*Figura 7-J — Esquerda: a "dobra" (com $f_s$ = 10 Hz). Só até $f_s/2$ a frequência vista é a
+*Figura 7-J — Esquerda: a "dobra" (com $`f_s`$ = 10 Hz). Só até $`f_s/2`$ a frequência vista é a
 real; acima disso, a curva volta a descer — 6 Hz aparece como 4 Hz, 9 Hz como 1 Hz, 11 Hz também
 como 1 Hz, e assim indefinidamente. Direita: o Exemplo 7.3 no eixo de frequências — o
 espelho fica em $f_s/2$, e o impostor surge à mesma distância dele, do lado de dentro.*
