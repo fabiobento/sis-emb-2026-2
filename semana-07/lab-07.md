@@ -1,4 +1,4 @@
-# Lab 7 — LDR no ADC, filtro e senoide no DAC
+# Lab 7 — Lendo o mundo: LDR no ADC, filtro em ação e senoide no DAC
 
 > **Antes de começar**: leia a [teoria-07](teoria-07.md) — o Exemplo 7.2 (divisor com LDR) é
 > a conta que você calibrará na Parte A, as Figuras 7-A/7-B mostram o que o ADC faz com a
@@ -10,9 +10,9 @@ medir o ruído do ADC com e sem média móvel; provocar a saturação; gerar e "
 do DAC; e (opcional) **ver o aliasing acontecer** ligando o DAC ao ADC na mesma placa.
 
 **Duração**: 2 aulas (a Parte E é opcional e pode ficar para casa).
-**Material**: ESP32, LDR, resistor 10 kΩ, protoboard, jumpers; multímetro;
+**Material**: ESP32, LDR (temos 10), resistor 10 kΩ, protoboard, jumpers; multímetro;
 lanterna do celular; (opcional, Parte D) buzzer passivo ou fone velho + resistor 220 Ω.
-As Partes A–C rodam no Wokwi para validar o código antes do hardware; a Parte D (DAC) e a
+As Partes A–C têm um passo no Wokwi (com um potenciômetro no lugar do divisor) para validar o código antes do hardware; a Parte D (DAC) e a
 Parte E (loopback) pedem a placa real.
 
 > ⚠️ **Os pinos do ESP32 toleram no máximo 3,3 V.** Nunca ligue 5 V (pino VIN/5V da placa
@@ -31,9 +31,12 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 ## Parte A — Divisor com LDR: montagem e calibração (35 min)
 
-1. **Wokwi primeiro**: crie um projeto ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e
-   substitua o `diagram.json` por este (módulo de LDR do Wokwi ligado ao **GPIO34**, canal 6
-   do ADC1):
+1. **Wokwi primeiro**: o Wokwi não tem o LDR "solto" (só o módulo de LDR com saída
+   digital, que **não** serve ao ADC), então vamos simular o **nó do divisor** com um
+   potenciômetro: girar o potenciômetro equivale a "iluminar/escurecer" o LDR, e o GPIO34
+   recebe uma tensão de 0 a 3,3 V exatamente como receberá do divisor real. Crie um projeto
+   ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e substitua o `diagram.json` por este
+   (saída no **GPIO34**, canal 6 do ADC1):
 
 ```json
 {
@@ -49,8 +52,8 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
       "attrs": { "builder": "esp-idf" }
     },
     {
-      "type": "wokwi-photoresistor-sensor",
-      "id": "ldr1",
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
       "top": -20,
       "left": -170,
       "attrs": {}
@@ -59,19 +62,24 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "ldr1:VCC", "esp:3V3", "red", [] ],
-    [ "ldr1:GND", "esp:GND.1", "black", [] ],
-    [ "ldr1:AO", "esp:34", "orange", [] ]
+    [ "pot1:VCC", "esp:3V3", "red", [] ],
+    [ "pot1:GND", "esp:GND.1", "black", [] ],
+    [ "pot1:SIG", "esp:34", "orange", [] ]
   ],
   "dependencies": {}
 }
 ```
 
-   O módulo do Wokwi já traz o resistor fixo e o comparador na plaquinha (por isso só usamos
-   o pino `AO`, a saída analógica) e o **slider de lux** permite "iluminar" o sensor com
-   precisão — ótimo para validar o firmware dos itens 3 a 7 antes do hardware. Se algum fio
-   ficar estranho no desenho, é só arrastá-lo: a lógica é VCC→3V3, GND→GND, AO→GPIO34.
-   O Wokwi **não** reproduz a sua calibração de bancada (item 8): ela é com o LDR real.
+   Isso valida o **firmware** (ADC, média móvel, estatística) dos itens 3 a 7 antes do
+   hardware, mas não o sensor: o Wokwi não reproduz a resistência do LDR nem a sua
+   calibração (item 8), que é com o LDR real. Se algum fio ficar estranho no desenho, é só
+   arrastá-lo: a lógica é VCC→3V3, GND→GND, SIG→GPIO34.
+
+   > Na bancada, use o **LDR solto** (aquele de duas perninhas) com o resistor de 10 kΩ,
+   > como no item 2. O **módulo de LDR azul** com LM393, trimpot e pinos VCC/GND/**DO** tem
+   > só saída **digital** (claro/escuro, com limiar no trimpot): serve para o desafio de
+   > "acender com a luz", mas **não** para este lab — o ADC precisa da tensão analógica do
+   > divisor. (Se quiser, o LDR do módulo pode ser dessoldado e usado como o LDR solto.)
 
 2. Na protoboard: **3V3 → LDR → nó do GPIO34 → 10 kΩ → GND** (LDR em cima, como no Exemplo
    7.2 e no desenho da teoria, seção 2). Antes de ligar, **meça com o multímetro** a
