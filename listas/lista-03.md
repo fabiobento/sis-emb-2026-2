@@ -78,12 +78,12 @@ sistema visual humano e pela taxa de captura de câmeras.
 `"T=25.4\r\n"` (8 caracteres)? E a 115 200? Por que o formato 8N1 gasta 10 bits por byte?
 
 ![Estrutura do frame UART: repouso, start bit, 8 bits de dados LSB-first, stop bit](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/uart_frame.png)
-> 💡 *A Figura 9-A da teoria-09 mostra onde os 2 bits extras moram.*
+> 💡 *A Figura 9-C da teoria-09 mostra onde os 2 bits extras moram.*
 
 **Q12.** Desenhe a ligação SPI mestre + 2 escravos (MOSI/MISO/SCLK/CS0/CS1) e explique por que
 o SPI escala mal em número de fios, mas vence em velocidade. O que definem CPOL e CPHA?
 
-<details><summary>🖼️ Confira seu desenho (Fig. 9-B da teoria-09)</summary>
+<details><summary>🖼️ Confira seu desenho (Fig. 9-G da teoria-09)</summary>
 
 ![Sinais de uma transação SPI: CS, clock, MOSI e MISO](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/spi_transacao.png)
 
@@ -96,7 +96,7 @@ protocolo para "descobrir" um endereço?
 ![Sequência de uma transação I2C: START, endereço de 7 bits, R/W, ACK, dados](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/i2c_transacao.png)
 
 **Q14.** *(estilo Exemplo 9.4)* Por que o I2C exige pull-ups externos (dreno aberto)? Com
-capacitância de barramento de 150 pF e alvo de t_r ≈ 0,3·R·C ≤ 300 ns (400 kHz), calcule o
+capacitância de barramento de 150 pF e alvo de t_r = 0,8473·R·C ≤ 300 ns (400 kHz), calcule o
 pull-up máximo e comente o compromisso com o consumo.
 
 **Q15.** Preencha a tabela comparativa UART × SPI × I2C (fios, topologia, velocidade típica,

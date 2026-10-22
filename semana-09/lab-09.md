@@ -1,6 +1,6 @@
 # Lab 9 — I²C na veia: scanner, MPU-6050 e display OLED
 
-> **Antes de começar**: leia a [teoria-09](teoria-09.md) — a Figura 9-C (transação I²C)
+> **Antes de começar**: leia a [teoria-09](teoria-09.md) — a Figura 9-K (transação I²C)
 > explica o que o scanner provoca na linha, a seção 4 detalha o firmware de hoje linha a
 > linha, e os Exemplos 9.2 (tempo de barramento), 9.3 (endereços, AD0) e 9.4 (pull-up) são
 > as contas que você vai conferir com a bancada.
@@ -116,7 +116,7 @@ cd i2c_scanner
 cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/i2c_scanner/main/i2c_scanner.c
 ```
 
-3. Abra o arquivo **com a teoria do lado** (Figura 9-C). Código-fonte completo:
+3. Abra o arquivo **com a teoria do lado** (Figura 9-K). Código-fonte completo:
 
 ```c
 // Semana 9 — scanner I2C: varre 0x03-0x77 e lista quem responde ACK
@@ -238,7 +238,7 @@ fim.
    `["oled:SDA","esp:21","orange",[]]`, `["oled:SCL","esp:22","blue",[]]`.
 
 > 🧠 **Por que o scanner funciona**: ele envia só START + endereço + W̄ e verifica se
-> **alguém puxou SDA para 0 no 9º bit** (o ACK da Figura 9-C da teoria). É a mesma
+> **alguém puxou SDA para 0 no 9º bit** (o ACK da Figura 9-K da teoria). É a mesma
 > mecânica de qualquer transação — o scanner apenas **não faz nada depois** do ACK.
 
 ## Parte B — MPU-6050: identidade e dados (40 min)
@@ -278,7 +278,7 @@ cd mpu6050
 cp ~/sis-emb-2026-2/semana-09/src/mpu6050/main.c ~/sis-emb/lab9/mpu6050/mpu6050/main/mpu6050.c
 ```
 
-10. Código-fonte completo (leia junto com a teoria, seções 4.1–4.2):
+10. Código-fonte completo (leia junto com a teoria, seções 4.2 e 4.6):
 
 ```c
 // Semana 9 — MPU-6050 via I2C: WHO_AM_I + leitura de acel/giro + angulo
