@@ -47,7 +47,6 @@ void app_main(void)
         printf("a=(%.2f,%.2f,%.2f) g  gx=%.1f o/s  theta=%.1f o\n",
                axg, ayg, azg, gx/131.f, theta);
         vTaskDelay(pdMS_TO_TICKS(100));
-        // EXTRA: enviar p/ SSD1306 — instale o componente ssd1306 (idf.py add-dependency)
-        // e escreva theta no display. Estrutura identica de wr()/rd() no endereco 0x3C.
+        // O display OLED entra na Parte C (src/inclinometro_oled): mesmas wr()/rd(), endereco 0x3C.
     }
 }
