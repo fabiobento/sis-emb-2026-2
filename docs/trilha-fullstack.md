@@ -130,6 +130,10 @@ tópico de comando do nó (com o QoS justificado na sua Lista 05, Q8–Q9). Pron
 "sabe" que existe web — ele continua falando só MQTT. Esse desacoplamento é a vantagem nº 1 do
 publish–subscribe (Lista 05, Q7) funcionando na prática.
 
+> 💡 **Ideia de integração:** se o seu grupo também fez a [trilha TinyML](trilha-tinyml.md), o tópico
+> `ifes/<bancada>/movimento` (JSON `{"classe":…,"conf":…}`) é só mais um tópico para o dashboard
+> mostrar como etiqueta em tempo real.
+
 ✅ **Chegamos!** — girar o potenciômetro no ESP32 move um gráfico no navegador em tempo real, e
 um botão no navegador acende o LED do ESP32 — tudo via broker.
 

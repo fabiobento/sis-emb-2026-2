@@ -75,7 +75,7 @@ sis-emb-2026-2/
 ├── listas/                       ← listas de exercícios (lista-0X)
 ├── slides/                       ← 31 apresentações
 ├── projeto-final/                ← regulamento e rubrica do projeto integrador
-├── labs-extra/                   ← laboratórios avançados (ex.: medidor de energia PZEM-004T)
+├── labs-extra/                   ← laboratórios avançados (medidor de energia PZEM-004T; classificador de movimento TinyML)
 └── assets/figuras/               ← figuras da apostila
 ```
 
@@ -95,7 +95,7 @@ Detalhando cada item:
   final)
 - `listas/` — listas de exercícios (`lista-0X.md`)
 - `projeto-final/` — regulamento e rubrica do projeto integrador (`README-proj-final.md`) + deck
-- `labs-extra/` — laboratórios opcionais/avançados (ex.: medidor de energia PZEM-004T com Modbus)
+- `labs-extra/` — laboratórios opcionais/avançados (medidor de energia PZEM-004T com Modbus; classificador de movimento TinyML)
 - `assets/figuras/` — figuras da apostila (ver "Sobre as figuras", ao final)
 
 ## Como usar nas aulas práticas
@@ -182,6 +182,8 @@ histórico é parte central da nota — e começa já no Lab 1.
 - [Projeto Final Integrador — regulamento e rubrica](projeto-final/README-proj-final.md)
 - [Trilha opcional full-stack — dashboard web no RPi](docs/trilha-fullstack.md)
 - [Trilha opcional TinyML — classificador de movimento no ESP32 com Edge Impulse](docs/trilha-tinyml.md)
+  e o [lab-extra do classificador](labs-extra/classificador-movimento/README-classificador.md)
+  (teoria, roteiro com código, guia de problemas, modelo de relatório e ferramentas)
 
 **Listas de exercícios** (individuais — ver [Avaliação](#avaliação-da-aprendizagem))
 
