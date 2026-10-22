@@ -1,0 +1,10 @@
+# Dependências do dashboard (instale dentro de uma venv — Etapa 0)
+flask>=3.0
+flask-socketio>=5.3
+simple-websocket>=1.0
+paho-mqtt>=2.0
+gunicorn>=21.2
+# só para os testes:
+pytest>=8.0
+python-socketio[client]>=5.10
+websocket-client>=1.7

@@ -229,7 +229,7 @@ visita técnica); **ML embarcado** (classificação no próprio nó — a trilha
 `docs/trilha-tinyml.md` leva do zero a um classificador de movimento no ESP32 com o Edge Impulse,
 usando o MPU-6050 da semana 9; há um livro sobre deep learning em Jetson/RPi no nosso
 acervo); **Home Assistant** (domótica pronta sobre nós MQTT — livro no acervo). A trilha
-dirigida `docs/trilha-fullstack.md` leva o grupo interessado do zero ao painel web
+dirigida `docs/trilha-fullstack.md` (com o [lab do dashboard](../labs-extra/dashboard-iot/lab-dashboard.md) e código testado) leva o grupo interessado do zero ao painel web
 profissional.
 
 ![Exemplo de aplicação MQTT completa: sensores, broker e controle remoto](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/iot_mqtt_visao_geral.png)

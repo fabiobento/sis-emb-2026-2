@@ -172,7 +172,7 @@ ESP32 em cada um, *versus* um painel único de vários PZEM no mesmo barramento 
 ## Ideias de projeto final a partir daqui
 
 - **Monitor de energia residencial com dashboard web**: PZEM → ESP32 → MQTT → RPi com a trilha
-  full-stack (`docs/trilha-fullstack.md`) mostrando gráficos e custo em tempo real.
+  full-stack (`docs/trilha-fullstack.md`; base pronta em `labs-extra/dashboard-iot/`) mostrando gráficos e custo em tempo real.
 - **Alerta de sobrecarga**: usa o registrador de alarme do PZEM (0x0009) + a semana 4
   (interrupções) para cortar um relé quando P ultrapassa um limiar.
 - **Comparador de eficiência**: banca de tomadas medindo vários aparelhos, ranqueando por FP e

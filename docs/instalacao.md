@@ -43,6 +43,17 @@ idf.py --version
 "Setting up a Raspberry Pi" (Figuras 1.19–1.32, p. 24–31) e "SSH" (Figura 1.33, p. 29).
 Alternativa: *Internet of Things from Scratch* (Packt), cap. 2, Figuras 2.15–2.17 (p. 61–63).
 
+**Notas para a trilha full-stack (dashboard web):**
+- O Raspberry Pi OS *Bookworm* protege o Python do sistema: `pip install` fora de uma **venv** dá
+  `externally-managed-environment`. Use sempre `python3 -m venv venv && source venv/bin/activate`
+  (e **não** use `--break-system-packages`).
+- Pacotes do sistema usados: `sudo apt install -y python3-venv mosquitto mosquitto-clients nginx sqlite3`.
+- O Mosquitto 2.x só aceita conexões locais por padrão; para nós ESP32 em outra máquina, use
+  `labs-extra/dashboard-iot/src/deploy/mosquitto-lab.conf` (laboratório isolado apenas).
+- Onde os livros citarem `raspi-config`/caminhos antigos (`/etc/rc.local`, `service` SysV), use
+  `systemd` (`systemctl enable --now …`) — o roteiro do lab traz o arquivo de serviço pronto.
+- Passo a passo completo: [lab do dashboard](../labs-extra/dashboard-iot/lab-dashboard.md).
+
 ## 5. Sincronizando seu diretório de trabalho (`~/sis-emb/`) com o GitHub da bancada
 
 > Isto é o passo a passo prático do que o Lab 1 (Parte C) pede: cada bancada cria um

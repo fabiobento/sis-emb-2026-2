@@ -1,0 +1,17 @@
+{
+ "segundos": 60,
+ "polling": {
+  "requisicoes": 112,
+  "bytes_ida": 17136,
+  "bytes_volta": 106566,
+  "total": 123702,
+  "bytes_por_s": 2061.7
+ },
+ "websocket": {
+  "mensagens": 360,
+  "bytes_ida": 14,
+  "bytes_volta": 42386,
+  "total": 42400,
+  "bytes_por_s": 706.7
+ }
+}

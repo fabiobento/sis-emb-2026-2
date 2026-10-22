@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block titulo %}Painel IoT — ao vivo{% endblock %}
+{% block nav_inicio %}ativo{% endblock %}
+{% block conteudo %}
+<section>
+  <h2>Nós</h2>
+  <div id="nos" class="grade"><p class="vazio">Aguardando dados de <code>{{ base }}/&lt;bancada&gt;/…</code> no broker.</p></div>
+</section>
+
+<section>
+  <div class="linha-titulo">
+    <h2>Tempo real</h2>
+    <label>Grandeza <select id="sel-grandeza"></select></label>
+  </div>
+  <div class="caixa-grafico"><canvas id="grafico"></canvas></div>
+</section>
+
+<section>
+  <h2>Eventos recentes</h2>
+  <ul id="eventos" class="eventos"></ul>
+</section>
+
+<dialog id="dlg-token">
+  <form method="dialog">
+    <p>Este painel exige um <strong>token</strong> para enviar comandos.</p>
+    <input id="in-token" type="password" placeholder="token" autocomplete="off">
+    <menu><button value="cancel">Cancelar</button><button id="ok-token" value="ok">Salvar</button></menu>
+  </form>
+</dialog>
+<div id="toast" class="toast" role="status"></div>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/socket.io.min.js') }}"></script>
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+{% endblock %}

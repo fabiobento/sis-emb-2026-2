@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block titulo %}Painel IoT{% endblock %}</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+<header class="topo">
+  <div class="marca">📡 <strong>Painel IoT</strong> <span class="sub">Sistemas Embarcados · Ifes Guarapari</span></div>
+  <nav>
+    <a href="{{ url_for('pagina_inicio') }}" class="{% block nav_inicio %}{% endblock %}">Ao vivo</a>
+    <a href="{{ url_for('pagina_historico') }}" class="{% block nav_hist %}{% endblock %}">Histórico</a>
+  </nav>
+  <div class="selos">
+    <span id="selo-mqtt" class="selo off" title="Conexão do servidor com o broker MQTT">MQTT</span>
+    <span id="selo-ws" class="selo off" title="Conexão deste navegador com o servidor (WebSocket)">WebSocket</span>
+  </div>
+</header>
+<main>{% block conteudo %}{% endblock %}</main>
+<footer class="rodape">v{{ versao }} · dados: broker MQTT → SQLite → este painel</footer>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -75,14 +75,14 @@ sis-emb-2026-2/
 ├── listas/                       ← listas de exercícios (lista-0X)
 ├── slides/                       ← 31 apresentações
 ├── projeto-final/                ← regulamento e rubrica do projeto integrador
-├── labs-extra/                   ← laboratórios avançados (medidor de energia PZEM-004T; classificador de movimento TinyML)
+├── labs-extra/                   ← laboratórios avançados (medidor de energia PZEM-004T; classificador de movimento TinyML; dashboard web full-stack)
 └── assets/figuras/               ← figuras da apostila
 ```
 
 Detalhando cada item:
 
 - `docs/instalacao.md` — preparação do ambiente (Ubuntu 22.04, ESP-IDF, Wokwi, RPi)
-- `docs/trilha-fullstack.md` — trilha opcional de dashboard web para o projeto final
+- `docs/trilha-fullstack.md` — trilha opcional de dashboard web profissional para o projeto final (6 etapas, com código de referência testado em `labs-extra/dashboard-iot/`)
 - `docs/trilha-tinyml.md` — trilha opcional de TinyML (classificador de movimento no ESP32 com Edge Impulse)
 - `semana-XX/teoria-XX.md` — **aula completa em formato tutorial**: conceitos explicados do zero
   (para quem não tem os livros), códigos detalhados linha a linha, saídas de terminal esperadas,
@@ -95,7 +95,7 @@ Detalhando cada item:
   final)
 - `listas/` — listas de exercícios (`lista-0X.md`)
 - `projeto-final/` — regulamento e rubrica do projeto integrador (`README-proj-final.md`) + deck
-- `labs-extra/` — laboratórios opcionais/avançados (medidor de energia PZEM-004T com Modbus; classificador de movimento TinyML)
+- `labs-extra/` — laboratórios opcionais/avançados (medidor de energia PZEM-004T com Modbus; classificador de movimento TinyML; dashboard web Flask + MQTT + SQLite)
 - `assets/figuras/` — figuras da apostila (ver "Sobre as figuras", ao final)
 
 ## Como usar nas aulas práticas
@@ -181,6 +181,8 @@ histórico é parte central da nota — e começa já no Lab 1.
   — **requer supervisão do professor na parte de 220 V**
 - [Projeto Final Integrador — regulamento e rubrica](projeto-final/README-proj-final.md)
 - [Trilha opcional full-stack — dashboard web no RPi](docs/trilha-fullstack.md)
+  e o [lab-extra do dashboard](labs-extra/dashboard-iot/README-dashboard.md)
+  (teoria, roteiro com código, guia de problemas, modelo de relatório, deploy e 42 testes)
 - [Trilha opcional TinyML — classificador de movimento no ESP32 com Edge Impulse](docs/trilha-tinyml.md)
   e o [lab-extra do classificador](labs-extra/classificador-movimento/README-classificador.md)
   (teoria, roteiro com código, guia de problemas, modelo de relatório e ferramentas)

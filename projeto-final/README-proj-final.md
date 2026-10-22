@@ -30,7 +30,8 @@ Projetar, implementar e documentar um **sistema embarcado completo** que integre
 6. **Domótica com Home Assistant** no RPi + nós ESP32 MQTT (livro *Building Smart Home
    Automation Solutions with Home Assistant* como guia).
 7. **Painel full-stack**: nós ESP32 → Mosquitto → Flask + SQLite + gráficos servidos por
-   nginx/uWSGI no RPi 3, seguindo a trilha dirigida em `docs/trilha-fullstack.md`
+   nginx + gunicorn (ou uWSGI, como no Dalmaris) no RPi 3, seguindo a trilha dirigida em `docs/trilha-fullstack.md`
+   e o lab com código de referência em `labs-extra/dashboard-iot/`
    (livros-guia: Dalmaris, *Raspberry Pi Full Stack*, e Smart, *Practical Python Programming
    for IoT*, caps. 3–4 e 14).
 8. **Monitor de energia elétrica** com PZEM-004T + transformador de corrente: mede consumo real

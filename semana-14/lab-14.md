@@ -165,4 +165,4 @@ Malha fechada distribuída: faça o RPi mandar no LED por regra — um script Py
 `logger_rpi.py`) que assina `ifes/bancada3/temp` e publica `cmd/led 1` quando T ≥ 29 °C e `0`
 abaixo de 28 °C (histerese!). Aqueça o DHT11 com a mão e veja o LED acender **por decisão da
 borda**. Você acabou de implementar, em 15 linhas, o esqueleto de um termostato IoT — e o
-argumento de venda da trilha full-stack (`docs/trilha-fullstack.md`) para o projeto final.
+argumento de venda da trilha full-stack (`docs/trilha-fullstack.md`; lab em `labs-extra/dashboard-iot/`) para o projeto final.

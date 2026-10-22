@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"><title>Etapa 3 — MQTT na web</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family:system-ui,sans-serif;max-width:40rem;margin:2rem auto;padding:0 1rem}
+pre{background:#111;color:#9f9;padding:1rem;height:16rem;overflow:auto;border-radius:.5rem}
+button{font-size:1rem;padding:.5rem 1rem;margin-right:.5rem}</style>
+</head>
+<body>
+<h1>Barramento MQTT no navegador</h1>
+<p>Bancada: <input id="b" value="bancada1" size="10">
+<button onclick="led(1)">LED ligado</button><button onclick="led(0)">LED desligado</button></p>
+<pre id="log">aguardando mensagens de {{ base }}/# …</pre>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+const sock = io(), log = document.getElementById("log");
+sock.on("leitura", d => { log.textContent += `${d.topico} ${d.valor}\n`; log.scrollTop = log.scrollHeight; });
+function led(v){ sock.emit("led", {bancada: document.getElementById("b").value, valor: v},
+                           r => log.textContent += r.ok ? "→ comando enviado\n" : "→ REJEITADO\n"); }
+</script>
+</body>
+</html>

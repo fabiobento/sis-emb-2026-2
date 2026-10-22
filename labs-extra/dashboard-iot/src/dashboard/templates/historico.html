@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block titulo %}Painel IoT — histórico{% endblock %}
+{% block nav_hist %}ativo{% endblock %}
+{% block conteudo %}
+<section>
+  <h2>Histórico (SQLite)</h2>
+  <form id="filtros" class="filtros">
+    <label>Bancada <select id="f-bancada"></select></label>
+    <label>Grandeza <select id="f-grandeza"></select></label>
+    <label>Período
+      <select id="f-horas">
+        <option value="0.25">15 min</option><option value="1" selected>1 hora</option>
+        <option value="6">6 horas</option><option value="24">24 horas</option>
+        <option value="168">7 dias</option>
+      </select></label>
+    <a id="baixar" class="botao" href="#">Baixar CSV</a>
+  </form>
+  <div class="caixa-grafico"><canvas id="grafico-hist"></canvas></div>
+  <p id="resumo" class="resumo"></p>
+</section>
+{% endblock %}
+{% block scripts %}
+<script src="{{ url_for('static', filename='vendor/chart.umd.js') }}"></script>
+<script src="{{ url_for('static', filename='historico.js') }}"></script>
+{% endblock %}

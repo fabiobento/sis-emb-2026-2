@@ -318,7 +318,8 @@ notificação.*
 
    ![Fluxo MQTT: o ESP32 publica status, movimento e info; o broker do RPi entrega ao monitor, ao painel e ao mosquitto_sub](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/tml_mqtt.png)
    *Figura T-15 — Tópicos e payloads. No painel do RPi mostre a etiqueta em tempo real; se você fez
-   a [trilha full-stack](trilha-fullstack.md), é só mais um tópico no dashboard.*
+   a [trilha full-stack](trilha-fullstack.md), é só mais um tópico no dashboard — o
+   [dashboard de referência](../labs-extra/dashboard-iot/README-dashboard.md) já mostra a etiqueta.*
 
 5. **Meça a latência** (do início do gesto à classe no painel) e compare com a estimativa:
 

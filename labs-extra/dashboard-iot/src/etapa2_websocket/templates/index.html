@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="pt-br">
+<head>
+<meta charset="utf-8"><title>Etapa 2 — valor ao vivo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>body{font-family:system-ui,sans-serif;max-width:32rem;margin:3rem auto;padding:0 1rem}
+#v{font-size:4rem;font-weight:700}small{color:#666}</style>
+</head>
+<body>
+<h1>Valor ao vivo</h1>
+<div id="v">--</div>
+<p><small id="modo"></small></p>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+// baixe uma cópia local (curl -O https://cdn.socket.io/4.7.5/socket.io.min.js) se a rede do lab bloquear CDNs
+const modo = new URLSearchParams(location.search).get("modo") || "ws";
+const v = document.getElementById("v"), info = document.getElementById("modo");
+function mostra(d){ v.textContent = d.valor.toFixed(2) + " °C"; }
+if (modo === "poll") {
+  info.textContent = "modo: polling a 2 Hz (fetch /leitura a cada 500 ms)";
+  setInterval(() => fetch("/leitura").then(r => r.json()).then(mostra), 500);
+} else {
+  info.textContent = "modo: WebSocket (o servidor empurra; sem polling)";
+  io().on("leitura", mostra);
+}
+</script>
+</body>
+</html>
