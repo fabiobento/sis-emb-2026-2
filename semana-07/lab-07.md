@@ -109,7 +109,7 @@ cd adc_ldr
 
 4. Copie o firmware do repositório:
 ```bash
-cp ~/sis-emb-2026-2/semana-07/src/adc_ldr/main.c ~/sis-emb/lab7/adc_ldr/adc_ldr/main/adc_ldr.c
+cp ~/sis-emb-2026-2/semana-07/src/adc_ldr/main.c ~/sis-emb/lab7/adc_ldr/main/adc_ldr.c
 ```
 
 5. Abra o arquivo copiado **com a teoria do lado** (seção 1 — ADC e atenuação — e seção 4 —
