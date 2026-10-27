@@ -38,7 +38,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
    digital, que **não** serve ao ADC), então vamos simular o **nó do divisor** com um
    potenciômetro: girar o potenciômetro equivale a "iluminar/escurecer" o LDR, e o GPIO34
    recebe uma tensão de 0 a 3,3 V exatamente como receberá do divisor real. Crie um projeto
-   ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e substitua o `diagram.json` por este
+   ESP32 (ESP-IDF) no [Wokwi](https://wokwi.com/projects/478494071670963201) onde o `diagram.json` será esse
    (saída no **GPIO34**, canal 6 do ADC1):
 
 ```json
