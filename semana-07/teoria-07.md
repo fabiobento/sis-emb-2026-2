@@ -374,12 +374,12 @@ controle).
 
 ## 4. O primeiro filtro digital: média móvel
 
-Sensores reais tremem: ruído térmico, 60 Hz da rede, spikes de EMI do motor da bancada ao
+Sensores reais sofrem com: ruído térmico, 60 Hz da rede, spikes de EMI do motor da bancada ao
 lado. O filtro mais simples e mais usado do firmware é a **média móvel**: a saída é a média
 das últimas M amostras. Ela suaviza o ruído (atenua por ~√M o ruído branco, porque os erros
 aleatórios se cancelam parcialmente na soma) ao custo de **atraso** — a saída "olha para o
-passado" em (M−1)/2 amostras. Em controle (semana 13), atraso é veneno: ele desestabiliza a
-malha. Todo filtro é um compromisso, não um presente.
+passado" em (M−1)/2 amostras. Em controle (semana 13), atraso **desestabiliza a
+malha**. Todo filtro é um compromisso entre ruído e atraso.
 
 Implementação ingênua: somar M valores a cada amostra — O(M). A implementação profissional
 é **O(1)** com soma corrente (custo constante por amostra, qualquer que seja M), exatamente
