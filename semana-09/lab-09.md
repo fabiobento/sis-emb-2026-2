@@ -606,21 +606,22 @@ void app_main(void)
 }
 ```
 
-    Roteiro de leitura (ponha a Figura L9-G ao lado):
-    - **`wr`/`rd`** agora recebem o **endereço como parâmetro**: as mesmas duas funções
-      falam com o MPU (0x68) e com o OLED (0x3C). Isso é o I²C: o "quem" é só um argumento.
-    - **`oled_init`** é uma lista de comandos do datasheet. Os que mudam a imagem: `0x8D 0x14`
-      liga a bomba de carga (sem ela o painel **não acende**), `0x20 0x00` escolhe o
-      endereçamento horizontal (a coluna avança sozinha) e `0xA1 0xC8` orienta a imagem.
-    - **`oled_flush`** manda 2 comandos de janela + **8 transações de 129 bytes** (1 de
-      controle + 128 de pixels): Figura L9-H.
-    - **`FONTE[]`** é uma fonte 5×7 minúscula: cada glifo são **5 colunas**, bit 0 = linha
-      de cima (o mesmo layout da Figura L9-G, em miniatura!). `caractere(..., s)` amplia
-      cada pixel `s` vezes.
-    - **`app_main`**: `vTaskDelayUntil` cravada em 10 Hz; **média móvel M = 4** nos
-      **eixos** `ax` e `az` (Lab 7 reciclado) e só **depois** o `atan2f` — filtrar o
-      ângulo direto daria um salto de ±180° ao cruzar o ponto de "dobra"; o display é
-      redesenhado a cada 2 leituras (**5 Hz**).
+> **Roteiro de leitura (ponha a Figura L9-G ao lado):**
+>
+>- **`wr`/`rd`** agora recebem o **endereço como parâmetro**: as mesmas duas funções
+    falam com o MPU (0x68) e com o OLED (0x3C). Isso é o I²C: o "quem" é só um argumento.
+>- **`oled_init`** é uma lista de comandos do datasheet. Os que mudam a imagem: `0x8D 0x14`
+    liga a bomba de carga (sem ela o painel **não acende**), `0x20 0x00` escolhe o
+    endereçamento horizontal (a coluna avança sozinha) e `0xA1 0xC8` orienta a imagem.
+>- **`oled_flush`** manda 2 comandos de janela + **8 transações de 129 bytes** (1 de
+    controle + 128 de pixels): Figura L9-H.
+>- **`FONTE[]`** é uma fonte 5×7 minúscula: cada glifo são **5 colunas**, bit 0 = linha
+    de cima (o mesmo layout da Figura L9-G, em miniatura!). `caractere(..., s)` amplia
+    cada pixel `s` vezes.
+>- **`app_main`**: `vTaskDelayUntil` cravada em 10 Hz; **média móvel M = 4** nos
+    **eixos** `ax` e `az` (Lab 7 reciclado) e só **depois** o `atan2f` — filtrar o
+    ângulo direto daria um salto de ±180° ao cruzar o ponto de "dobra"; o display é
+    redesenhado a cada 2 leituras (**5 Hz**).
 
 20. Compile e grave. O monitor mostra `theta=+12.3 o`; o display deve mostrar algo como a
     Figura L9-J. Requisitos mínimos (confira todos):
