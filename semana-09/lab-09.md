@@ -425,11 +425,11 @@ L9-G). O firmware mantém uma cópia local (`fb[1024]`, o *frame buffer*), desen
 18. Crie o projeto e copie o firmware:
 
 ```bash
-mkdir -p ~/sis-emb/lab9/inclinometro
-cd ~/sis-emb/lab9/inclinometro
+mkdir -p ~/sis-emb/lab9/
+cd ~/sis-emb/lab9/
 idf.py create-project inclinometro
 cd inclinometro
-cp ~/sis-emb-2026-2/semana-09/src/inclinometro_oled/main.c ~/sis-emb/lab9/inclinometro/inclinometro/main/inclinometro.c
+cp ~/sis-emb-2026-2/semana-09/src/inclinometro_oled/main.c ~/sis-emb/lab9/inclinometro/main/inclinometro.c
 ```
 
 19. Código-fonte completo:
