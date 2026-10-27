@@ -1,6 +1,6 @@
 # Lab 7 — Lendo o mundo: LDR no ADC, filtro em ação e senoide no DAC
 
-> **Antes de começar**: leia a [teoria-07](teoria-07.md) — o Exemplo 7.2 (divisor com LDR) é
+> **Antes de começar**: leia a [teoria-07](teoria-07.md) — o [Exemplo 7.2](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-07/teoria-07.md#exemplo-resolvido-72-ldr--divisor--ldr-varia-de-8-k%CF%89-claro-a-120-k%CF%89-escuro-em) (divisor com LDR) é
 > a conta que você calibrará na Parte A, as Figuras 7-A/7-B mostram o que o ADC faz com a
 > sua tensão, a seção 1.2 explica a saturação da Parte C e a seção 3 (Nyquist e aliasing) é
 > o que você verá acontecer, ao vivo, na Parte E.

@@ -635,7 +635,7 @@ cai a 71 %.
 - erro de quantização $±\frac{LSB}{2}$ — irreversível.
 - ESP32: 12 bits, ~0–3,1 V com atenuação 11 dB (Exemplo 7.1).
 - Sensor resistivo → divisor de tensão; excursão máxima com R_fixo ≈ média geométrica dos
-  extremos (Exemplo 7.2); sem R_fixo, resistência não vira tensão.
+  extremos ([Exemplo 7.2](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-07/teoria-07.md#exemplo-resolvido-72-ldr--divisor--ldr-varia-de-8-k%CF%89-claro-a-120-k%CF%89-escuro-em)); sem R_fixo, resistência não vira tensão.
 - Nyquist: f_s > 2·f_max, **com espaçamento uniforme**; violou ⇒ alias em |f_s − f| que
   nenhum filtro digital remove depois (Exemplos 7.3, 7.3b) — anti-aliasing é analógico e vem
   antes, e um RC sozinho é uma rampa (−20 dB/década), não uma parede (Exemplo 7.3c).
