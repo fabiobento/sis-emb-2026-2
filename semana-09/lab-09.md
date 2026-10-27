@@ -66,9 +66,7 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
 
 ### A.2 Wokwi primeiro
 
-1. **Wokwi primeiro**: crie um projeto ESP32 (ESP-IDF) em [wokwi.com](https://wokwi.com) e
-   substitua o `diagram.json` por este (MPU-6050 em SDA=GPIO21, SCL=GPIO22, alimentado
-   pelo 3V3):
+1. **Wokwi primeiro**: crie um projeto ESP32 (ESP-IDF) no [Wokwi](https://wokwi.com/projects/479066590644966401) um circuito com o seguinte `diagram.json`:
 
 ```json
 {
@@ -129,32 +127,88 @@ cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/
 
 ```c
 // Semana 9 — scanner I2C: varre 0x03-0x77 e lista quem responde ACK
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/i2c.h"
-#include <stdio.h>
+// -----------------------------------------------------------------------------
+// PRÁTICA: O barramento I2C permite ligar dezenas de sensores usando apenas 2 fios.
+// OBJETIVO: Este código é uma ferramenta de diagnóstico. Ele tenta se comunicar 
+//           com todos os endereços I2C possíveis. Se algum componente físico estiver
+//           conectado corretamente e funcionando, ele responderá com um sinal de 
+//           reconhecimento (ACK - Acknowledge) e o scanner imprimirá seu endereço.
+// -----------------------------------------------------------------------------
 
-#define SDA 21
-#define SCL 22
+#include "freertos/FreeRTOS.h"  // Core do sistema operacional de tempo real
+#include "freertos/task.h"      // Necessário para as macros de tempo (pdMS_TO_TICKS)
+#include "driver/i2c.h"         // Driver padrão de I2C do ESP-IDF
+#include <stdio.h>              // Funções de entrada e saída (printf)
+
+// Define os pinos padrão do I2C no ESP32 genérico
+// DICA: No ESP32, você pode rotear o I2C para praticamente qualquer pino digital.
+#define SDA 21                  // Serial Data (Linha de Dados)
+#define SCL 22                  // Serial Clock (Linha de Clock)
 
 void app_main(void)
 {
+    // =========================================================================
+    // 1. CONFIGURAÇÃO DO HARDWARE I2C (Modo Master)
+    // =========================================================================
     i2c_config_t cfg = {
-        .mode = I2C_MODE_MASTER, .sda_io_num = SDA, .scl_io_num = SCL,
-        .sda_pullup_en = GPIO_PULLUP_ENABLE, .scl_pullup_en = GPIO_PULLUP_ENABLE,
-        .master.clk_speed = 100000 };
+        .mode = I2C_MODE_MASTER,             // O ESP32 será o Mestre (quem gera o clock)
+        .sda_io_num = SDA,                   // Pino de dados
+        .scl_io_num = SCL,                   // Pino de clock
+        .sda_pullup_en = GPIO_PULLUP_ENABLE, // Habilita o resistor de pull-up interno do ESP32 para o SDA
+        .scl_pullup_en = GPIO_PULLUP_ENABLE, // Habilita o resistor de pull-up interno do ESP32 para o SCL
+        .master.clk_speed = 100000           // Frequência do clock: 100 kHz (Standard Mode)
+    };
+    
+    // Aplica as configurações ao controlador I2C número 0 (o ESP32 possui dois: I2C_NUM_0 e I2C_NUM_1)
     i2c_param_config(I2C_NUM_0, &cfg);
+    
+    // Instala o driver no sistema operacional alocando recursos (sem buffers para o Master)
     i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
 
     printf("varredura I2C...\n");
+    
+    // =========================================================================
+    // 2. LOOP DE VARREDURA DE ENDEREÇOS
+    // =========================================================================
+    // O I2C padrão usa endereços de 7 bits (0x00 a 0x7F).
+    // Pulamos os endereços 0x00-0x02 e 0x78-0x7F porque, no protocolo I2C, 
+    // eles são reservados para funções especiais (ex: General Call, 10-bit addressing).
     for (uint8_t a = 0x03; a <= 0x77; a++) {
+        
+        // No ESP-IDF, as operações I2C são montadas em uma "fila de comandos" (link)
+        // antes de serem enviadas efetivamente para o hardware.
         i2c_cmd_handle_t cmd = i2c_cmd_link_create();
+        
+        // Adiciona à fila o bit de START (início da comunicação)
         i2c_master_start(cmd);
+        
+        // Adiciona à fila o byte de endereço. 
+        // MATEMÁTICA DO I2C: O endereço real tem 7 bits. Ele deve ser deslocado 1 casa para a esquerda (a << 1).
+        // O bit menos significativo (LSB) que sobra indica a operação: 0 para Write, 1 para Read.
+        // O 'true' no terceiro argumento significa que exigimos que o escravo responda com um bit de ACK.
         i2c_master_write_byte(cmd, (a << 1) | I2C_MASTER_WRITE, true);
+        
+        // Adiciona à fila o bit de STOP (fim da comunicação)
         i2c_master_stop(cmd);
+        
+        // =========================================================================
+        // 3. EXECUÇÃO DA FILA DE COMANDOS
+        // =========================================================================
+        // Dispara a comunicação fisicamente no barramento e aguarda até 20ms pela resposta
         esp_err_t r = i2c_master_cmd_begin(I2C_NUM_0, cmd, pdMS_TO_TICKS(20));
+        
+        // Deleta a fila de comandos para liberar a memória alocada, prevenindo memory leak
         i2c_cmd_link_delete(cmd);
-        if (r == ESP_OK) printf("  dispositivo em 0x%02X\n", a);
+        
+        // =========================================================================
+        // 4. ANÁLISE DO RESULTADO
+        // =========================================================================
+        // Se a função retornou ESP_OK, significa que ocorreu um ACK! 
+        // Ou seja, existe um dispositivo físico nesse endereço que escutou o chamado e respondeu.
+        if (r == ESP_OK) {
+            // Imprime o endereço em formato hexadecimal (ex: 0x27, 0x68)
+            printf("  dispositivo em 0x%02X\n", a);
+        }
     }
     printf("fim.\n");
 }
@@ -291,55 +345,135 @@ cp ~/sis-emb-2026-2/semana-09/src/mpu6050/main.c ~/sis-emb/lab9/mpu6050/main/mpu
 
 ```c
 // Semana 9 — MPU-6050 via I2C: WHO_AM_I + leitura de acel/giro + angulo
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/i2c.h"
-#include <stdio.h>
-#include <math.h>
+// -----------------------------------------------------------------------------
+// PRÁTICA: Comunicação I2C com o sensor inercial (IMU) MPU-6050.
+// OBJETIVO: Configurar o I2C, acordar o sensor, ler os dados brutos (burst read)
+//           de aceleração e rotação, converter para unidades físicas (g e graus/s)
+//           e calcular a inclinação estática usando trigonometria básica.
+// -----------------------------------------------------------------------------
 
-#define SDA 21
-#define SCL 22
-#define ADDR 0x68            // AD0=GND
-#define REG_PWR    0x6B
-#define REG_WHOAMI 0x75
-#define REG_ACCEL  0x3B      // 14 bytes: ax..az, temp, gx..gz
+#include "freertos/FreeRTOS.h"  // Core do RTOS
+#include "freertos/task.h"      // Controle de tarefas (vTaskDelay)
+#include "driver/i2c.h"         // Driver I2C do ESP-IDF
+#include <stdio.h>              // Funções de I/O (printf)
+#include <math.h>               // Funções matemáticas (atan2f, M_PI)
 
+// =========================================================================
+// DEFINIÇÕES E MAPA DE REGISTRADORES
+// =========================================================================
+#define SDA 21               // Pino de dados do barramento I2C
+#define SCL 22               // Pino de clock do barramento I2C
+
+#define ADDR 0x68            // Endereço I2C do MPU-6050 (quando o pino AD0 está no GND)
+                             // Se AD0 estivesse no VCC, o endereço seria 0x69.
+
+// Registradores internos do MPU-6050 (consultados no datasheet)
+#define REG_PWR    0x6B      // Power Management 1: controla o modo de energia (sleep)
+#define REG_WHOAMI 0x75      // Who Am I: contém a identidade do chip (deve retornar 0x68)
+#define REG_ACCEL  0x3B      // Primeiro registrador de dados (Accel X High Byte)
+                             // A partir daqui, são 14 bytes sequenciais: 
+                             // ax (2), ay (2), az (2), temp (2), gx (2), gy (2), gz (2)
+
+// =========================================================================
+// FUNÇÕES AUXILIARES DE COMUNICAÇÃO I2C (Wrappers)
+// =========================================================================
+// O ESP-IDF possui funções de alto nível que simplificam a escrita/leitura.
+
+// Escreve 1 byte (val) em um registrador específico (reg) do sensor
 static esp_err_t wr(uint8_t reg, uint8_t val)
 {
+    // O pacote I2C para escrita precisa mandar o endereço do registrador seguido do valor
     uint8_t b[2] = { reg, val };
+    
+    // Função padrão do IDF v4.x+: Manda o buffer para o endereço do dispositivo (ADDR)
     return i2c_master_write_to_device(I2C_NUM_0, ADDR, b, 2, pdMS_TO_TICKS(50));
 }
+
+// Lê 'n' bytes a partir de um registrador inicial (reg) e guarda no buffer 'dst'
 static esp_err_t rd(uint8_t reg, uint8_t *dst, size_t n)
 {
+    // Envia o endereço do registrador que queremos ler e já engata um START repetido
+    // para receber os 'n' bytes em seguida, sem soltar o barramento.
     return i2c_master_write_read_device(I2C_NUM_0, ADDR, &reg, 1, dst, n,
                                         pdMS_TO_TICKS(50));
 }
 
 void app_main(void)
 {
-    i2c_config_t cfg = { .mode = I2C_MODE_MASTER, .sda_io_num = SDA,
-        .scl_io_num = SCL, .sda_pullup_en = GPIO_PULLUP_ENABLE,
-        .scl_pullup_en = GPIO_PULLUP_ENABLE, .master.clk_speed = 400000 };
+    // =========================================================================
+    // 1. CONFIGURAÇÃO DO HARDWARE I2C
+    // =========================================================================
+    i2c_config_t cfg = { 
+        .mode = I2C_MODE_MASTER, 
+        .sda_io_num = SDA,
+        .scl_io_num = SCL, 
+        .sda_pullup_en = GPIO_PULLUP_ENABLE,
+        .scl_pullup_en = GPIO_PULLUP_ENABLE, 
+        .master.clk_speed = 400000 // Velocidade: 400 kHz (Fast Mode). 
+                                   // O MPU-6050 suporta essa velocidade superior aos 100kHz padrão.
+    };
     i2c_param_config(I2C_NUM_0, &cfg);
     i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
 
+    // =========================================================================
+    // 2. INICIALIZAÇÃO DO SENSOR
+    // =========================================================================
     uint8_t who = 0;
+    
+    // Lê o registrador de identidade. É uma boa prática para verificar se a 
+    // solda e os fios estão OK antes de tentar configurar o chip.
     rd(REG_WHOAMI, &who, 1);
     printf("WHO_AM_I = 0x%02X (esperado 0x68)\n", who);
-    wr(REG_PWR, 0x00);                       // sai do sleep
+    
+    // IMPORTANTE: O MPU-6050 liga em modo SLEEP por padrão para economizar bateria.
+    // Escrever 0x00 no REG_PWR acorda o sensor e o coloca para usar o oscilador interno.
+    wr(REG_PWR, 0x00);                       
 
+    // =========================================================================
+    // 3. LOOP PRINCIPAL DE LEITURA
+    // =========================================================================
     while (1) {
         uint8_t b[14];
+        
+        // BURST READ: Lê os 14 bytes de dados de uma só vez.
+        // É muito mais eficiente no barramento I2C ler tudo num pacote sequencial
+        // do que fazer 14 requisições separadas.
         rd(REG_ACCEL, b, 14);
-        int16_t ax = (b[0]<<8)|b[1], ay = (b[2]<<8)|b[3], az = (b[4]<<8)|b[5];
-        int16_t gx = (b[8]<<8)|b[9];
-        // fundo de escala padrao: +-2 g -> 16384 LSB/g ; +-250 dps -> 131 LSB/(o/s)
-        float axg = ax/16384.f, ayg = ay/16384.f, azg = az/16384.f;
-        float theta = atan2f(axg, azg) * 180.f / M_PI;   // inclinacao no plano XZ
+        
+        // RECONSTRUÇÃO DOS DADOS (O MPU-6050 é Big-Endian)
+        // Cada grandeza tem 16 bits (2 bytes). O byte mais significativo (MSB) vem primeiro.
+        // Deslocamos o MSB 8 posições para a esquerda e fazemos uma operação OR (ou soma) com o LSB.
+        int16_t ax = (b[0]<<8) | b[1];
+        int16_t ay = (b[2]<<8) | b[3];
+        int16_t az = (b[4]<<8) | b[5];
+        // b[6] e b[7] seriam a temperatura. Pulamos direto para o Giroscópio (X):
+        int16_t gx = (b[8]<<8) | b[9];
+        
+        // CONVERSÃO PARA UNIDADES FÍSICAS
+        // fundo de escala padrao do chip (power-on reset): 
+        // Acelerômetro: +-2 g -> Logo, 1 'g' equivale a 16384 LSB.
+        // Giroscópio: +-250 dps (graus por segundo) -> Logo, 1 grau/s equivale a 131 LSB.
+        float axg = ax / 16384.f;
+        float ayg = ay / 16384.f;
+        float azg = az / 16384.f;
+        
+        // CÁLCULO DE INCLINAÇÃO (TILT)
+        // Usa a função arco-tangente de 2 argumentos (atan2) para descobrir o ângulo 
+        // em relação à gravidade no plano XZ. atan2f resolve o problema do quadrante.
+        // O resultado sai em radianos, então multiplicamos por (180/PI) para converter para graus.
+        float theta = atan2f(axg, azg) * 180.f / M_PI;   
+        
+        // Imprime os valores físicos e o ângulo
         printf("a=(%.2f,%.2f,%.2f) g  gx=%.1f o/s  theta=%.1f o\n",
                axg, ayg, azg, gx/131.f, theta);
+               
+        // Atraso de 100ms (~10 Hz de atualização na tela)
         vTaskDelay(pdMS_TO_TICKS(100));
+        
+        // NOTA PEDAGÓGICA PARA O ROTEIRO DO LABORATÓRIO:
         // O display OLED entra na Parte C (src/inclinometro_oled): mesmas wr()/rd(), endereco 0x3C.
+        // Como o I2C é um barramento, o OLED usará os mesmos fios SDA/SCL, bastando 
+        // endereçar os pacotes para 0x3C em vez de 0x68.
     }
 }
 ```
@@ -451,156 +585,259 @@ cp ~/sis-emb-2026-2/semana-09/src/inclinometro_oled/main.c ~/sis-emb/lab9/inclin
 
 ```c
 // Semana 9C — inclinometro: MPU-6050 (0x68) + OLED SSD1306 128x64 (0x3C) no MESMO barramento I2C
-// Le a aceleracao, filtra com media movel M=4 (Lab 7 reciclado), calcula theta = atan2(ax, az)
-// e desenha no display: valor grande, lado da inclinacao e uma barra -90..+90 graus.
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "driver/i2c.h"
-#include <stdio.h>
-#include <string.h>
-#include <math.h>
+// -----------------------------------------------------------------------------
+// PRÁTICA: Integração de um sensor e um atuador/display no mesmo barramento I2C.
+// OBJETIVO: 
+// 1. Ler a aceleração (eixos X e Z) do MPU-6050.
+// 2. Filtrar o ruído mecânico/elétrico usando o Filtro de Média Móvel O(1) do Lab 7.
+// 3. Calcular a inclinação (theta) da placa em graus.
+// 4. Desenhar os dados e gráficos (valor numérico ampliado, setas direcionais e barra 
+//    de rolagem) no display OLED SSD1306 em tempo real.
+// -----------------------------------------------------------------------------
+
+#include "freertos/FreeRTOS.h"  // RTOS core
+#include "freertos/task.h"      // Controle de atraso preciso (vTaskDelayUntil)
+#include "driver/i2c.h"         // Driver I2C nativo do ESP-IDF
+#include <stdio.h>              // E/S padrão (snprintf, printf)
+#include <string.h>             // Manipulação de memória (memset, memcpy) para o buffer de tela
+#include <math.h>               // Funções matemáticas (atan2f, M_PI) para trigonometria
 
 #define SDA 21
 #define SCL 22
-#define MPU_ADDR  0x68
-#define OLED_ADDR 0x3C           // alguns modulos usam 0x3D: confira com o scanner (Parte A)
-#define M 4                      // janela da media movel
+// Endereços físicos dos dispositivos no barramento I2C:
+#define MPU_ADDR  0x68           // MPU-6050 (Acelerômetro/Giroscópio)
+#define OLED_ADDR 0x3C           // Display OLED SSD1306 (ATENÇÃO: alguns módulos chineses usam 0x3D)
 
-// ---------- I2C: as mesmas duas funcoes da Parte B, agora com o endereco como parametro ----------
+#define M 4                      // Tamanho da janela da média móvel. M=4 suaviza bem sem atrasar muito a tela.
+
+// =========================================================================
+// FUNÇÕES DE COMUNICAÇÃO I2C (Genéricas para múltiplos endereços)
+// =========================================================================
+// Diferente da parte B, agora passamos 'addr' como argumento, pois temos dois 
+// chips diferentes conversando no mesmo par de fios (SDA/SCL).
+
 static esp_err_t wr(uint8_t addr, const uint8_t *buf, size_t n)
 {
     return i2c_master_write_to_device(I2C_NUM_0, addr, buf, n, pdMS_TO_TICKS(50));
 }
+
 static esp_err_t rd(uint8_t addr, uint8_t reg, uint8_t *dst, size_t n)
 {
     return i2c_master_write_read_device(I2C_NUM_0, addr, &reg, 1, dst, n, pdMS_TO_TICKS(50));
 }
 
-// ---------- SSD1306: byte de controle 0x00 = "o que vem e comando", 0x40 = "o que vem e pixel" ----------
-static uint8_t fb[128 * 8];      // frame buffer: 128 colunas x 8 paginas (1 bit por pixel) = 1024 bytes
+// =========================================================================
+// DRIVER DO DISPLAY OLED SSD1306 (Implementação minimalista sem bibliotecas externas)
+// =========================================================================
+// O SSD1306 exige que o primeiro byte transmitido indique se os bytes seguintes 
+// são Comandos (0x00) de configuração ou Dados (0x40) para acender os pixels da tela.
 
-static void oled_cmd(uint8_t c) { uint8_t b[2] = { 0x00, c }; wr(OLED_ADDR, b, 2); }
+// Frame buffer: A tela tem 128x64 pixels. Como é monocromática (1 bit por pixel),
+// precisamos de 128 * (64 / 8) = 1024 bytes de RAM do ESP32 para armazenar a imagem.
+static uint8_t fb[128 * 8];      
 
+// Envia 1 byte de Comando para o display
+static void oled_cmd(uint8_t c) { 
+    uint8_t b[2] = { 0x00, c }; 
+    wr(OLED_ADDR, b, 2); 
+}
+
+// Sequência mágica de inicialização do painel OLED extraída do datasheet do SSD1306
 static void oled_init(void)
 {
     static const uint8_t seq[] = {
-        0xAE,                    // display OFF
-        0xD5, 0x80,              // clock do display
-        0xA8, 0x3F,              // multiplex: 64 linhas
-        0xD3, 0x00,              // sem deslocamento vertical
-        0x40,                    // linha inicial 0
-        0x8D, 0x14,              // bomba de carga ligada (gera a tensao do painel)
-        0x20, 0x00,              // enderecamento HORIZONTAL (coluna avanca sozinha)
-        0xA1, 0xC8,              // espelha colunas/linhas: imagem "em pe"
-        0xDA, 0x12,              // configuracao de pinos COM
-        0x81, 0xCF,              // contraste
-        0xD9, 0xF1, 0xDB, 0x40,  // pre-carga e nivel Vcomh
-        0xA4, 0xA6,              // mostra a RAM, polaridade normal
-        0xAF };                  // display ON
+        0xAE,                    // Display OFF (desliga a tela durante a configuração)
+        0xD5, 0x80,              // Configura o clock do oscilador interno do display
+        0xA8, 0x3F,              // Multiplex ratio: habilita as 64 linhas (0x3F = 63 + 1)
+        0xD3, 0x00,              // Display offset: sem deslocamento vertical (scroll zero)
+        0x40,                    // Linha inicial de RAM mapeada na tela: linha 0
+        0x8D, 0x14,              // Charge pump: bomba de carga interna ligada (gera a alta tensão pros pixels)
+        0x20, 0x00,              // Modo de endereçamento de memória: HORIZONTAL (O cursor pula de linha sozinho)
+        0xA1, 0xC8,              // Espelhamento: Remapeia as colunas/linhas para a imagem não ficar de cabeça para baixo
+        0xDA, 0x12,              // Configuração de hardware dos pinos COM (linhas)
+        0x81, 0xCF,              // Configura o contraste (brilho): 0xCF (intermediário para alto)
+        0xD9, 0xF1, 0xDB, 0x40,  // Ajustes elétricos finos (pré-carga e nível Vcomh)
+        0xA4, 0xA6,              // Exibe o conteúdo real da RAM, define polaridade normal (bit 1 = pixel aceso)
+        0xAF                     // Display ON (liga a tela)
+    };
     for (size_t i = 0; i < sizeof seq; i++) oled_cmd(seq[i]);
 }
 
-static void oled_flush(void)     // envia o frame buffer inteiro: 8 blocos de 128 bytes
+// Transfere o array 'fb' (Frame Buffer) inteiro da memória do ESP32 para a memória do Display
+static void oled_flush(void)     
 {
-    oled_cmd(0x21); oled_cmd(0); oled_cmd(127);     // janela de colunas 0..127
-    oled_cmd(0x22); oled_cmd(0); oled_cmd(7);       // janela de paginas 0..7
+    oled_cmd(0x21); oled_cmd(0); oled_cmd(127);     // Reseta a janela de renderização das colunas (0 a 127)
+    oled_cmd(0x22); oled_cmd(0); oled_cmd(7);       // Reseta a janela de renderização das páginas (0 a 7, pois 8x8 = 64)
+    
+    // O pacote I2C envia o byte de controle (0x40 = pixel) + 128 bytes (uma página inteira) por vez
     uint8_t b[129];
-    b[0] = 0x40;                                    // controle: dados de pixel
+    b[0] = 0x40;                                    
     for (int p = 0; p < 8; p++) {
-        memcpy(b + 1, fb + p * 128, 128);
-        wr(OLED_ADDR, b, sizeof b);
+        memcpy(b + 1, fb + p * 128, 128); // Copia 1 página do frame buffer para o buffer de transmissão
+        wr(OLED_ADDR, b, sizeof b);       // Despacha para o hardware I2C
     }
 }
 
-// ---------- fonte 5x7 minima: cada glifo = 5 colunas, bit 0 = linha de cima ----------
+// =========================================================================
+// MOTOR GRÁFICO 2D (Desenho de Primitivas e Textos)
+// =========================================================================
+
+// Estrutura para criar uma fonte bitmap compacta na memória Flash (ROM).
+// Cada caractere gasta apenas 5 bytes. O bit 0 de cada byte é o topo do caractere.
 typedef struct { char c; uint8_t col[5]; } glifo_t;
 static const glifo_t FONTE[] = {
+    // Apenas os caracteres que usaremos para não gastar memória à toa
     {'0',{0x3E,0x51,0x49,0x45,0x3E}}, {'1',{0x00,0x42,0x7F,0x40,0x00}},
     {'2',{0x42,0x61,0x51,0x49,0x46}}, {'3',{0x21,0x41,0x45,0x4B,0x31}},
     {'4',{0x18,0x14,0x12,0x7F,0x10}}, {'5',{0x27,0x45,0x45,0x45,0x39}},
     {'6',{0x3C,0x4A,0x49,0x49,0x30}}, {'7',{0x01,0x71,0x09,0x05,0x03}},
     {'8',{0x36,0x49,0x49,0x49,0x36}}, {'9',{0x06,0x49,0x49,0x29,0x1E}},
     {'+',{0x08,0x08,0x3E,0x08,0x08}}, {'-',{0x08,0x08,0x08,0x08,0x08}},
-    {'.',{0x00,0x60,0x60,0x00,0x00}}, {'*',{0x06,0x09,0x09,0x06,0x00}},   // '*' = sinal de grau
+    {'.',{0x00,0x60,0x60,0x00,0x00}}, {'*',{0x06,0x09,0x09,0x06,0x00}},   // '*' mapeado como bolinha de grau
     {'<',{0x08,0x14,0x22,0x41,0x00}}, {'>',{0x00,0x41,0x22,0x14,0x08}},
     {'=',{0x14,0x14,0x14,0x14,0x14}},
     {'T',{0x01,0x01,0x7F,0x01,0x01}}, {'H',{0x7F,0x08,0x08,0x08,0x7F}},
     {'E',{0x7F,0x49,0x49,0x49,0x41}}, {'A',{0x7E,0x11,0x11,0x11,0x7E}},
 };
 
-static void px(int x, int y)     // liga o pixel (x,y): pagina = y/8, bit = y%8
+// Liga fisicamente um único pixel (x,y) no array bidimensional do Frame Buffer
+static void px(int x, int y)     
 {
-    if (x < 0 || x > 127 || y < 0 || y > 63) return;
-    fb[x + (y / 8) * 128] |= (uint8_t)(1u << (y % 8));
+    if (x < 0 || x > 127 || y < 0 || y > 63) return; // Clip de segurança (fora da tela)
+    // O SSD1306 mapeia as linhas verticalmente dentro dos bytes (páginas)
+    fb[x + (y / 8) * 128] |= (uint8_t)(1u << (y % 8)); 
 }
+
+// Desenha um retângulo sólido (usado para compor as fontes escaladas e barras)
 static void rect(int x, int y, int w, int h)
 {
     for (int j = 0; j < h; j++) for (int i = 0; i < w; i++) px(x + i, y + j);
 }
-static void caractere(int x, int y, char c, int s)   // desenha um glifo ampliado s vezes
+
+// Renderiza um caractere na tela usando a FONTE. 
+// O parâmetro 's' define a escala (zoom). s=1 (5x7 normal), s=3 (15x21 ampliado).
+static void caractere(int x, int y, char c, int s)   
 {
     for (size_t k = 0; k < sizeof FONTE / sizeof FONTE[0]; k++) {
         if (FONTE[k].c != c) continue;
         for (int col = 0; col < 5; col++)
             for (int lin = 0; lin < 7; lin++)
-                if (FONTE[k].col[col] & (1u << lin)) rect(x + col * s, y + lin * s, s, s);
+                if (FONTE[k].col[col] & (1u << lin)) 
+                    rect(x + col * s, y + lin * s, s, s); // Substitui 1 pixel por um quadrado s*s
         return;
     }
 }
+
+// Imprime uma string ('t') completa coordenada
 static void texto(int x, int y, const char *t, int s)
 {
-    for (; *t; t++, x += 6 * s) caractere(x, y, *t, s);   // 5 colunas + 1 de espaco
+    for (; *t; t++, x += 6 * s) caractere(x, y, *t, s);   // 5 colunas do glifo + 1 coluna de espaçamento
 }
 
+// =========================================================================
+// MONTAGEM DA INTERFACE GRÁFICA (UI) DO INCLINÓMETRO
+// =========================================================================
 static void desenha(float theta)
 {
-    memset(fb, 0, sizeof fb);
+    memset(fb, 0, sizeof fb); // Limpa o quadro anterior (pinta de preto)
+    
+    // Título fixo, pequeno no topo
     texto(2, 2, "THETA", 1);
+    
+    // Formatação do número: %+6.1f garante que terá o sinal de + ou - sempre visível
+    // e terá sempre o mesmo número de caracteres, evitando "flicker" de deslocamento.
     char s[12];
-    snprintf(s, sizeof s, "%+6.1f", theta);            // ex.: " +12.3"
+    snprintf(s, sizeof s, "%+6.1f", theta);            
+    
+    // Escreve o número com zoom (s=3)
     texto(2, 14, s, 3);
-    caractere(2 + 6 * 18, 14, '*', 3);                  // grau, logo depois do numero
-    if (theta > 2.f)       texto(34, 40, ">>>>>", 2);   // inclinada para o lado +ax
-    else if (theta < -2.f) texto(34, 40, "<<<<<", 2);   // inclinada para o lado -ax
-    else                   texto(34, 40, "=====", 2);   // nivelada (|theta| <= 2 graus)
-    rect(0, 61, 128, 1);                                // trilho da barra: -90 ... +90 graus
-    float t = theta > 90.f ? 90.f : (theta < -90.f ? -90.f : theta);
-    rect(63 + (int)(t * 63.f / 90.f) - 1, 58, 3, 6);    // cursor da barra
-    rect(63, 56, 1, 3);                                 // marca do zero
+    // Desenha o símbolo de grau (mapeado como '*') grudado no final do número
+    caractere(2 + 6 * 18, 14, '*', 3);                  
+    
+    // Setas indicativas de inclinação
+    if (theta > 2.f)       texto(34, 40, ">>>>>", 2);   // Placa levantada à direita
+    else if (theta < -2.f) texto(34, 40, "<<<<<", 2);   // Placa levantada à esquerda
+    else                   texto(34, 40, "=====", 2);   // Nivelada (deadband de +-2 graus p/ evitar jitter)
+    
+    // Barra de rolagem analógica inferior
+    rect(0, 61, 128, 1);                                // Desenha a trilha base (-90 a +90 graus)
+    float t = theta > 90.f ? 90.f : (theta < -90.f ? -90.f : theta); // Satura/Clipa em 90 graus
+    
+    // Posição no eixo X (cursor da barra)
+    // 63 é o centro da tela. (t * 63 / 90) mapeia o ângulo -90..90 na tela -63..63
+    rect(63 + (int)(t * 63.f / 90.f) - 1, 58, 3, 6);    // Cursor retangular (bolinha)
+    
+    // Tracinho no meio para referenciar o zero
+    rect(63, 56, 1, 3);                                 
 }
 
+// =========================================================================
+// TASK PRINCIPAL: Lógica de Sensor, Filtro e Tela
+// =========================================================================
 void app_main(void)
 {
+    // Instala o motor I2C a 400kHz. Como o OLED SSD1306 e o MPU-6050 
+    // operam perfeitamente no Fast Mode, o barramento roda liso.
     i2c_config_t cfg = { .mode = I2C_MODE_MASTER, .sda_io_num = SDA, .scl_io_num = SCL,
         .sda_pullup_en = GPIO_PULLUP_ENABLE, .scl_pullup_en = GPIO_PULLUP_ENABLE,
         .master.clk_speed = 400000 };
     i2c_param_config(I2C_NUM_0, &cfg);
     i2c_driver_install(I2C_NUM_0, I2C_MODE_MASTER, 0, 0, 0);
 
-    const uint8_t acorda[2] = { 0x6B, 0x00 };           // PWR_MGMT_1 = 0: tira o MPU do sleep
+    // Acorda o Acelerômetro
+    const uint8_t acorda[2] = { 0x6B, 0x00 };           
     wr(MPU_ADDR, acorda, 2);
+    
+    // Configura fisicamente o OLED
     oled_init();
 
-    float bx[M] = {0}, bz[M] = {0};                      // buffers circulares (Lab 7)
+    // =========================================================================
+    // INICIALIZAÇÃO DO FILTRO (Laboratório 7 reaproveitado)
+    // =========================================================================
+    float bx[M] = {0}, bz[M] = {0};                      // Filas circulares
     float sx = 0, sz = 0; int idx = 0; int n = 0;
     TickType_t prox = xTaskGetTickCount();
 
     while (1) {
-        vTaskDelayUntil(&prox, pdMS_TO_TICKS(100));      // 10 Hz, periodo cravado
+        // Amostra o acelerômetro cravado a 10 Hz
+        vTaskDelayUntil(&prox, pdMS_TO_TICKS(100));      
+        
         uint8_t b[14];
-        if (rd(MPU_ADDR, 0x3B, b, 14) != ESP_OK) { printf("MPU nao respondeu\n"); continue; }
-        float ax = (int16_t)((b[0] << 8) | b[1]) / 16384.f;   // big-endian -> g
+        if (rd(MPU_ADDR, 0x3B, b, 14) != ESP_OK) { 
+            printf("MPU nao respondeu\n"); 
+            continue; 
+        }
+        
+        // Conversão raw -> g (Big-Endian)
+        float ax = (int16_t)((b[0] << 8) | b[1]) / 16384.f;   
         float az = (int16_t)((b[4] << 8) | b[5]) / 16384.f;
 
-        if (n == 0) { for (int i = 0; i < M; i++) { bx[i] = ax; bz[i] = az; } sx = M * ax; sz = M * az; }
-        sx += ax - bx[idx]; sz += az - bz[idx];          // media movel O(1) em ax e em az
-        bx[idx] = ax; bz[idx] = az; idx = (idx + 1) % M;
-        float theta = atan2f(sx / M, sz / M) * 180.f / (float)M_PI;   // filtra os EIXOS, depois atan2
+        // Efeito prático do Filtro O(1):
+        // Antes de encher o buffer na primeira vez, preenchemos ele inteiro com 
+        // a primeira amostra para o gráfico não vir subindo gradativamente do zero.
+        if (n == 0) { 
+            for (int i = 0; i < M; i++) { bx[i] = ax; bz[i] = az; } 
+            sx = M * ax; sz = M * az; 
+        }
+        
+        // Executa a Média Móvel nos eixos RAW separadamente
+        sx += ax - bx[idx]; sz += az - bz[idx];          
+        bx[idx] = ax; bz[idx] = az; 
+        idx = (idx + 1) % M;
+        
+        // BOAS PRÁTICAS DE MATEMÁTICA EMBARCADA: 
+        // Filtramos a aceleração (eixos independentes) PRIMEIRO, e depois aplicamos atan2 
+        // em cima da média. Filtrar o ângulo final causaria um bug no cruzamento 
+        // entre +180 e -180 graus (efeito wrap-around / Aliasing direcional).
+        float theta = atan2f(sx / M, sz / M) * 180.f / (float)M_PI;   
 
-        if (++n % 2 == 0) {                              // desenha a cada 2 leituras: 5 Hz
-            desenha(theta);
-            oled_flush();
-            printf("theta=%+.1f o\n", theta);
+        // Decimação de Tela: O sensor lê a 10 Hz, mas atualizar o OLED 
+        // a 10Hz causaria um leve travamento/piscar pela velocidade do barramento I2C.
+        // Assim, pulamos uma leitura e só desenhamos na tela a 5 Hz (a cada n par).
+        if (++n % 2 == 0) {                              
+            desenha(theta);      // Compõe os pixels na RAM
+            oled_flush();        // Despacha a RAM pro painel via I2C
+            printf("theta=%+.1f o\n", theta); // Manda pro PC como log redundante
         }
     }
 }
