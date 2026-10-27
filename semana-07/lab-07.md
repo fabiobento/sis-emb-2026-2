@@ -233,7 +233,7 @@ void app_main(void)
  
 6. Compile, grave e abra o monitor:
 ```bash
-cd ~/sis-emb/lab7/adc_ldr/adc_ldr
+cd ~/sis-emb/lab7/adc_ldr/
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
    No Wokwi, basta colar o código no `main.c` do projeto e iniciar a simulação.
@@ -433,7 +433,7 @@ void app_main(void)
 19. Compile, grave e abra o monitor (a senoide sai pelo GPIO25; o monitor não imprimirá
     nada — é normal):
 ```bash
-cd ~/sis-emb/lab7/dac_senoide/dac_senoide
+cd ~/sis-emb/lab7/dac_senoide/
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 

@@ -99,7 +99,7 @@ não coube, a perda é **detectada e logada**.
 
 13. Compile, grave e abra o monitor:
 ```bash
-cd ~/sis-emb/lab6/fila/fila
+cd ~/sis-emb/lab6/fila/
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
     Também roda 100 % no Wokwi, do mesmo jeito da Parte A (nenhum componente externo é
@@ -287,7 +287,7 @@ exatamente o que você fez ao tirar todo o trabalho pesado da ISR e deixar só o
 
 21. Compile, grave e abra o monitor:
 ```bash
-cd ~/sis-emb/lab6/isr_sem/isr_sem
+cd ~/sis-emb/lab6/isr_sem/
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
