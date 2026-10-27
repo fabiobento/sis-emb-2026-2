@@ -315,7 +315,7 @@ $$ f_c = \frac{1}{2\pi R C} $$
 
 *Figura 7-K — Em cima: o filtro fica entre o sensor e o pino do ADC. No meio: o circuito por dentro do bloco do filtro — o resistor R em série com o sinal e o capacitor C do nó $`V_{out}`$ para o terra (GND). Embaixo: um RC de
 1ª ordem (R = 10 kΩ, C = 100 nF, $`f_c`$ ≈ 159 Hz) deixa passar quase intacto o sinal útil
-(−1,4 dB em 100 Hz), mas atenua só −10,4 dB em 500 Hz e −23,9 dB em 2,5 kHz: o filtro não é
+(−1,4 dB em 100 Hz), mas atenua −10,4 dB em 500 Hz e −23,9 dB em 2,5 kHz: o filtro não é
 uma "parede", é uma **rampa** de −20 dB por década.*
 
 O detalhe que muita gente esquece: o RC **não** é uma parede. Seu ganho cai suavemente
@@ -355,7 +355,7 @@ instante real de cada amostra erra por $\Delta t$ (**jitter**), o programa acred
 sinal em $kT_s$, mas leu em $kT_s + \Delta t$: o erro de amplitude é aproximadamente a
 inclinação do sinal vezes $\Delta t$, no máximo
 
-$$ \varepsilon_{max} \approx 2\pi\,f\,A\,\Delta t $$
+$$ \varepsilon_{max} \approx 2\pi f\ A \Delta t $$
 
 ![Em cima, senoide de 25 Hz com as amostras ideais e as amostras com jitter de ±1,5 ms ligadas por segmentos. Embaixo, erro de cada amostra limitado por duas linhas tracejadas em ±0,24 A](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_jitter.png)
 
