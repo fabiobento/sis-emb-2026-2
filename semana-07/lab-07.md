@@ -229,8 +229,8 @@ void app_main(void)
 
 ![Em cima, senoide de 25 Hz com as amostras ideais e as amostras com jitter de ±1,5 ms ligadas por segmentos. Embaixo, erro de cada amostra limitado por duas linhas tracejadas em ±0,24 A](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_jitter.png)
 
-*Figura 7-L (da [teoria-07](teoria-07.md)) — por que o firmware usa `vTaskDelayUntil` (período **exato**, 50 ms) e não `vTaskDelay`: amostras com espaçamento irregular (jitter) distorcem o sinal mesmo com $f_s$ bem acima de Nyquist.*
-
+*Figura 7-L (da [teoria-07](teoria-07.md)) — por que o firmware usa `vTaskDelayUntil` (período **exato**, 50 ms) e não `vTaskDelay`: amostras com espaçamento irregular (jitter) distorcem o sinal mesmo com $`f_s`$ bem acima de Nyquist.*
+ 
 6. Compile, grave e abra o monitor:
 ```bash
 cd ~/sis-emb/lab7/adc_ldr/adc_ldr
