@@ -83,7 +83,15 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
       "left": 0,
       "attrs": { "builder": "esp-idf" }
     },
-    { "type": "wokwi-mpu6050", "id": "imu", "top": 167.02, "left": -151.28, "attrs": {} }
+    { "type": "wokwi-mpu6050", "id": "imu", "top": 167.02, "left": -151.28, "attrs": {} },
+    { "type": "wokwi-logic-analyzer", "id": "logic1", "top": 9.95, "left": -278.4, "attrs": {} },
+    {
+      "type": "board-ssd1306",
+      "id": "oled1",
+      "top": 281.54,
+      "left": -76.57,
+      "attrs": { "i2cAddress": "0x3c" }
+    }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
@@ -91,7 +99,14 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
     [ "imu:VCC", "esp:3V3", "red", [ "h0.08", "v-144" ] ],
     [ "imu:GND", "esp:GND.1", "black", [ "v-19.2", "h57.68", "v182.4" ] ],
     [ "imu:SDA", "esp:21", "orange", [ "v-182.4", "h230.48", "v105.6" ] ],
-    [ "imu:SCL", "esp:22", "blue", [ "v-192", "h230.48", "v86.4" ] ]
+    [ "imu:SCL", "esp:22", "blue", [ "v-192", "h230.48", "v86.4" ] ],
+    [ "logic1:GND", "esp:GND.1", "black", [ "h-28.8", "v144", "h268.8", "v-86.4" ] ],
+    [ "logic1:D0", "imu:SCL", "blue", [ "h-19.2", "v-38.4", "h201.52" ] ],
+    [ "logic1:D1", "imu:SDA", "orange", [ "h-38.4", "v-67.2", "h211.12" ] ],
+    [ "oled1:GND", "esp:GND.1", "black", [ "v-134.4" ] ],
+    [ "oled1:VCC", "esp:3V3", "red", [ "v0" ] ],
+    [ "oled1:SCL", "esp:22", "blue", [ "v-48", "h153.9", "v-201.6" ] ],
+    [ "oled1:SDA", "esp:21", "orange", [ "v-57.6", "h134.47", "v-163.2" ] ]
   ],
   "dependencies": {}
 }
