@@ -169,7 +169,7 @@ semicondutor da superfície serpentada — fotóns liberam portadores de carga.
 *Figura 7-F — O LDR: componente físico e símbolos. Fonte: Practical Python Programming for
 IoT (Packt), cap. 9, Fig. 9.4.*
 
-**Exemplo resolvido 7.2 (LDR + divisor)** — LDR varia de 8 kΩ (claro) a 120 kΩ (escuro), em
+### **Exemplo resolvido 7.2 (LDR + divisor)** — LDR varia de 8 kΩ (claro) a 120 kΩ (escuro), em
 série com $R_{fixo}$ = 10 kΩ (LDR em cima, como no desenho). Calcule a excursão de tensão.
 
 *Solução passo a passo.*
