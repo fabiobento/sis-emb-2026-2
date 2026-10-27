@@ -328,15 +328,15 @@ void app_main(void)
     }
 }
 ```
-
-    Pontos de atenção:
-    - `wr(reg, val)` envia **2 bytes** (registrador + valor): é como se escreve num registrador.
-    - `rd(reg, dst, n)` usa `i2c_master_write_read_device`: envia o endereço do registrador,
-      faz o **START repetido** e lê `n` bytes (a Figura L9-E).
-    - `wr(REG_PWR, 0x00)` **tira o chip do sleep**. Sem isso, o MPU responde ao WHO_AM_I mas
-      os registradores de medida ficam **zerados** (um erro clássico).
-    - `atan2f(axg, azg)` é a inclinação no plano XZ (Figura L9-F). Use `atan2f`, não
-      `atanf(ax/az)`: o `atan2` enxerga os **sinais** e cobre os 360°.
+> **Pontos de atenção:**
+> 
+>- `wr(reg, val)` envia **2 bytes** (registrador + valor): é como se escreve num registrador.
+>- `rd(reg, dst, n)` usa `i2c_master_write_read_device`: envia o endereço do registrador,
+    faz o **START repetido** e lê `n` bytes (a Figura L9-E).
+>- `wr(REG_PWR, 0x00)` **tira o chip do sleep**. Sem isso, o MPU responde ao WHO_AM_I mas
+    os registradores de medida ficam **zerados** (um erro clássico).
+>- `atan2f(axg, azg)` é a inclinação no plano XZ (Figura L9-F). Use `atan2f`, não
+    `atanf(ax/az)`: o `atan2` enxerga os **sinais** e cobre os 360°.
 
 11. Compile e grave. Primeira linha esperada:
 
