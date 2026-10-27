@@ -56,7 +56,7 @@ de energizar):*
 O MPU tem ainda os pinos XDA, XCL, AD0 e INT, que **ficam livres** hoje (o AD0 solto é lido
 como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3).
 
-> 🧠 **Onde cada dispositivo mora**: o mapa de endereços (Figura L9-B) mostra os 128
+> **Onde cada dispositivo mora**: o mapa de endereços (Figura L9-B) mostra os 128
 > endereços possíveis. O scanner varre de 0x03 a 0x77 (os demais são reservados pela
 > norma) e vai "bater em todas as portas" procurando quem atende.
 
@@ -83,21 +83,15 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
       "left": 0,
       "attrs": { "builder": "esp-idf" }
     },
-    {
-      "type": "wokwi-mpu6050",
-      "id": "imu",
-      "top": 10,
-      "left": -170,
-      "attrs": {}
-    }
+    { "type": "wokwi-mpu6050", "id": "imu", "top": 167.02, "left": -151.28, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "imu:VCC", "esp:3V3", "red", [] ],
-    [ "imu:GND", "esp:GND.1", "black", [] ],
-    [ "imu:SDA", "esp:21", "orange", [] ],
-    [ "imu:SCL", "esp:22", "blue", [] ]
+    [ "imu:VCC", "esp:3V3", "red", [ "h0.08", "v-144" ] ],
+    [ "imu:GND", "esp:GND.1", "black", [ "v-19.2", "h57.68", "v182.4" ] ],
+    [ "imu:SDA", "esp:21", "orange", [ "v-182.4", "h230.48", "v105.6" ] ],
+    [ "imu:SCL", "esp:22", "blue", [ "v-192", "h230.48", "v86.4" ] ]
   ],
   "dependencies": {}
 }
@@ -271,8 +265,8 @@ pedido** traz tudo, e todas as medidas pertencem ao mesmo instante.
    0x68 e o OLED em outro endereço, não há conflito):
 
 ```bash
-mkdir -p ~/sis-emb/lab9/mpu6050
-cd ~/sis-emb/lab9/mpu6050
+mkdir -p ~/sis-emb/lab9/
+cd ~/sis-emb/lab9/
 idf.py create-project mpu6050
 cd mpu6050
 cp ~/sis-emb-2026-2/semana-09/src/mpu6050/main.c ~/sis-emb/lab9/mpu6050/mpu6050/main/mpu6050.c
