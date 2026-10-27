@@ -33,7 +33,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 
 10. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
-mkdir ~/sis-emb/lab6/fila
+mkdir ~/sis-emb/lab6/
 cd ~/sis-emb/lab6/
 idf.py create-project fila
 cd fila
@@ -185,8 +185,8 @@ Hora de aposentar de vez o polling do botão: o padrão profissional do Exemplo 
 
 18. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
-mkdir ~/sis-emb/lab6/isr_sem
-cd ~/sis-emb/lab6/isr_sem
+mkdir ~/sis-emb/lab6/
+cd ~/sis-emb/lab6/
 idf.py create-project isr_sem
 cd isr_sem
 ```

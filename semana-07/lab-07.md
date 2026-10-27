@@ -98,7 +98,7 @@ fotossensível; a resistência cai com a luz. Fonte: Practical Python Programmin
 
 3. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
-mkdir -p ~/sis-emb/lab7/adc_ldr
+mkdir -p ~/sis-emb/lab7/
 cd ~/sis-emb/lab7/
 idf.py create-project adc_ldr
 cd adc_ldr
@@ -362,8 +362,8 @@ muda".*
 
 16. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
-mkdir -p ~/sis-emb/lab7/dac_senoide
-cd ~/sis-emb/lab7/dac_senoide
+mkdir -p ~/sis-emb/lab7/
+cd ~/sis-emb/lab7/
 idf.py create-project dac_senoide
 cd dac_senoide
 ```
@@ -506,8 +506,8 @@ Detalhe útil: o DAC muda a cada 312 µs, mas o ADC só lê a cada 50 ms — sã
 22. Ligue um jumper **GPIO25 → GPIO34** (tire o circuito do LDR do GPIO34 para não
     competir com o DAC; confira a montagem na Figura L7-H, painéis da esquerda e do centro). Crie o projeto e copie o firmware:
 ```bash
-mkdir -p ~/sis-emb/lab7/loopback
-cd ~/sis-emb/lab7/loopback
+mkdir -p ~/sis-emb/lab7/
+cd ~/sis-emb/lab7/
 idf.py create-project loopback
 cd loopback
 cp ~/sis-emb-2026-2/semana-07/src/loopback_alias/main.c ~/sis-emb/lab7/loopback/loopback/main/loopback.c
