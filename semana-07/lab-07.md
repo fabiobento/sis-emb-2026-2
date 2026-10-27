@@ -1,9 +1,12 @@
 # Lab 7 — Lendo o mundo: LDR no ADC, filtro em ação e senoide no DAC
 
-> **Antes de começar**: leia a [teoria-07](teoria-07.md) — o [Exemplo 7.2](https://github.com/fabiobento/sis-emb-2026-2/blob/main/semana-07/teoria-07.md#exemplo-resolvido-72-ldr--divisor--ldr-varia-de-8-k%CF%89-claro-a-120-k%CF%89-escuro-em) (divisor com LDR) é
+> **Antes de começar**: leia a [teoria-07](teoria-07.md) — o Exemplo 7.2 (divisor com LDR) é
 > a conta que você calibrará na Parte A, as Figuras 7-A/7-B mostram o que o ADC faz com a
 > sua tensão, a seção 1.2 explica a saturação da Parte C e a seção 3 (Nyquist e aliasing) é
 > o que você verá acontecer, ao vivo, na Parte E.
+>
+> Ao longo do roteiro, as **figuras marcadas "da teoria-07"** são reproduzidas aqui no exato
+> procedimento em que ajudam a entender o que você está vendo; as marcadas "L7-" são exclusivas do lab.
 
 **Objetivo**: montar o divisor com LDR e **calibrá-lo** contra as contas do Exemplo 7.2;
 medir o ruído do ADC com e sem média móvel; provocar a saturação; gerar e "ouvir" a escada
@@ -176,6 +179,14 @@ void app_main(void)
 > real, e por isso a **primeira linha de estatística** (e, com M grande, a segunda) vem
 > contaminada — descarte-a nas medições da Parte B.
 
+![Esquerda: diagrama de blocos do ADC SAR — comparador, registrador SAR e DAC interno em laço fechado. Direita: a busca binária convergindo para Vin em 5 comparações, uma por bit, do MSB ao LSB, com o registrador SAR sendo preenchido a cada passo](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_sar_busca_binaria.png)
+
+*Figura 7-D (da [teoria-07](teoria-07.md)) — o que a chamada `adc_oneshot_read()` faz por dentro: um conversor SAR testa um bit por vez (busca binária) até chegar ao `raw` de 12 bits. É o DAC interno que dá os "palpites" — o DAC da Parte D, trabalhando dentro do ADC.*
+
+![Em cima, senoide de 25 Hz com as amostras ideais e as amostras com jitter de ±1,5 ms ligadas por segmentos. Embaixo, erro de cada amostra limitado por duas linhas tracejadas em ±0,24 A](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_jitter.png)
+
+*Figura 7-L (da [teoria-07](teoria-07.md)) — por que o firmware usa `vTaskDelayUntil` (período **exato**, 50 ms) e não `vTaskDelay`: amostras com espaçamento irregular (jitter) distorcem o sinal mesmo com $f_s$ bem acima de Nyquist.*
+
 6. Compile, grave e abra o monitor:
 ```bash
 cd ~/sis-emb/lab7/adc_ldr/adc_ldr
@@ -195,6 +206,14 @@ raw=2417  filt=2410  V=1.824  media_1s=2408.3  desvio=3.1
 | `filt` | saída da média móvel de M amostras — o que o resto do firmware usaria |
 | `V` | `filt` convertido em volts: `filt · 3,1 / 4095` |
 | `media_1s`, `desvio` | média e desvio-padrão de `filt` nas últimas 20 amostras — o "ruidômetro" |
+
+![Função de transferência de um ADC ideal de 3 bits](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/adc_3bits.png)
+
+*Figura 7-A (da [teoria-07](teoria-07.md)) — o que significa o campo `raw`: a tensão contínua do divisor entra e o ADC devolve um **código** em degraus. Toda tensão dentro de um degrau vira o mesmo `raw`.*
+
+![Erro de quantização confinado entre mais e menos meio LSB](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/erro_quantizacao.png)
+
+*Figura 7-B (da [teoria-07](teoria-07.md)) — por isso o `raw` parado "treme" de ±1 contagem: é o erro de quantização (dente de serra entre −½ e +½ LSB) somado ao ruído do circuito. Em 12 bits com 3,1 V de escala, 1 LSB ≈ 0,76 mV.*
 
 8. **Calibração contra a teoria** — preencha, cobrindo/iluminando o LDR. A coluna "V
    esperado" usa a sua resistência medida no item 2 e a fórmula da Figura L7-A:
@@ -232,6 +251,10 @@ O firmware imprime, a cada 1 s, média e **desvio-padrão** do sinal filtrado �
 | 4 | | 75 ms |
 | 8 | | 175 ms |
 | 32 | | 775 ms |
+
+![Em cima, sinal contínuo com as amostras marcadas a cada Ts. Embaixo, a sequência de números resultante, vista como degraus segurados entre as amostras](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/amostragem_sample_hold.png)
+
+*Figura 7-G (da [teoria-07](teoria-07.md)) — o que o firmware faz 20 vezes por segundo: o mundo é contínuo, o ADC só olha em instantes (as amostras, a cada $T_s$ = 50 ms) e o código segura cada valor até a próxima. A média móvel opera sobre essa sequência de números, não sobre o sinal contínuo.*
 
 11. O desvio caiu com M na razão ~√M prevista na teoria? (De M = 1 para M = 4, o desvio
     deveria cair à metade; de M = 1 para M = 32, a menos de 20 % — e, para M grande, até
@@ -355,6 +378,14 @@ void app_main(void)
 > 100 Hz**. Para mudar a frequência você mexe em `F_HZ`; para mudar a *qualidade* da
 > senoide, em `NPTS`.
 
+![Cadeia do DAC: timer, tabela, DAC 8 bits, escada, filtro RC e carga, com as formas de onda de cada etapa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_cadeia.png)
+
+*Figura 7-O (da [teoria-07](teoria-07.md)) — o caminho completo do que você acabou de ler no código: o `esp_timer` chama o callback a 3200 Hz, o callback lê um código da tabela, o DAC o converte em tensão (e segura) e o RC — opcional, item 21-A — suaviza as quinas.*
+
+![Esquerda: um ciclo de 32 pontos da senoide com os códigos da tabela; direita: dois ciclos de 100 Hz com 32 e com 8 pontos por ciclo, sobre a senoide ideal](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_tabela_escada.png)
+
+*Figura 7-P (da [teoria-07](teoria-07.md)) — os 32 códigos da tabela são amostras de uma senoide (esquerda); como o DAC segura cada código, a saída é uma escada (direita). Com 8 pontos por ciclo (vermelho) a escada é grosseira — é o que você ouvirá no item 21.*
+
 19. Compile, grave e abra o monitor (a senoide sai pelo GPIO25; o monitor não imprimirá
     nada — é normal):
 ```bash
@@ -383,11 +414,36 @@ em torno de 1,65 V (nível CC) com amplitude A = 1,65 V — por isso o multímet
     amplitude 1,65 V — senoide: V_rms = A/√2 = 1,65/1,41 ≈ 1,17 V; anote). Em VDC, o que
     ele deveria ler? (Figura L7-G, painel direito.)
 
+![Função de transferência do DAC de 8 bits: escala inteira e zoom em torno de 1 V, com o código 77 e o erro de quantização](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_transferencia_esp32.png)
+
+*Figura 7-N (da [teoria-07](teoria-07.md)) — a conversão código → tensão do DAC de 8 bits (V = código · 3,3/255, degrau de ≈ 12,9 mV). O meio da escala (código 127–128) dá ≈ 1,65 V: é o nível **VDC** que o multímetro deve ler no item 20. Lembre: o DAC só produz múltiplos inteiros do degrau, nada entre eles.*
+
 21. **Ouvindo** (opcional, terceira montagem da Figura L7-F): buzzer passivo (ou fone) em série com 220 Ω entre GPIO25 e GND.
     100 Hz é um grave; mude `F_HZ` para 440 (o lá musical) e ouça. Agora reduza `NPTS` para
     8 mantendo 440 Hz: o timbre fica áspero (harmônicos da escada — questão 5 da Lista 3
     respondida pelo ouvido). Anote o período do `esp_timer` nos dois casos: a 440 Hz com 8
     pontos o callback roda a quantos kHz?
+
+![Espectro da escada para 32 e para 8 pontos por ciclo, antes e depois de um RC com fc de 301 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_espectro_escada.png)
+
+*Figura 7-Q (da [teoria-07](teoria-07.md)) — por que o timbre de 8 pontos é áspero (item 21): a escada contém cópias do sinal em (k·N ± 1)·f. Para uma fundamental de 100 Hz (a figura; no item 21 multiplique por 4,4), com 8 pontos a primeira cópia está em 700 Hz (−17 dB, bem audível); com 32 pontos, em 3,1 kHz (−30 dB).*
+
+21-A. **(Opcional, com osciloscópio ou multímetro) Limpando a escada com um RC** — a Figura 7-R abaixo
+    mostra o filtro de reconstrução da teoria (seção 5.4). Entre o GPIO25 e o instrumento, monte um
+    resistor em série e um capacitor do nó de saída para o GND: **R = 1,6 kΩ, C = 330 nF** ($f_c$ ≈ 301 Hz; se
+    não tiver esses valores, escolha outros com 100 Hz < $f_c$ < 3100 Hz, $f_c = 1/(2\pi RC)$). Com
+    `F_HZ` = 100 e `NPTS` = 32, observe: (a) as quinas da escada somem; (b) a amplitude cai
+    cerca de 5 % (−0,45 dB) e a onda atrasa ≈ 0,5 ms em relação à saída sem filtro (valores
+    **previstos pela simulação da teoria** — confira e comente a diferença). Depois regrave com
+    `NPTS` = 8 e compare: com a primeira cópia a 700 Hz, o mesmo RC filtra bem pior (Figura 7-Q).
+    ⚠️ **Não ligue buzzer, fone ou alto-falante depois do RC sem um buffer** (Exemplo 7.7 da teoria):
+    uma carga pequena derruba a amplitude e muda o $f_c$. *(Esta montagem não foi testada em bancada pelo autor.)*
+
+![Esquemático do RC de reconstrução (R de 1,6 kΩ, C de 330 nF) e formas de onda antes e depois do filtro, com 32 pontos por ciclo a 100 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_reconstrucao_rc.png)
+
+*Figura 7-R (da [teoria-07](teoria-07.md)) — esquemático do RC de reconstrução e formas de onda antes e depois do filtro (32 pontos/ciclo, 100 Hz): é o que você deve ver no osciloscópio no item 21-A.*
+
+---
 
 ## Parte E — Loopback DAC → ADC: o aliasing ao vivo (15 min, opcional)
 
@@ -395,6 +451,13 @@ Antes você precisaria de duas placas para ligar um DAC a um ADC. Não precisa: 
 dois, e o DAC (GPIO25) pode alimentar o ADC (GPIO34) **na mesma placa**, com um único
 jumper. Assim o DAC gera uma senoide de frequência conhecida e o ADC a amostra a
 $f_s$ = 20 Hz (frequência de Nyquist = 10 Hz) — é a seção 3 da teoria, em bancada.
+
+![Sinal de 9 Hz amostrado a 10 Hz produzindo um alias de 1 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/aliasing_nyquist.png)
+
+*Figura 7-I (da [teoria-07](teoria-07.md)) — o que vai acontecer: uma senoide de frequência acima de $f_s$/2 reaparece, depois de amostrada, como uma senoide *falsa* de frequência mais baixa. As amostras (pontos) são idênticas às de um sinal lento.*
+
+Detalhe útil: o DAC muda a cada 312 µs, mas o ADC só lê a cada 50 ms — são ≈ 160 passos do DAC por amostra do ADC. E um degrau do DAC (≈ 12,9 mV) equivale a ≈ 16 códigos do ADC (≈ 0,8 mV), então o ADC distingue sem dificuldade cada nível da escada: no `raw` você verá a senoide com a resolução de 8 bits do DAC.
+
 
 22. Ligue um jumper **GPIO25 → GPIO34** (tire o circuito do LDR do GPIO34 para não
     competir com o DAC; confira a montagem na Figura L7-H, painéis da esquerda e do centro). Crie o projeto e copie o firmware:
@@ -519,6 +582,10 @@ void app_main(void)
 *Figura L7-I — O mapa que prevê o que você anotou na tabela (a figura usa $f_s$ = 10 Hz; no
 seu experimento $f_s$ = 20 Hz, então o "espelho" fica em 10 Hz). Em qualquer $f_s$, tudo
 acima de $f_s/2$ é dobrado de volta para a faixa 0 … $f_s/2$.*
+
+![Em cima, diagrama de blocos sensor, filtro RC, ADC e código. No meio, o esquemático do circuito RC: resistor em série e capacitor para o terra. Embaixo, resposta em frequência do RC com as atenuações em fs/2 para fs de 1 kHz e de 5 kHz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/antialiasing_filtro_rc.png)
+
+*Figura 7-K (da [teoria-07](teoria-07.md)) — a resposta ao item 25: um RC passa-baixas **antes** do ADC (fc < $f_s$/2) elimina a componente rápida *antes* da amostragem. Depois da amostragem, nenhum filtro digital separa o alias do sinal verdadeiro.*
 
 25. Pergunta para o relatório: o que você faria, **no hardware**, para que o ADC nunca visse
     esse impostor de 5 Hz ao medir um sinal que pode ter componentes de 95 Hz? (Pense na
