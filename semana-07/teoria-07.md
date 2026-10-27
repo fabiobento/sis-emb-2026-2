@@ -2,7 +2,7 @@
 
 > **Pré-requisito**: Aulas 3 (divisor, GPIO) e 5 (`vTaskDelayUntil` para período exato).
 > **Como usar**: texto autossuficiente. Os Exemplos 7.1–7.4 são o modelo das questões 1–5 da
-> Lista 3. Esta aula é onde a disciplina encontra a sua pré-requisita de Sinais e Sistemas —
+> Lista 3; os Exemplos 7.5–7.7 aprofundam o DAC (seção 5). Esta aula é onde a disciplina encontra a sua pré-requisita de Sinais e Sistemas —
 > aproveite para revisar amostragem.
 
 Até aqui seu firmware vive num mundo binário confortável: pino em 0 ou 1, botão apertado ou
@@ -20,7 +20,7 @@ da disciplina — a média móvel. No laboratório, um LDR vira seu primeiro sen
 - (b) projetar um divisor de tensão para um sensor resistivo;
 - (c) enunciar e aplicar o teorema de Nyquist e prever a frequência de um alias;
 - (d) implementar uma média móvel O(1) e conhecer seus limites (e quando a mediana é melhor);
-- (e) gerar formas de onda com DAC por tabela e calcular sua frequência.
+- (e) gerar formas de onda com DAC por tabela, calcular sua frequência e dimensionar o filtro de reconstrução que limpa a escada.
 
 ---
 
@@ -410,19 +410,69 @@ filtro é a primeira lição de PDS aplicado.
 
 ## 5. O caminho de volta: DAC
 
-O **DAC** converte número→tensão: você escreve um código, o pino assume a tensão
-correspondente (é o ADC de trás para frente — compare a figura abaixo com a 7-A).
+Até aqui o fluxo foi **mundo → número**. O **DAC** (*digital-to-analog converter*) faz o
+caminho contrário: você escreve um **código** e o pino assume a **tensão** correspondente. É o
+ADC de trás para frente — e, como no ADC, três perguntas decidem tudo: *quantos degraus*
+(resolução), *a que ritmo* (taxa) e *o que fazer com o que sobra* (filtro). Esta seção responde
+às três na ordem: 5.1 (resolução), 5.2 (taxa e tabela), 5.3 e 5.4 (a escada e o filtro) e 5.5–5.6
+(limites e o ciclo completo com o ADC).
+
+### 5.1 Resolução: o DAC é o ADC de trás para frente
 
 ![Função de transferência de um DAC de 3 bits](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_3bits.png)
 
-*Figura 7-M — DAC de 3 bits: a cada código, uma tensão degrau. Fonte: Hands-On Industrial
-Internet of Things (Packt), cap. 3, Fig. 3.4.*
+*Figura 7-M — DAC de 3 bits: a cada código, uma tensão degrau. Compare com a Figura 7-A (ADC):
+é o mesmo gráfico com os eixos trocados. Fonte: Hands-On Industrial Internet of Things (Packt),
+cap. 3, Fig. 3.4.*
 
-O ESP32 tem 2 canais de **8 bits** (GPIO25/26): 256 degraus de 3,3/256 ≈ 13 mV. Serve para
-gerar formas de onda, áudio simples e tensões de referência. O firmware
-`src/dac_senoide/main.c` gera uma senoide por **tabela pré-computada** — padrão clássico que
-troca memória por CPU (32 bytes guardados valem uma chamada de `sin()` por amostra
-economizada):
+O ESP32 tem 2 canais de **8 bits** (canal 0 = GPIO25, canal 1 = GPIO26): 256 códigos (0 a 255)
+e, entre o menor e o maior, 255 degraus. Com a alimentação de 3,3 V:
+
+$$ V_{saída} = \frac{código}{255} \cdot 3{,}3\ \text{V} \qquad LSB = \frac{3{,}3}{255} \approx 12{,}9\ \text{mV} $$
+
+Como no ADC, a quantização é irreversível: você só consegue tensões que são múltiplos do LSB, e
+o **erro de quantização** é de até ±½ LSB ≈ ±6,5 mV. Serve para gerar formas de onda, áudio
+simples e tensões de referência — não para instrumentação de precisão.
+
+![Função de transferência do DAC de 8 bits: escala inteira e zoom em torno de 1 V, com o código 77 e o erro de quantização](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_transferencia_esp32.png)
+
+*Figura 7-N — À esquerda, os 256 degraus parecem uma reta. À direita, o zoom em torno de 1 V
+mostra a escada de verdade: o código 77 dá 996,5 mV, e nenhum código dá exatamente 1,000 V. A
+diferença é o erro de quantização (aqui −3,5 mV, dentro do limite de ½ LSB = 6,5 mV).*
+
+**Exemplo resolvido 7.5 (qual código para 1,0 V?)** — Você quer uma tensão de referência de
+1,0 V no GPIO25. Qual código escrever, que tensão sai de fato e qual o erro?
+
+*Solução.* Invertendo a fórmula: código = 1,0 · 255 / 3,3 = 77,27. Como o código é inteiro,
+**arredonde ao mais próximo**: 77. A tensão real é 77 · 3,3 / 255 = **0,9965 V**, erro de
+−3,5 mV (0,35 % de 1 V) — dentro de ±½ LSB, como deve ser. (Se você *truncasse* em vez de
+arredondar, o erro poderia chegar a 1 LSB.) E uma observação que o laboratório confirma na Parte
+E: o ADC do ESP32 tem 12 bits, ou seja, **16 códigos do ADC cabem em cada degrau do DAC**
+(4096/256) — ligados lado a lado, o ADC "enxerga" a escada do DAC.
+
+| | ADC (semanas 7 e 12) | DAC |
+|---|---|---|
+| Sentido | tensão → código | código → tensão |
+| Resolução no ESP32 | 12 bits (LSB ≈ 0,8 mV) | **8 bits** (LSB ≈ 12,9 mV) |
+| Erro de quantização | ±½ LSB | ±½ LSB |
+| Efeito do tempo | **amostra** (olha em instantes) | **segura** (mantém entre atualizações) |
+| Defesa analógica | filtro anti-aliasing **antes** | filtro de reconstrução **depois** |
+| Erro típico de projeto | $`f_s`$ baixo demais → alias | poucos pontos por ciclo → escada e harmônicos |
+
+### 5.2 Gerando uma senoide por tabela
+
+Primeiro o panorama: a figura abaixo mostra a cadeia inteira que o firmware `dac_senoide` monta; volte a ela sempre que perder o fio.
+
+![Cadeia do DAC: timer, tabela, DAC 8 bits, escada, filtro RC e carga, com as formas de onda de cada etapa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_cadeia.png)
+
+*Figura 7-O — A cadeia do DAC. O `esp_timer` dispara o callback a 3200 Hz; o callback lê um
+código da tabela; o DAC converte o código em tensão e **segura** o valor até a próxima
+atualização (por isso a saída é uma escada); o filtro RC suaviza as quinas. Compare com a seção
+3: lá era "amostrar + anti-aliasing"; aqui é "segurar + filtro de reconstrução".*
+
+O firmware `src/dac_senoide/main.c` gera uma senoide por **tabela pré-computada** (*look-up
+table*, LUT) — padrão clássico que troca memória por CPU: 32 bytes guardados valem uma chamada
+de `sin()` por amostra economizada.
 
 ```c
 for (int i = 0; i < NPTS; i++)                       // 32 pontos de um ciclo, calculados UMA vez
@@ -435,11 +485,146 @@ static void tick_cb(void *arg)                       // esp_timer a NPTS·F = 32
 }
 ```
 
-A aritmética da forma de onda: f_senoide = taxa de atualização ÷ pontos por ciclo =
-3200/32 = **100 Hz**. Quer 400 Hz na mesma taxa? Sobram 8 pontos por ciclo — uma "senoide"
-visivelmente escadeada, cheia de harmônicos (é a questão 5 da Lista 3; um RC na saída
-suaviza — o *filtro de reconstrução*, o irmão gêmeo do anti-aliasing, agora na saída: um
-impede fantasmas na entrada, o outro limpa degraus na saída).
+Leia a conta da tabela: o seno vai de −1 a +1; multiplicar por 127,5 leva a −127,5…+127,5; somar
+127,5 (o **nível CC**, o meio da escala) leva a 0…255, o intervalo exato de um DAC de 8 bits. O
+`(uint8_t)` **trunca** (não arredonda): o código médio da tabela fica em 127,03 em vez de 127,5,
+e o nível CC medido é ≈ 1,644 V em vez de 1,650 V — uma diferença de 6 mV que um multímetro comum
+não resolve, mas que mostra que cada decisão de arredondamento deixa marca no sinal.
+
+![Esquerda: um ciclo de 32 pontos da senoide com os códigos da tabela; direita: dois ciclos de 100 Hz com 32 e com 8 pontos por ciclo, sobre a senoide ideal](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_tabela_escada.png)
+
+*Figura 7-P — Esquerda: os 32 códigos guardados (em azul) são amostras de uma senoide; o código
+255 fica no pico, o 0 no vale, e o 127 aparece nos cruzamentos por 1,65 V. Direita: o DAC
+mantém cada código até a próxima atualização, então a saída é uma escada; com 8 pontos por
+ciclo (vermelho) a escada é visivelmente grosseira.*
+
+**A aritmética da forma de onda.** Se o callback atualiza o DAC a $f_u$ (taxa de atualização) e
+um ciclo tem N pontos, a senoide sai com
+
+$$ f_{senoide} = \frac{f_u}{N} \qquad\Longleftrightarrow\qquad \text{período do timer} = \frac{1}{N \cdot f_{senoide}} $$
+
+No firmware: 3200/32 = **100 Hz**; o período é 1 000 000 µs / 3200 = 312,5 µs — e, como a divisão
+em C é inteira, o timer roda a **312 µs**: a frequência real é 1 000 000/312/32 ≈ **100,16 Hz**
+(+0,16 %). Esse tipo de erro de arredondamento do período é inevitável; só importa se você
+precisar de afinação (um instrumento musical, por exemplo).
+
+**Exemplo resolvido 7.6 (400 Hz: menos pontos ou mais velocidade?)** — Você quer 400 Hz.
+Quais as opções e o que cada uma custa?
+
+*Solução.* (a) Manter $f_u$ = 3200 Hz: sobram N = 3200/400 = **8 pontos por ciclo** — escada
+grosseira (Figura 7-P, em vermelho). (b) Manter N = 32: precisa de $f_u$ = 400 · 32 =
+**12 800 Hz**, período de 78 µs (divisão inteira: 1 000 000/12 800 = 78,1 → 78 µs; frequência
+real 1 000 000/78/32 ≈ **400,6 Hz**). A opção (b) dá uma senoide muito melhor, ao custo de o
+callback rodar 4 vezes mais vezes por segundo — e ele **precisa** caber, com folga, nos 78 µs
+disponíveis (não medimos o limite do `esp_timer` do ESP32 nessa taxa; veja o aviso do gabarito).
+Regra: **a qualidade vem de N, o custo vem de $f_u$ = N·f** — por isso aumente N só até onde a CPU
+e o filtro (próximas seções) deixarem.
+
+### 5.3 O que a escada esconde: cópias indesejadas da senoide
+
+Uma escada **não é** uma senoide "feia" — é uma senoide **mais outros sinais**. Cada degrau
+brusco contém frequências altas, e a análise (por FFT) mostra exatamente quais: cópias do sinal
+original em torno de cada múltiplo da taxa de atualização,
+
+$$ f_{c\acute{o}pias} = k \cdot f_u \pm f = (k \cdot N \pm 1) \cdot f, \qquad k = 1, 2, 3, \dots $$
+
+com amplitude, relativa ao sinal, de $\dfrac{1}{kN \pm 1}$. Para N = 32 e f = 100 Hz, as primeiras
+cópias estão em 31·f = **3100 Hz** e 33·f = **3300 Hz**, com amplitudes 1/31 e 1/33 (−29,8 dB e
+−30,4 dB, cerca de 3 % do sinal). Para N = 8, estão em 7·f = 700 Hz e 9·f = 900 Hz, com 1/7 e
+1/9 (−16,9 dB e −19,1 dB, 14 % e 11 %) — e logo *abaixo de 1 kHz*, bem pertinho do sinal.
+
+![Espectro da escada para 32 e para 8 pontos por ciclo, antes e depois de um RC com fc de 301 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_espectro_escada.png)
+
+*Figura 7-Q — O espectro do que sai do DAC (laranja) e depois de um RC com $`f_c`$ ≈ 301 Hz
+(verde), obtido por simulação com a própria tabela do firmware. Com 32 pontos/ciclo, as cópias
+ficam longe (3,1 kHz) e o RC as derruba de −30 para −50 dB. Com 8 pontos, elas ficam perto
+(700 Hz) e o mesmo RC só as leva de −17 para −25 dB: **o filtro precisa de espaço entre o sinal
+e a primeira cópia**.*
+
+Duas consequências práticas. **(1) Distorção:** somando todas as cópias, a escada de 32 pontos
+tem distorção harmônica total de ≈ **5,7 %**; a de 8 pontos, ≈ **23 %** (valores da simulação
+da Figura 7-Q) — por isso o timbre de 8 pontos é áspero (é o experimento 21 do lab). **(2) Elo
+com a seção 3:** o aliasing joga uma frequência **alta** para **baixo** (uma "cópia" no espelho
+de $f_s/2$); a escada do DAC faz o inverso — cria cópias **altas** de um sinal baixo. Os dois
+fenômenos têm a mesma causa (trabalhar com valores em instantes discretos) e a mesma defesa
+(um filtro passa-baixas analógico, em lados opostos do conversor).
+
+### 5.4 O filtro de reconstrução
+
+A cura é o mesmo componente da seção 3.4 — um RC passa-baixas —, agora na **saída**. A regra de
+projeto é a mesma lógica de "sobreamostrar": a frequência de corte deve ficar **entre o sinal e
+a primeira cópia**, de modo que o filtro deixe passar o primeiro e derrube a segunda:
+
+$$ f_{sinal} \;<\; f_c \;<\; f_u - f_{sinal} \qquad\Rightarrow\qquad 100\ \text{Hz} < f_c < 3100\ \text{Hz} $$
+
+![Esquemático do RC de reconstrução (R de 1,6 kΩ, C de 330 nF) e formas de onda antes e depois do filtro, com 32 pontos por ciclo a 100 Hz](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_reconstrucao_rc.png)
+
+*Figura 7-R — Esquerda: o RC na saída do GPIO25 (resistor em série, capacitor para o terra).
+Direita: a escada (laranja) vira uma senoide suave (verde). O preço do filtro é um pequeno
+ganho a menos (−0,45 dB, ×0,95) e um atraso de ≈ 0,5 ms (18°) — o mesmo compromisso
+"ruído × atraso" da média móvel da seção 4.*
+
+Como escolher o ponto entre 100 Hz e 3100 Hz? É um compromisso, e a tabela mostra os extremos
+(1ª cópia em 3100 Hz, de −29,8 dB; resultados da fórmula do RC de 1ª ordem):
+
+| $`f_c`$ | ganho em 100 Hz (o sinal) | atenuação em 3100 Hz | 1ª cópia depois do filtro |
+|---|---|---|---|
+| 1000 Hz | −0,04 dB (quase intacto) | −10,3 dB | ≈ −40 dB |
+| **301 Hz** (R = 1,6 kΩ, C = 330 nF) | **−0,45 dB** | **−20,3 dB** | **≈ −50 dB** |
+| 100 Hz | −3,0 dB (amplitude ×0,71) | −29,8 dB | ≈ −60 dB |
+
+Com $`f_c`$ = 301 Hz, o sinal perde só 5 % de amplitude e a primeira cópia cai 20 dB a mais; a
+distorção da Figura 7-R cai de 5,7 % para ≈ 0,5 %. Um RC de 1ª ordem continua sendo uma **rampa**
+(−20 dB/década), não uma parede (Exemplo 7.3c): para áudio de qualidade, usa-se um filtro de
+ordem maior (por exemplo, um ativo Sallen-Key).
+
+**Exemplo resolvido 7.7 (o filtro e a carga)** — Você ligou o RC da Figura 7-R (R = 1,6 kΩ) e,
+na saída, um fone de ouvido de 32 Ω. Que amplitude chega ao fone?
+
+*Solução.* O fone é uma **carga** em paralelo com o C: com ele, o resistor R e a carga formam um
+divisor de tensão. Para frequências onde o capacitor é irrelevante, a tensão cai para
+32 / (32 + 1600) ≈ 0,0196 do valor original, ou seja, **−34 dB**: os 1,65 V de amplitude viram
+≈ 32 mV — praticamente inaudível. Moral: o RC só se comporta como projetado se a carga for
+**muito maior que R** (a regra prática é ≥ 10·R, aqui ≥ 16 kΩ); para cargas pequenas (fone,
+alto-falante, motor), coloque um **buffer** (amplificador operacional como seguidor de tensão)
+entre o filtro e a carga. É o mesmo cuidado do LDR no ADC: o que vem depois do circuito
+**também** faz parte dele.
+
+### 5.5 Limites práticos do DAC do ESP32
+
+| Limite | O que significa | O que fazer |
+|---|---|---|
+| **8 bits** | degraus de 12,9 mV; precisão de ±½ LSB | para mais resolução, DAC externo, ligado por I²C ou SPI (os barramentos da semana 9) |
+| **Só 2 canais** (GPIO25 e GPIO26) | nada de DAC em outros pinos | planeje o pinout; algumas variantes da família ESP32 (por exemplo, S3 e C3) **não têm DAC** — confira o datasheet do seu módulo |
+| **Pouca corrente** | o pino não aciona carga pesada | buffer com ampop; no lab, o buzzer vai em série com 220 Ω |
+| **Linearidade perto dos extremos** | os códigos próximos de 0 e 255 podem não render exatamente 0 V e 3,3 V | meça com o multímetro (códigos 0, 128 e 255) antes de confiar *(não verificamos este ponto no hardware)* |
+| **Taxa e *jitter* do timer** | o `esp_timer` é um callback de software: se atrasar, o espaçamento fica irregular (como na Figura 7-L, só que na saída) | boa para áudio simples; para sinais "limpos", use os drivers com DMA/gerador de cosseno em hardware (`dac_continuous` e `dac_cosine` no ESP-IDF Guide — não usados nem testados neste curso) |
+| **Sem DAC no chip** | muitas placas não têm | **PWM + filtro RC**: alterna rápido entre 0 e 3,3 V e o RC extrai o valor médio (semana 8). Mais lento e com ondulação residual, mas funciona em qualquer pino |
+
+### 5.6 Fechando o ciclo: DAC → ADC
+
+O experimento mais didático da semana é ligar o DAC ao ADC **na mesma placa** (Parte E do lab,
+jumper GPIO25 → GPIO34): o DAC gera uma senoide de frequência **conhecida**, o ADC a amostra a
+20 Hz, e você **prevê** o alias antes de ver o gráfico (Figuras 7-I e 7-J). Agora com a seção 5
+você também sabe o que o ADC está vendo por baixo: uma escada de 12,9 mV por degrau, cada um
+com 16 códigos do ADC. Se for ligar um RC entre os dois (item 25), reconheça o duplo papel dele:
+filtro de **reconstrução** (para o DAC) e filtro **anti-aliasing** (para o ADC).
+
+**Para conferir o que aprendeu** (respostas logo abaixo):
+
+1. Um DAC de 8 bits com 3,3 V: qual o código para 2,5 V e que tensão sai de fato?
+2. Com $`f_u`$ = 5 kHz e N = 20 pontos por ciclo, qual a frequência da senoide e onde está a 1ª cópia?
+3. Por que dobrar N (mantendo f) deixa a escada mais fina, mas exige mais da CPU?
+4. O que acontece se o capacitor do filtro for tão grande que $`f_c`$ < f?
+
+*Respostas.* **(1)** 2,5 · 255 / 3,3 = 193,2 → código **193** → 193 · 3,3 / 255 = **2,498 V**.
+**(2)** f = 5000/20 = **250 Hz**; a 1ª cópia está em (N−1)·f = 19 · 250 = **4750 Hz**
+(a outra, em 21·250 = 5250 Hz). **(3)** Porque a taxa de atualização é $f_u$ = N·f: dobrar N
+dobra $f_u$, ou seja, o callback roda duas vezes mais por segundo; a escada fica mais fina, e a
+1ª cópia vai para mais longe, mas a CPU gasta mais. **(4)** O filtro atenua o próprio sinal: em
+$f_c$ o ganho já é −3 dB (×0,71) e, acima, cai ~20 dB/década — a senoide sai menor e atrasada
+(até 90° de defasagem no limite); para uma senoide de 100 Hz, com $f_c$ = 100 Hz, a amplitude
+cai a 71 %.
 
 ---
 
@@ -456,8 +641,14 @@ impede fantasmas na entrada, o outro limpa degraus na saída).
   antes, e um RC sozinho é uma rampa (−20 dB/década), não uma parede (Exemplo 7.3c).
 - Média móvel O(1) com soma corrente + buffer circular: atenua ruído contínuo, atrasa
   (M−1)/2 amostras; spikes pedem mediana (Exemplo 7.4). Filtro = compromisso com atraso.
-- DAC 8 bits por tabela: f = taxa/pontos; poucos pontos por ciclo = escada + harmônicos;
-  filtro RC de reconstrução na saída.
+- DAC 8 bits: V = código·3,3/255, LSB ≈ 12,9 mV, erro ±½ LSB; arredonde o código, não trunque
+  (Exemplo 7.5). 16 códigos do ADC cabem em cada degrau do DAC.
+- Senoide por tabela (LUT): f = $f_u$/N, com $f_u$ = N·f; a qualidade vem de N, o custo da CPU
+  vem de $f_u$ (Exemplo 7.6). O período do timer é inteiro: confira a frequência real.
+- A escada traz cópias do sinal em (k·N ± 1)·f, de amplitude 1/(k·N ± 1): 32 pontos ⇒ 3,1 kHz
+  (−30 dB, THD ≈ 5,7 %); 8 pontos ⇒ 700 Hz (−17 dB, THD ≈ 23 %).
+- Filtro de reconstrução: RC com f < $f_c$ < $f_u$ − f; custa ganho e atraso; a carga deve ser
+  ≥ 10·R, senão use buffer (Exemplo 7.7). Sem DAC no chip: PWM + RC.
 
 > 🔭 **Onde isto reaparece:** amostragem uniforme e análise em frequência (FFT) são exatamente o
 > **pré-processamento** de um classificador de TinyML. Quando um grupo treina um modelo de movimento
@@ -481,6 +672,12 @@ impede fantasmas na entrada, o outro limpa degraus na saída).
 | média móvel | média das últimas M amostras |
 | buffer circular | array usado em anel (índice % M) |
 | jitter de amostragem | irregularidade no espaçamento das amostras |
+| tabela (LUT) | vetor de valores pré-calculados, consultado em tempo de execução |
+| taxa de atualização ($f_u$) | quantas vezes por segundo o DAC recebe um código novo |
+| escada (segurador) | saída do DAC: cada código é mantido até a próxima atualização |
+| cópias (imagens) da escada | componentes em (k·N ± 1)·f criados pelos degraus |
+| filtro de reconstrução | passa-baixas na saída do DAC que remove as cópias |
+| buffer (seguidor) | ampop que isola o filtro da carga |
 
 ## 📖 Onde aprofundar (opcional)
 
