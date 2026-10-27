@@ -269,7 +269,7 @@ mkdir -p ~/sis-emb/lab9/
 cd ~/sis-emb/lab9/
 idf.py create-project mpu6050
 cd mpu6050
-cp ~/sis-emb-2026-2/semana-09/src/mpu6050/main.c ~/sis-emb/lab9/mpu6050/mpu6050/main/mpu6050.c
+cp ~/sis-emb-2026-2/semana-09/src/mpu6050/main.c ~/sis-emb/lab9/mpu6050/main/mpu6050.c
 ```
 
 10. Código-fonte completo (leia junto com a teoria, seções 4.2 e 4.6):
