@@ -50,24 +50,18 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
     {
       "type": "board-esp32-devkit-c-v4",
       "id": "esp",
-      "top": 0,
-      "left": 0,
+      "top": 28.8,
+      "left": -302.36,
       "attrs": { "builder": "esp-idf" }
     },
-    {
-      "type": "wokwi-potentiometer",
-      "id": "pot1",
-      "top": -20,
-      "left": -170,
-      "attrs": {}
-    }
+    { "type": "wokwi-potentiometer", "id": "pot1", "top": -30.1, "left": -403.4, "attrs": {} }
   ],
   "connections": [
     [ "esp:TX", "$serialMonitor:RX", "", [] ],
     [ "esp:RX", "$serialMonitor:TX", "", [] ],
-    [ "pot1:VCC", "esp:3V3", "red", [] ],
-    [ "pot1:GND", "esp:GND.1", "black", [] ],
-    [ "pot1:SIG", "esp:34", "orange", [] ]
+    [ "pot1:VCC", "esp:3V3", "red", [ "v19.2", "h124" ] ],
+    [ "pot1:GND", "esp:GND.1", "black", [ "v144", "h172.65" ] ],
+    [ "pot1:SIG", "esp:34", "orange", [ "v57.6", "h162.65" ] ]
   ],
   "dependencies": {}
 }

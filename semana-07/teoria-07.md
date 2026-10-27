@@ -461,7 +461,7 @@ E: o ADC do ESP32 tem 12 bits, ou seja, **16 códigos do ADC cabem em cada degra
 
 ### 5.2 Gerando uma senoide por tabela
 
-Primeiro o panorama: a figura abaixo mostra a cadeia inteira que o firmware `dac_senoide` monta; volte a ela sempre que perder o fio.
+Primeiro o panorama: a figura abaixo mostra a cadeia inteira que o firmware `dac_senoide` monta; volte a ela sempre que "perder o fio".
 
 ![Cadeia do DAC: timer, tabela, DAC 8 bits, escada, filtro RC e carga, com as formas de onda de cada etapa](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/dac_cadeia.png)
 
