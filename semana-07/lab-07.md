@@ -99,7 +99,7 @@ fotossensível; a resistência cai com a luz. Fonte: Practical Python Programmin
 3. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
 mkdir -p ~/sis-emb/lab7/adc_ldr
-cd ~/sis-emb/lab7/adc_ldr
+cd ~/sis-emb/lab7/
 idf.py create-project adc_ldr
 cd adc_ldr
 ```

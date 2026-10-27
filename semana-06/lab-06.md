@@ -34,7 +34,7 @@ cd ~/sis-emb-2026-2 && git fetch && git reset --hard origin/main
 10. No terminal integrado, crie e acesse o diretório deste experimento:
 ```bash
 mkdir ~/sis-emb/lab6/fila
-cd ~/sis-emb/lab6/fila
+cd ~/sis-emb/lab6/
 idf.py create-project fila
 cd fila
 ```
