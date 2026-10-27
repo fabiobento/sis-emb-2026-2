@@ -109,11 +109,11 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
 2. No terminal integrado, crie o projeto do scanner e copie o firmware do repositório:
 
 ```bash
-mkdir -p ~/sis-emb/lab9/i2c_scanner
-cd ~/sis-emb/lab9/i2c_scanner
+mkdir -p ~/sis-emb/lab9/
+cd ~/sis-emb/lab9/
 idf.py create-project i2c_scanner
 cd i2c_scanner
-cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/i2c_scanner/main/i2c_scanner.c
+cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/main/i2c_scanner.c
 ```
 
 3. Abra o arquivo **com a teoria do lado** (Figura 9-K). Código-fonte completo:
