@@ -872,10 +872,9 @@ idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
 
-O monitor mostra `theta=+12.3 o`; o display deve mostrar algo como a
-    Figura L9-J. Requisitos mínimos (confira todos):
+Agora se, por exemplo, o monitor mostra algo como`theta=+12.3 o`então o display deve mostrar algo como a Figura L9-J. Requisitos mínimos (confira todos):
     - o valor de θ com **1 casa decimal** e sinal (`+12.3`);
-    - **atualização fluida**, sem tremedeira (a média móvel resolve);
+    - **atualização fluida**, sem muita "tremedeira" (a média móvel resolve);
     - uma indicação do **lado** da inclinação (`>>>>>`, `<<<<<` ou `=====` quando |θ| ≤ 2°);
     - a **barra** de −90° a +90° com o cursor andando.
 
