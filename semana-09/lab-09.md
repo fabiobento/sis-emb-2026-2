@@ -270,9 +270,9 @@ está em casa", endereço por endereço.*
    **anote** o que aparece (como nos Labs 4 e 5, aprender a diagnosticar é metade do lab):
    - **troque SDA↔SCL** (GPIO21 no SCL do módulo e vice-versa) → esperado: **nenhum**
      dispositivo;
-   - **desligue só o GND do módulo** (deixe o VCC) → nada, ou endereços "fantasmas"
+   - **desligue só o GND do módulo** (deixe o VCC) → nada, endereços "fantasmas", ou só alguns dos endereços (`0x68`, por exemplo)
      aleatórios (o módulo fica sem referência e a linha flutua);
-   - religue tudo certo e confirme o `0x68` de volta.
+   - religue tudo certo e confirme todos de volta.
 
    > 90 % dos "meu I²C não funciona" do semestre morrem neste passo. A Figura L9-D resume o
    > raciocínio: sempre do mais barato (energia, fio) ao mais caro (trocar o módulo).
