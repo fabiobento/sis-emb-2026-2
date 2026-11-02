@@ -242,6 +242,7 @@ cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/
    regrave:
 
 ```bash
+cd ~/sis-emb/lab9/i2c_scanner
 idf.py -p /dev/ttyUSB0 flash monitor
 ```
 
