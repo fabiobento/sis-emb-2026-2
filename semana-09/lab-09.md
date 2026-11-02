@@ -1,4 +1,4 @@
-# Lab 9 — I²C na veia: scanner, MPU-6050 e display OLED
+# Lab 9 — I²C: scanner, MPU-6050 e display OLED
 
 > **Antes de começar**: leia a [teoria-09](teoria-09.md) — a Figura 9-K (transação I²C)
 > explica o que o scanner provoca na linha, a seção 4 detalha o firmware de hoje linha a
