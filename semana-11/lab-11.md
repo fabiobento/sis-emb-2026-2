@@ -1,4 +1,4 @@
-# Lab 11 — RPi headless: do cartão virgem ao sistema explorado por SSH
+# Lab 11 — RPi headless: do cartão SSD ao sistema explorado por SSH
 
 > **Antes de começar**: leia a [teoria-11](teoria-11.md) — a Figura 11-C (boot em 5 atos) é o
 > que acontecerá dentro da sua placa, e a tabela de comandos da seção 4 é a sua cola de hoje.
