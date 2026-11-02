@@ -113,17 +113,7 @@ como 0 ⇒ endereço **0x68**; ligá-lo ao 3V3 mudaria para 0x69 — Exemplo 9.3
 > ℹ️ Se o Wokwi reclamar de algum nome de pino ao carregar, abra o componente (clique nele)
 > e confira os nomes na própria peça; a ideia é só **VCC→3V3, GND→GND, SDA→21, SCL→22**.
 
-2. No terminal integrado, crie o projeto do scanner e copie o firmware do repositório:
-
-```bash
-mkdir -p ~/sis-emb/lab9/
-cd ~/sis-emb/lab9/
-idf.py create-project i2c_scanner
-cd i2c_scanner
-cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/main/i2c_scanner.c
-```
-
-3. Abra o arquivo **com a teoria do lado** (Figura 9-K). Código-fonte completo:
+2. Abra o arquivo **com a teoria do lado** (Figura 9-K). Copie e cole esse código-fonte completo no editor de texto do Wokwi:
 
 ```c
 // Semana 9 — scanner I2C: varre 0x03-0x77 e lista quem responde ACK
@@ -225,7 +215,7 @@ void app_main(void)
      Figura L9-C: `0x68` vira `0xD0`.
    - `i2c_master_cmd_begin(...) == ESP_OK` só acontece quando alguém deu **ACK** no 9º bit.
 
-4. Compile e rode no Wokwi (`idf.py build` e carregue o binário, como nos labs anteriores).
+3. Compile e rode no Wokwi e carregue o binário, como nos labs anteriores.
    Saída esperada:
 
 ```
@@ -235,6 +225,17 @@ fim.
 ```
 
 ### A.3 No hardware
+
+4. No terminal integrado, crie o projeto do scanner e copie o firmware do repositório:
+
+```bash
+mkdir -p ~/sis-emb/lab9/
+cd ~/sis-emb/lab9/
+idf.py create-project i2c_scanner
+cd i2c_scanner
+cp ~/sis-emb-2026-2/semana-09/src/i2c_scanner/main.c ~/sis-emb/lab9/i2c_scanner/main/i2c_scanner.c
+```
+
 
 5. Monte o circuito **da Figura L9-A só com o MPU-6050** (ainda sem o OLED), com o ESP32
    **desligado do USB** durante a fiação. Confira a tabela de ligações, ligue o USB e
