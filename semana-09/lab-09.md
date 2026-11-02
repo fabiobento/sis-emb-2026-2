@@ -497,8 +497,8 @@ Primeira linha esperada:
 WHO_AM_I = 0x68 (esperado 0x68)
 ```
 
-    O WHO_AM_I é o "aperto de mão": se vier **0x00 ou lixo**, volte à Figura L9-D.
-12. Fluxo contínuo esperado (10 Hz), com a placa **parada e deitada**:
+O WHO_AM_I é o "aperto de mão": se vier **0x00 ou lixo**, volte à Figura L9-D.
+12. Exemplo de fluxo contínuo esperado (10 Hz), com a placa **parada e deitada**:
 
 ```
 a=(0.02,-0.01,0.99) g  gx=0.3 o/s  theta=1.2 o
@@ -864,7 +864,15 @@ void app_main(void)
     ângulo direto daria um salto de ±180° ao cruzar o ponto de "dobra"; o display é
     redesenhado a cada 2 leituras (**5 Hz**).
 
-20. Compile e grave. O monitor mostra `theta=+12.3 o`; o display deve mostrar algo como a
+20. Compile e grave.
+
+```bash
+cd ~/sis-emb/lab9/inclinometro
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+
+O monitor mostra `theta=+12.3 o`; o display deve mostrar algo como a
     Figura L9-J. Requisitos mínimos (confira todos):
     - o valor de θ com **1 casa decimal** e sinal (`+12.3`);
     - **atualização fluida**, sem tremedeira (a média móvel resolve);
