@@ -484,7 +484,14 @@ void app_main(void)
 >- `atan2f(axg, azg)` é a inclinação no plano XZ (Figura L9-F). Use `atan2f`, não
     `atanf(ax/az)`: o `atan2` enxerga os **sinais** e cobre os 360°.
 
-11. Compile e grave. Primeira linha esperada:
+11. Compile e grave.
+
+```bash
+cd ~/sis-emb/lab9/mpu6050
+idf.py -p /dev/ttyUSB0 flash monitor
+```
+
+Primeira linha esperada:
 
 ```
 WHO_AM_I = 0x68 (esperado 0x68)
