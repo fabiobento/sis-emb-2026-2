@@ -297,12 +297,7 @@ fim.
    fios: o superpoder do I²C (Exemplo 9.3). **O endereço é a única "identidade" de cada
    um** — por isso o scanner é o ping do barramento.
 
-   *(Wokwi, opcional)*: para simular os dois, acrescente ao `diagram.json` a peça
-   `{ "type": "board-ssd1306", "id": "oled", "top": 10, "left": 150, "attrs": {} }` e as
-   conexões `["oled:VCC","esp:3V3","red",[]]`, `["oled:GND","esp:GND.1","black",[]]`,
-   `["oled:SDA","esp:21","orange",[]]`, `["oled:SCL","esp:22","blue",[]]`.
-
-> 🧠 **Por que o scanner funciona**: ele envia só START + endereço + W̄ e verifica se
+>  **Por que o scanner funciona**: ele envia só START + endereço + W̄ e verifica se
 > **alguém puxou SDA para 0 no 9º bit** (o ACK da Figura 9-K da teoria). É a mesma
 > mecânica de qualquer transação — o scanner apenas **não faz nada depois** do ACK.
 
