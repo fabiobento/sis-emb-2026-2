@@ -539,7 +539,7 @@ a=(0.02,-0.01,0.99) g  gx=0.3 o/s  theta=1.2 o
       ~1 g. **Se esquecer de trocar a escala, a placa parada vai marcar ~0,5 g** — um bom
       jeito de "ver" o efeito da sensibilidade. Documente a mudança.
 
-16. **Endianness ao vivo** (semana 3 cobrando ingresso): monte um dos int16 na ordem errada,
+16. **Endianness ao vivo**: monte um dos int16 na ordem errada,
     p.ex. `ax = (b[1]<<8)|b[0]`. O que acontece com os valores em repouso? (Lixo com
     "saltos": às vezes plausível, às vezes absurdo, porque o byte BAIXO oscila muito mais
     que o ALTO.) Registre um print e desfaça.
