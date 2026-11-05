@@ -522,8 +522,8 @@ a=(0.02,-0.01,0.99) g  gx=0.3 o/s  theta=1.2 o
 | em pé, eixo X p/ baixo | (−1, 0, 0) g | ~−90° | |
 | de cabeça p/ baixo | (0, 0, −1) g | ~±180° | |
 
-    > Qual lado do GY-521 é o "+X"? Procure a seta de eixos na serigrafia da placa. Se o
-    > seu θ der o sinal trocado, não é erro: é a **convenção do eixo** (anote no relatório).
+> Qual lado do GY-521 é o "+X"? Procure a seta de eixos na serigrafia da placa. Se o
+> seu θ der o sinal trocado, não é erro: é a **convenção do eixo** (anote no relatório).
 
 14. A soma vetorial √(ax²+ay²+az²) dá ~1,00 g em repouso, **em qualquer posição**? É o
     teste de sanidade de todo acelerômetro. Calcule-a em três posições (com a calculadora
