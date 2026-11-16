@@ -75,6 +75,7 @@ sis-emb-2026-2/
 ├── listas/                       ← listas de exercícios (lista-0X)
 ├── slides/                       ← 31 apresentações
 ├── projeto-final/                ← regulamento e rubrica do projeto integrador
+├── projeto-guiado-movimento/     ← projeto guiado de encerramento: movimentos contínuos com Edge Impulse (ESP32 → PC → RPi)
 ├── labs-extra/                   ← laboratórios avançados (medidor de energia PZEM-004T; classificador de movimento TinyML; dashboard web full-stack)
 └── assets/figuras/               ← figuras da apostila
 ```
@@ -173,6 +174,17 @@ histórico é parte central da nota — e começa já no Lab 1.
 
 - [Prova P2 e apresentação dos projetos finais](semana-15/LEIA-ME-15.md) — a P2 cobre as semanas
   7–14; na sequência, a demonstração dos projetos e o congelamento do repositório (tag `v1.0`).
+
+**Projeto guiado de encerramento (4 encontros)**
+
+- [Reconhecimento de movimentos contínuos com Edge Impulse](projeto-guiado-movimento/README-projeto-guiado.md)
+  — ML embarcado do zero: Edge Impulse Studio, serialização do MPU-6050 no ESP32 a 62,5 Hz,
+  *data forwarder*, treino e teste, classificação em tempo real em Python no PC e no Raspberry Pi
+  ([Etapa 1](projeto-guiado-movimento/etapa-1-studio.md) ·
+  [Etapa 2](projeto-guiado-movimento/etapa-2-ingestao.md) ·
+  [Etapa 3](projeto-guiado-movimento/etapa-3-inferencia-pc.md) ·
+  [Etapa 4](projeto-guiado-movimento/etapa-4-rpi.md) ·
+  [guia de problemas](projeto-guiado-movimento/guia-problemas.md))
 
 **Complementos**
 

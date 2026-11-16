@@ -1,0 +1,7 @@
+# Aplicado automaticamente na primeira compilação (antes de existir o sdkconfig).
+# Objetivo: deixar a serial "limpa" — só as linhas de dados, sem as dezenas de
+# mensagens de log do boot, que confundem o data forwarder e os scripts Python.
+CONFIG_BOOTLOADER_LOG_LEVEL_WARN=y
+CONFIG_LOG_DEFAULT_LEVEL_WARN=y
+# A UART do console continua em 115200 bps (padrão), exigida pelo data forwarder.
+CONFIG_ESP_CONSOLE_UART_BAUDRATE=115200

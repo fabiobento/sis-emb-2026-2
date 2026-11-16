@@ -1,0 +1,12 @@
+# Instalados pelo apt no script instalar_*.sh (python3-numpy, python3-serial,
+# python3-six, python3-pyaudio, python3-opencv) e visíveis na venv criada com
+# --system-site-packages. Para instalar tudo via pip (ex.: outra distro):
+#   sudo apt install portaudio19-dev python3-dev   # necessários para compilar o PyAudio
+pyserial>=3.5
+numpy
+six
+pyaudio
+opencv-python-headless
+edge_impulse_linux
+# opcional (cubo3d.py):
+# pygame
