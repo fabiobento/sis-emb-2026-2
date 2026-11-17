@@ -160,16 +160,20 @@ projeto-guiado/
 
 **Prazo:** até o fim do 4º encontro (com tolerância até a aula seguinte para o relatório).
 
-### Rubrica (100 pontos)
+### Rubrica (20 pontos)
+
+O projeto guiado vale **20 dos 100 pontos** da disciplina em 2026/2 (ver a
+[composição da nota](../README.md#composição-da-nota-semestral-20262--100-pontos)).
 
 | Critério | Pontos | O que conta |
 |---|---|---|
-| Etapa 1 — Studio | 10 | modelo do celular treinado e testado ao vivo; respostas 📝 |
-| Etapa 2 — Firmware e ingestão | 20 | taxa medida ≈ 62,5 Hz; dados nas 4 classes; respostas 📝 |
-| Etapa 2 — Modelo | 15 | divisão treino/teste correta; matriz de confusão analisada; anomalias testadas |
-| Etapa 3 — Scripts no PC | 25 | TODOs corretos; classificação em tempo real funcionando; latência medida |
-| Etapa 4 — RPi | 20 | sistema instalado; SSH; classificação no RPi; comparação PC × RPi |
-| Organização e histórico de commits | 10 | commits frequentes e descritivos; relatório legível |
+| Etapa 1 — Studio | 2 | modelo do celular treinado e testado ao vivo; respostas 📝 |
+| Etapa 2 — Firmware e ingestão | 4 | taxa medida ≈ 62,5 Hz; dados nas 4 classes; respostas 📝 |
+| Etapa 2 — Modelo | 3 | divisão treino/teste correta; matriz de confusão analisada; anomalias testadas |
+| Etapa 3 — Scripts no PC | 5 | TODOs corretos; classificação em tempo real funcionando; latência medida |
+| Etapa 4 — RPi | 4 | sistema instalado; SSH; classificação no RPi; comparação PC × RPi |
+| Organização e histórico de commits | 2 | commits frequentes e descritivos; relatório legível |
+| **Total** | **20** | |
 
 ---
 

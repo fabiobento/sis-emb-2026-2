@@ -1,5 +1,10 @@
 # Projeto Final Integrador — Regulamento e Rubrica
 
+> 📌 **2026/2:** este projeto final **foi substituído** pelo [projeto guiado de reconhecimento de
+> movimentos](../projeto-guiado-movimento/README-projeto-guiado.md) (20 pontos) e não entra na nota
+> deste semestre — ver a [composição da nota](../README.md#composição-da-nota-semestral-20262--100-pontos).
+> O regulamento abaixo fica como referência.
+
 ## Objetivo
 Projetar, implementar e documentar um **sistema embarcado completo** que integre, no mínimo:
 **sensoriamento + processamento/controle + atuação ou comunicação**. Combinações ESP32 + RPi

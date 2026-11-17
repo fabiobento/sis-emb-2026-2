@@ -1,5 +1,9 @@
 # Semana 15 — Avaliação P2 e Apresentação dos Projetos Finais
 
+> 📌 **2026/2:** a Prova P2 e o projeto final integrador **não foram aplicados** neste semestre. Os
+> encontros finais foram dedicados ao [projeto guiado de reconhecimento de movimentos](../projeto-guiado-movimento/README-projeto-guiado.md)
+> — ver a [composição da nota](../README.md#composição-da-nota-semestral-20262--100-pontos). Este roteiro fica como referência.
+
 ## Encontro 1 (2 aulas) — Prova P2
 Avaliação escrita individual cobrindo as semanas 7–14: ADC/DAC e fundamentos de PDS; PWM/LEDC e
 atuadores; UART/SPI/I2C; CAN/TWAI; Linux embarcado e interfaceamento no RPi; PDS e PID embarcado;

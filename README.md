@@ -126,16 +126,16 @@ histórico é parte central da nota — e começa já no Lab 1.
 
 **Por que isso importa (e pesa na nota):**
 
-- O **histórico de commits distribuído ao longo do semestre** é critério explícito de avaliação:
-  vale **20 % (documentação)** na rubrica do projeto final, e a nota individual pode ser ajustada
-  em **±20 %** conforme a participação demonstrada nos commits e na arguição — ver
-  [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md).
+- Os **relatórios dos Labs 1–6** e o **projeto guiado** — 80 dos 100 pontos de 2026/2 — são
+  avaliados **pelo que está no repositório da bancada** (ver
+  [Composição da nota semestral](#composição-da-nota-semestral-20262--100-pontos)).
+- O **histórico de commits distribuído ao longo do tempo** é critério explícito: no projeto
+  guiado, por exemplo, "organização e histórico de commits" é um dos itens da rubrica.
 - Commits **pequenos, frequentes e com mensagens descritivas** desde a primeira semana valem mais
   do que um único commit na véspera (que é penalizado e facilmente detectável). Exemplo de boa
   mensagem: `lab01: experimento 2 — LED assimétrico 900/100 ms`; exemplo ruim: `update`.
-- O mesmo repositório e a mesma disciplina de versionamento evoluem naturalmente para o **projeto
-  final**, que exige o GitHub desde a proposta e culmina no congelamento com a tag `v1.0` na
-  semana 15.
+- O mesmo repositório recebe, no fim do semestre, a pasta `projeto-guiado/` do projeto de
+  encerramento.
 
 > Em resumo: o repositório da bancada é o seu **caderno de laboratório versionado**. Mantê-lo vivo,
 > semana a semana, é a forma de entrega da disciplina e uma fração relevante da avaliação — não
@@ -160,6 +160,8 @@ histórico é parte central da nota — e começa já no Lab 1.
 
 > **Prova P1 — semana 8** (segundo encontro): avaliação escrita individual cobrindo as
 > semanas 1–6. Preparação: Listas 1 e 2 e os Exemplos resolvidos 1.1 a 6.3.
+>
+> *2026/2: a P1 e a P2 não foram aplicadas — ver [Composição da nota semestral](#composição-da-nota-semestral-20262--100-pontos).*
 
 **Bloco 2 — Raspberry Pi 3 e Linux embarcado (semanas 11–14)**
 
@@ -216,6 +218,10 @@ mais a semana 15, o lab extra de energia e o projeto final.
 
 ## Cronograma (15 semanas)
 
+> 📌 **2026/2:** em sala foram cobertas as semanas 1–7 e 9; os 4 encontros finais foram
+> dedicados ao [projeto guiado](projeto-guiado-movimento/README-projeto-guiado.md). O cronograma
+> abaixo é o planejamento completo da disciplina.
+
 As unidades (U1–U4) seguem o PPC da disciplina. A **P1** ocorre no 2º encontro da semana 8; a
 **P2**, no 1º encontro da semana 15 (as apresentações dos projetos ficam no 2º encontro).
 
@@ -251,15 +257,17 @@ opcional** para quem terminar antes.
 ## Avaliação da aprendizagem
 
 Instrumentos previstos no PPC: avaliação escrita (testes e provas); exercícios; elaboração e
-apresentação de trabalhos. Neste curso, tomam a forma:
+apresentação de trabalhos. Neste curso, tomam a forma (a composição da nota de 2026/2 está em
+[Composição da nota semestral](#composição-da-nota-semestral-20262--100-pontos)):
 
 | Instrumento | Cobre | Como é entregue |
 |---|---|---|
-| Prova P1 | Semanas 1–6 | Escrita individual, semana 8 (2º encontro) |
-| Prova P2 | Semanas 7–14 | Escrita individual, semana 15 (1º encontro) |
+| Prova P1 | Semanas 1–6 | Escrita individual, semana 8 (2º encontro) — *não aplicada em 2026/2* |
+| Prova P2 | Semanas 7–14 | Escrita individual, semana 15 (1º encontro) — *não aplicada em 2026/2* |
 | Relatórios de laboratório | Todas as semanas de lab | **Em bancada**, por commit no repositório GitHub da bancada, até a aula prática seguinte — ver [Entrega das bancada no GitHub](#entrega-das-bancadas-no-github-ao-longo-de-todo-o-semestre) |
 | Listas de exercícios | Blocos de semanas (ver abaixo) | **Por bancada**, em PDF ou markdown no GitHub, no prazo de cada lista |
-| Projeto final (sistema integrado) | Unidades I–IV | **Em grupo**; rubrica própria em [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md) |
+| Projeto final (sistema integrado) | Unidades I–IV | **Em grupo**; rubrica própria em [`projeto-final/README-proj-final.md`](projeto-final/README-proj-final.md) — *substituído em 2026/2 pelo projeto guiado* |
+| Projeto guiado (2026/2) | Semanas 4–7 e 9 + ML embarcado | **Por bancada**, por commit na pasta `projeto-guiado/` do repositório da bancada — ver [`projeto-guiado-movimento/`](projeto-guiado-movimento/README-projeto-guiado.md) |
 
 ### Como funcionam as listas de exercícios
 
@@ -275,32 +283,41 @@ lista é entregue **Por bancada** **em PDF ou markdown, no GitHub**, até a aula
 | 04 | Semanas 11–12 | aula teórica da semana 13 | preparação para a **P2** |
 | 05 | Semanas 13–14 | 1º encontro da semana 15 | preparação direta para a **P2** |
 
+> 📌 **2026/2:** apenas as **listas 01 e 02** entram na nota (10 pontos cada). As listas 03–05
+> ficam como material de estudo.
+
 Os prazos caem sempre na aula que **abre o bloco seguinte**, para que a lista sirva de revisão e
 consolidação antes de o conteúdo novo começar — e, nas semanas de prova, de preparação direta.
 
-### Pesos dos instrumentos
+### Composição da nota semestral (2026/2 — 100 pontos)
 
 Os critérios priorizados pelo PPC são: a articulação entre o saber estudado e a solução de
 problemas reais; a capacidade de análise crítica; a iniciativa e a criatividade nos trabalhos; a
 interação e o trabalho em grupo; a organização e a clareza na expressão dos conceitos.
 
-A composição da nota semestral (os pesos abaixo) segue o plano de ensino da turma:
+> 📌 **Ajuste de final de semestre (combinado com a turma).** Como o semestre cobriu em sala as
+> semanas 1–7 e 9, as últimas aulas foram dedicadas ao
+> [projeto guiado de reconhecimento de movimentos](projeto-guiado-movimento/README-projeto-guiado.md),
+> e a nota de 2026/2 passou a ser composta **só** pelos instrumentos abaixo. As **provas P1 e P2**,
+> as **listas 03–05** e o **projeto final integrador** não fazem parte da nota deste semestre
+> (os materiais continuam no repositório para estudo).
 
-| Instrumento | Peso |
-|---|---|
-| Prova P1 | 5% |
-| Prova P2 | 5% |
-| Relatórios de laboratório (bancadas) | 35% |
-| Listas de exercícios (individuais) | 30% |
-| Projeto final | 25% |
-| **Total** | **100 %** |
+| Instrumento | Entrega | Pontos |
+|---|---|---|
+| Lista de exercícios 01 | [`listas/lista-01.md`](listas/lista-01.md) | 10 |
+| Lista de exercícios 02 | [`listas/lista-02.md`](listas/lista-02.md) | 10 |
+| Relatório do Lab 1 | [`semana-01/lab-01.md`](semana-01/lab-01.md) → `lab-01/` no repositório da bancada | 10 |
+| Relatório do Lab 2 | [`semana-02/lab-02.md`](semana-02/lab-02.md) → `lab-02/` | 10 |
+| Relatório do Lab 3 | [`semana-03/lab-03.md`](semana-03/lab-03.md) → `lab-03/` | 10 |
+| Relatório do Lab 4 | [`semana-04/lab-04.md`](semana-04/lab-04.md) → `lab-04/` | 10 |
+| Relatório do Lab 5 | [`semana-05/lab-05.md`](semana-05/lab-05.md) → `lab-05/` | 10 |
+| Relatório do Lab 6 | [`semana-06/lab-06.md`](semana-06/lab-06.md) → `lab-06/` | 10 |
+| Projeto guiado — movimentos contínuos com Edge Impulse | [`projeto-guiado-movimento/`](projeto-guiado-movimento/README-projeto-guiado.md) → `projeto-guiado/` | 20 |
+| **Total** | | **100** |
 
-> **Preencher os pesos com os valores do plano de ensino desta turma.** O material não fixa essa
-> composição; os números acima são o único ponto do plano que depende exclusivamente do professor.
-
-Dentro do **projeto final**, a distribuição já está definida em sua rubrica: funcionamento 40 %,
-qualidade técnica 25 %, documentação 20 % (inclui o histórico de commits do repositório da bancada)
-e apresentação 15 %, com a nota individual ajustável em ±20 % pela arguição — ver o regulamento.
+Em resumo: **listas 20 pontos** (2 × 10), **relatórios de laboratório 60 pontos** (6 × 10) e
+**projeto guiado 20 pontos** — a distribuição interna dos 20 pontos do projeto guiado está na
+[rubrica do projeto](projeto-guiado-movimento/README-projeto-guiado.md#rubrica-20-pontos).
 
 ## Convenções usadas no texto
 
