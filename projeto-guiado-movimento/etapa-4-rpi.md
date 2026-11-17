@@ -44,6 +44,16 @@ do PC), mas é pequeno, barato e de baixo consumo — pode ficar **junto** do eq
 monitorado. O ESP32 continua fazendo o que faz melhor: **tempo real** na aquisição. Essa divisão
 de trabalho (MCU para o tempo real + SBC para o processamento) é muito comum em produtos.
 
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+![Coletar em um dispositivo e implantar em outro: no nosso caso, o ESP32 coleta, o Studio treina e o Raspberry Pi executa o modelo.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_mcu.png)
+
+*Figura E4-S1 — Coletar em um dispositivo e implantar em outro: no nosso caso, o ESP32 coleta, o Studio treina e o Raspberry Pi executa o modelo.*
+
+![O que vai para o RPi: a extração de features e o modelo treinado, juntos no .eim (agora compilado para ARM).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_features_mcu.png)
+
+*Figura E4-S2 — O que vai para o RPi: a extração de _features_ e o modelo treinado, juntos no `.eim` (agora compilado para ARM).*
+
 > ⚠️ **ARM ≠ x86.** O Raspberry Pi 3 roda instruções **ARM (aarch64)**; o PC, **x86-64**. Scripts
 > Python são portáveis (o interpretador traduz), mas **executáveis compilados não são** — o
 > `modelfile.eim` do PC não roda no RPi. Por isso a Parte E.
@@ -189,6 +199,10 @@ groups | grep dialout
 
 ## Parte E — O modelo para ARM: `.eim` aarch64 (20 min)
 
+![Converter e implantar para o novo alvo: o Studio compila o mesmo impulso para a arquitetura do RPi (aarch64).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_tensorflow.png)
+
+*Figura E4-S3 — Converter e implantar para o novo alvo: o Studio compila o mesmo impulso para a arquitetura do RPi (aarch64).*
+
 Escolha **um** dos caminhos.
 
 **Caminho A (recomendado) — baixar no PC e copiar.** O `edge-impulse-linux-runner` do PC pode
@@ -327,6 +341,16 @@ print(f'{len(v)} inferências, tempo médio {sum(v)/len(v):.2f} ms, máximo {max
 3. Complete o `relatorio.md` e faça o commit final:
    `projeto-guiado: etapa 4 — inferência no Raspberry Pi`. Confira a lista de entrega no
    [README do projeto](README-projeto-guiado.md#entrega-github-da-bancada-pasta-projeto-guiado).
+
+Você percorreu o fluxo inteiro:
+
+![Da coleta (Etapa 2) à inferência na borda (Etapas 3 e 4).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_ml.png)
+
+*Figura E4-S4 — Da coleta (Etapa 2) à inferência na borda (Etapas 3 e 4).*
+
+![O resumo do fluxo nos slides. Compare com o que a sua bancada fez em cada etapa.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_resumo.png)
+
+*Figura E4-S5 — O resumo do fluxo nos slides. Compare com o que a sua bancada fez em cada etapa.*
 
 ### ✅ Chegamos (fim do projeto)
 

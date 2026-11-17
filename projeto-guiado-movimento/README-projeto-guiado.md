@@ -37,6 +37,30 @@ Distinguir esses movimentos com `if`s escritos à mão é muito difícil (cada p
 jeito, a velocidade varia, a orientação muda). Por isso vamos **aprender** a regra a partir de
 exemplos — isso é aprendizado de máquina.
 
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+A sequência abaixo mostra o estudo de caso, por que o transporte marítimo é o mais complexo e como a "caixa" é movida em cada classe:
+
+![O estudo de caso: a carga está parada no armazém (idle), é erguida pela empilhadeira (lift, Fork-Lift) e viaja por terra, de caminhão ou trem (terrestrial),…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_estudo_caso_transporte.png)
+
+*Figura P-S1 — O estudo de caso: a carga está parada no armazém (`idle`), é erguida pela empilhadeira (`lift`, _Fork-Lift_) e viaja por terra, de caminhão ou trem (`terrestrial`), ou por mar (`maritime`).*
+
+![Por que maritime é a classe mais rica: num navio a carga sofre, ao mesmo tempo, translações e rotações em todas as direções (fonte indicada no slide:…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_maritimo_esforcos.png)
+
+*Figura P-S2 — Por que `maritime` é a classe mais rica: num navio a carga sofre, ao mesmo tempo, translações e rotações em todas as direções (fonte indicada no slide: _Container Handbook_).*
+
+![Os seis movimentos de um navio: três lineares (surge em X, sway em Y, heave em Z), medidos pelo acelerômetro, e três rotações (roll, pitch, yaw), medidas…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_maritimo_eixos.png)
+
+*Figura P-S3 — Os seis movimentos de um navio: três lineares (_surge_ em X, _sway_ em Y, _heave_ em Z), medidos pelo **acelerômetro**, e três rotações (_roll_, _pitch_, _yaw_), medidas pelo **giroscópio**. Neste projeto usamos só o acelerômetro.*
+
+![Como simular as classes com uma 'caixa' na mão: lift = sobe e desce, terrestrial = esquerda e direita, maritime = zigue-zague e ondulação, idle = parada.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_classes_caixa.png)
+
+*Figura P-S4 — Como simular as classes com uma "caixa" na mão: `lift` = sobe e desce, `terrestrial` = esquerda e direita, `maritime` = zigue-zague e ondulação, `idle` = parada.*
+
+![A mesma ideia com a placa do sensor presa à caixa. É exatamente o que você fará com a protoboard (ESP32 + MPU-6050) na Etapa 2.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_classes_caixa_mcu.png)
+
+*Figura P-S5 — A mesma ideia com a placa do sensor presa à caixa. É exatamente o que você fará com a protoboard (ESP32 + MPU-6050) na Etapa 2.*
+
 ![As quatro classes: parado, sobe-e-desce, vai-e-vem horizontal e ondulação, com os sinais típicos dos três eixos do acelerômetro](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pgm_classes.png)
 
 *Figura P-2 — As quatro classes e a "cara" que cada uma tem no acelerômetro (sinais
@@ -68,6 +92,17 @@ oscila; em `terrestrial`, o X oscila; em `maritime`, tudo ondula devagar.*
 
 **Problemas?** Consulte o [guia de problemas](guia-problemas.md) — ele está organizado por
 sintoma (a mensagem que aparece na tela).
+
+
+As 4 etapas percorrem o **fluxo de trabalho de aprendizado de máquina**, da coleta à inferência:
+
+![O fluxo de um projeto de ML embarcado: coletar → pré-processar → projetar o modelo → treinar → avaliar → converter → implantar → inferir. As Etapas 1 e 2…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_ml.png)
+
+*Figura P-S6 — O fluxo de um projeto de ML embarcado: coletar → pré-processar → projetar o modelo → treinar → avaliar → converter → implantar → inferir. As Etapas 1 e 2 vão de _Collect Data_ a _Evaluate_; as Etapas 3 e 4, de _Convert Model_ a _Make Inferences_.*
+
+![O mesmo fluxo aplicado ao reconhecimento de movimentos: cada seta corresponde a uma tela do Edge Impulse Studio. Aqui o sensor é o celular, como na Etapa 1;…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_resumo.png)
+
+*Figura P-S7 — O mesmo fluxo aplicado ao reconhecimento de movimentos: cada seta corresponde a uma tela do Edge Impulse Studio. Aqui o sensor é o celular, como na Etapa 1; nas demais etapas, é o seu ESP32.*
 
 ---
 

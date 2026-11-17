@@ -37,6 +37,18 @@ No **Lab 9** você leu o MPU-6050 por I²C (semana 9). A novidade aqui é o que 
 da leitura: transformar os números numa **linha de texto padronizada** que um programa no PC
 consegue interpretar sem ambiguidade. Isso é **serialização**.
 
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+Relembrando o I²C da semana 9, por onde a amostra sai do sensor:
+
+![O barramento I²C: duas linhas (SDA e SCL) com resistores de pull-up, um primário (o ESP32) e vários secundários, cada um com seu endereço de 7 bits. O nosso…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_i2c_barramento.png)
+
+*Figura E2-S1 — O barramento I²C: duas linhas (SDA e SCL) com resistores de _pull-up_, um primário (o ESP32) e vários secundários, cada um com seu endereço de 7 bits. O nosso MPU-6050 é o secundário de endereço `0x68` (AD0 em GND).*
+
+![O início de cada transação: bit de start, 7 bits de endereço (no exemplo, 0110011, do 'Secundário 0' da figura anterior) e o bit R/W. Para falar com o…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_i2c_quadro.png)
+
+*Figura E2-S2 — O início de cada transação: bit de _start_, 7 bits de endereço (no exemplo, `0110011`, do "Secundário 0" da figura anterior) e o bit R/W. Para falar com o MPU-6050, o ESP32 envia `1101000` (`0x68`).*
+
 ### A.2 O protocolo do *data forwarder*
 
 O `edge-impulse-data-forwarder` é uma ponte genérica: ele lê a serial, descobre sozinho quantos
@@ -88,6 +100,20 @@ marca eixos chamados `acc…` como `m/s2`) e a do projeto de referência.
 **E o filtro?** O registrador `0x1A` (`CONFIG`, bits `DLPF_CFG`) liga um passa-baixas interno.
 Com `DLPF_CFG = 4`, a banda do acelerômetro fica em ≈ 21 Hz — abaixo do limite de Nyquist de
 31,25 Hz. É o **filtro anti-*aliasing*** da semana 7, já dentro do sensor.
+
+![Os três eixos do acelerômetro sobre o módulo GY-521. O firmware lê X, Y e Z nessa ordem (registradores 0x3B a 0x40) e imprime accX,accY,accZ.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_mpu6050_eixos.png)
+
+*Figura E2-S3 — Os três eixos do acelerômetro sobre o módulo GY-521. O firmware lê X, Y e Z nessa ordem (registradores `0x3B` a `0x40`) e imprime `accX,accY,accZ`.*
+
+> 🔎 **Para ir além (Arduino).** Na IDE do Arduino, bibliotecas prontas, como a *MPU6050* da Electronic Cats, fazem a inicialização e a conversão que o nosso firmware faz "na mão" com o ESP-IDF. Vale conhecer, mas **não** são usadas neste projeto.
+
+![A biblioteca MPU6050 na referência oficial do Arduino.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_lib_arduino.png)
+
+*Figura E2-S4 — A biblioteca _MPU6050_ na referência oficial do Arduino.*
+
+![O repositório da biblioteca MPU6050 da Electronic Cats.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_lib_electroniccats.png)
+
+*Figura E2-S5 — O repositório da biblioteca _MPU6050_ da Electronic Cats.*
 
 ### A.4 Amostragem cravada: por que `esp_timer` e não `vTaskDelayUntil`
 
@@ -380,6 +406,24 @@ terminar.** A protoboard é a "caixa":
 | `terrestrial` | vai-e-vem **horizontal**, numa linha, deslizando sobre a mesa ou no ar | ritmo de 1–2 vezes/s, com trancos de "estrada" |
 | `maritime` | balanço **lento** (~0,5 vez/s), inclinando e ondulando em todos os eixos | pense numa onda levantando a proa e depois a popa |
 
+As figuras abaixo mostram os movimentos que você vai gravar:
+
+![Os dados serão coletados e testados com o acelerômetro como sensor: a placa vai presa à 'caixa', com os eixos X, Y e Z fixos em relação a ela.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_acelerometro_sensor.png)
+
+*Figura E2-S6 — Os dados serão coletados e testados com o **acelerômetro** como sensor: a placa vai presa à "caixa", com os eixos X, Y e Z fixos em relação a ela.*
+
+![Os quatro movimentos com a caixa na mão…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_classes_caixa.png)
+
+*Figura E2-S7 — Os quatro movimentos com a caixa na mão…*
+
+![…e com a placa do sensor sobre ela, como a sua protoboard.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_classes_caixa_mcu.png)
+
+*Figura E2-S8 — …e com a placa do sensor sobre ela, como a sua protoboard.*
+
+![Qual direção cada classe excita: terrestrial, horizontal; lift, vertical; maritime, todas; idle, nenhuma.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_coleta_eixos.png)
+
+*Figura E2-S9 — Qual direção cada classe excita: `terrestrial`, horizontal; `lift`, vertical; `maritime`, todas; `idle`, nenhuma.*
+
 > ⚠️ **Mantenha a orientação de referência**: comece cada gravação com a protoboard deitada, fios
 > do mesmo lado, como você vai usá-la nas Etapas 3 e 4.
 
@@ -393,6 +437,20 @@ terminar.** A protoboard é a "caixa":
 Para gravar direto no teste, selecione a aba **Test** no topo da *Data acquisition* antes de
 clicar em *Start sampling* (ou mova depois pelo "⋮" → *Move to test set*). **Não** use divisão
 automática por janela (Figura E1-B).
+
+Lembre a divisão vista na Etapa 1 (Figura E1-B e Figuras E1-S30 a E1-S34):
+
+![O teste é separado antes do treino. Aqui você faz isso gravando direto na aba Test.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_2.png)
+
+*Figura E2-S10 — O teste é separado **antes** do treino. Aqui você faz isso gravando direto na aba _Test_.*
+
+![A validação sai do treino automaticamente; você não precisa gravá-la.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_3.png)
+
+*Figura E2-S11 — A validação sai do treino automaticamente; você não precisa gravá-la.*
+
+![O teste só é usado no final (E.5), para a estimativa de desempenho do modelo.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_5.png)
+
+*Figura E2-S12 — O teste só é usado no final (E.5), para a estimativa de desempenho do modelo.*
 
 > **Exemplo resolvido 2.3 — quanto tempo isso leva?** 60 gravações × (10 s + ~10 s de
 > preparação/envio) ≈ **20 min**. Por isso os papéis: um aluno movimenta, o outro opera o Studio e
@@ -422,6 +480,14 @@ Na lista de amostras, clique em algumas e confira os gráficos:
 
 **Save Impulse.**
 
+![O que Window size = 2000 ms significa: 125 amostras × 3 eixos = 375 números por janela.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela_2s_375.png)
+
+*Figura E2-S13 — O que _Window size_ = 2000 ms significa: 125 amostras × 3 eixos = 375 números por janela.*
+
+![O impulso que você acabou de criar, desenhado nos slides (sem o bloco de anomalias).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_pipeline_completo.png)
+
+*Figura E2-S14 — O impulso que você acabou de criar, desenhado nos slides (sem o bloco de anomalias).*
+
 ### E.2 Spectral features (15 min)
 
 1. Use como ponto de partida os parâmetros do projeto de referência (que você anotou na Etapa 1,
@@ -436,6 +502,24 @@ Na lista de amostras, clique em algumas e confira os gráficos:
 > (`Δf = 62,5/64 ≈ 0,98 Hz`), o pico cai na 2ª raia. Um pico em 0 Hz em todos os eixos é a
 > **gravidade** (componente contínua) — o filtro do bloco serve justamente para tratar isso.
 
+O que o *Generate features* calcula, em sequência (detalhes na Etapa 1, A.5):
+
+![O espectro de cada eixo (o gráfico Spectral power do Studio é desse tipo).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_fft_espectro.png)
+
+*Figura E2-S15 — O espectro de cada eixo (o gráfico _Spectral power_ do Studio é desse tipo).*
+
+![Os picos do espectro: altura e frequência.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_picos.png)
+
+*Figura E2-S16 — Os picos do espectro: altura e frequência.*
+
+![A potência por faixa de frequência (PSD).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_psd.png)
+
+*Figura E2-S17 — A potência por faixa de frequência (PSD).*
+
+![Todas as features: são os eixos do Feature explorer.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_features_33.png)
+
+*Figura E2-S18 — Todas as _features_: são os eixos do _Feature explorer_.*
+
 ### E.3 Classifier (15 min)
 
 1. Mantenha a rede padrão (camadas densas de **20** e **10** neurônios), **30 ciclos**, taxa de
@@ -444,6 +528,14 @@ Na lista de amostras, clique em algumas e confira os gráficos:
    **latência, RAM e flash** do *On-device performance*.
 3. Se a acurácia de validação ficar abaixo de ~85 %, **não mexa na rede ainda**: olhe a matriz de
    confusão, descubra quais classes se confundem e grave **mais e melhores** amostras delas.
+
+![A rede padrão que você está treinando: features → 20 → 10 → 4 classes.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dnn_neuronios.png)
+
+*Figura E2-S19 — A rede padrão que você está treinando: _features_ → 20 → 10 → 4 classes.*
+
+![As mesmas camadas como o Studio as mostra (Keras).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dnn_keras.png)
+
+*Figura E2-S20 — As mesmas camadas como o Studio as mostra (Keras).*
 
 ### E.4 Anomaly detection (5 min)
 
@@ -455,6 +547,10 @@ training**. No gráfico, os pontos de treino (azuis) ficam dentro dos *clusters*
 **Classify all**. Anote a acurácia de **teste** e salve a matriz em
 `evidencias/e2_matriz_teste.png`.
 
+![O teste com gravações que o modelo nunca viu dá a estimativa final de desempenho.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_5.png)
+
+*Figura E2-S21 — O teste com gravações que o modelo nunca viu dá a estimativa final de desempenho.*
+
 > 📝 **Relatório (Etapa 2, Q3):** compare as acurácias de validação e de teste. A diferença é
 > grande? O que isso indica (*overfitting*? o testador movimenta diferente?). Qual par de classes
 > mais se confunde e por quê, fisicamente?
@@ -464,6 +560,10 @@ training**. No gráfico, os pontos de treino (azuis) ficam dentro dos *clusters*
 Com o *data forwarder* ainda rodando, menu **Live classification**: *Device* `esp32-bancada-N`,
 *Sample length* `10000` → **Start sampling**, e faça cada movimento. O Studio fatia a gravação e
 mostra a classe de cada janela.
+
+![O Live classification faz exatamente isto: desliza a janela de 2 s sobre a gravação e classifica cada posição.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela.png)
+
+*Figura E2-S22 — O _Live classification_ faz exatamente isto: desliza a janela de 2 s sobre a gravação e classifica cada posição.*
 
 Teste também:
 

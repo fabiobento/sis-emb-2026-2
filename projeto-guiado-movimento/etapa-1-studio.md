@@ -68,6 +68,22 @@ um servidor. Quatro motivos, que você já conhece das semanas anteriores:
 > A **inferência** é leve (uma passada só) e roda na borda: no PC (Etapa 3), no Raspberry Pi
 > (Etapa 4) ou até no próprio ESP32 ([trilha TinyML](../docs/trilha-tinyml.md), opcional).
 
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+Três jeitos de organizar *coletar → treinar → implantar*, do mais simples ao do nosso projeto:
+
+![O mesmo dispositivo (aqui, o celular) coleta os dados e, depois, executa o modelo treinado na nuvem. É o que você fará na Parte C.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_celular.png)
+
+*Figura E1-S1 — O mesmo dispositivo (aqui, o celular) coleta os dados e, depois, executa o modelo treinado na nuvem. É o que você fará na Parte C.*
+
+![Os dados podem vir de dispositivos diferentes (celular e placa com sensor), e o modelo é implantado num dispositivo embarcado. No nosso projeto, o ESP32 é o…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_mcu.png)
+
+*Figura E1-S2 — Os dados podem vir de dispositivos diferentes (celular e placa com sensor), e o modelo é implantado num dispositivo embarcado. No nosso projeto, o ESP32 é o sensor, e o PC e o Raspberry Pi recebem o modelo.*
+
+![O que existe dentro de treinar: primeiro extraímos features, depois treinamos o modelo. As duas partes vão juntas para o dispositivo — no nosso caso, dentro…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_features_mcu.png)
+
+*Figura E1-S3 — O que existe dentro de _treinar_: primeiro **extraímos _features_**, depois **treinamos** o modelo. As duas partes vão juntas para o dispositivo — no nosso caso, dentro do arquivo `.eim`.*
+
 ### A.3 O ciclo de vida de um projeto de ML
 
 ```
@@ -82,16 +98,68 @@ Os passos 2 a 5 você fará com cliques no Studio; o passo 1, com o seu firmware
 passo 5, com os seus scripts (Etapas 3 e 4). Na prática, **a qualidade dos dados decide mais que
 a escolha do algoritmo**.
 
+Os slides mostram o mesmo ciclo como uma fila de oito setas. Acompanhe em que ponto dela entra cada assunto desta Parte A:
+
+![O fluxo completo, da coleta (Collect Data) à inferência (Make Inferences).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_ml.png)
+
+*Figura E1-S4 — O fluxo completo, da coleta (_Collect Data_) à inferência (_Make Inferences_).*
+
+![Pré-processar os dados: o bloco de análise espectral (Spectral Analysis) — seção A.5.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_preprocessamento.png)
+
+*Figura E1-S5 — **Pré-processar** os dados: o bloco de **análise espectral** (_Spectral Analysis_) — seção A.5.*
+
+![Projetar o modelo: o classificador por rede neural (NN Classifier) — seção A.6.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_modelo.png)
+
+*Figura E1-S6 — **Projetar o modelo**: o **classificador por rede neural** (_NN Classifier_) — seção A.6.*
+
+![Treinar, avaliar, converter e implantar — seções A.6 e A.7 e, na prática, as Etapas 2, 3 e 4.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_treino_deploy.png)
+
+*Figura E1-S7 — **Treinar, avaliar, converter e implantar** — seções A.6 e A.7 e, na prática, as Etapas 2, 3 e 4.*
+
+![As ferramentas por trás de cada fase: TensorFlow (treino e avaliação), TensorFlow Lite (conversão) e TensorFlow Lite Micro (microcontroladores). O Edge…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_tensorflow.png)
+
+*Figura E1-S8 — As ferramentas por trás de cada fase: TensorFlow (treino e avaliação), TensorFlow Lite (conversão) e TensorFlow Lite Micro (microcontroladores). O Edge Impulse faz tudo isso por você; para Linux, o resultado é o `.eim`.*
+
 ### A.4 Série temporal e janela
 
 O acelerômetro entrega uma **série temporal**: 62,5 amostras por segundo, cada uma com 3 valores
 (`accX, accY, accZ`). Uma única amostra não diz nada sobre movimento (um instante de `lift` pode
 ser idêntico a um instante de `idle`). O modelo precisa olhar um **trecho** — uma **janela**.
 
+A sequência a seguir mostra, passo a passo, **por que** precisamos de uma janela:
+
+![10 s de acelerômetro a 62,5 Hz durante um movimento contínuo: accX (vermelho), accY (verde) e accZ (azul). Note accZ ≈ 10 m/s²: é a gravidade.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_serie_10s.png)
+
+*Figura E1-S9 — 10 s de acelerômetro a 62,5 Hz durante um movimento contínuo: `accX` (vermelho), `accY` (verde) e `accZ` (azul). Note `accZ` ≈ 10 m/s²: é a gravidade.*
+
+![Primeira ideia: usar como entrada do modelo só os 3 valores de um instante (accX, accY, accZ).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_amostra_unica_modelo.png)
+
+*Figura E1-S10 — Primeira ideia: usar como entrada do modelo só os 3 valores de **um instante** (`accX, accY, accZ`).*
+
+![Um instante vira um vetor de 3 números, e o modelo devolveria uma classe (codificação one-hot: [1, 0, 0, 0] = primeira classe).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_amostra_unica_vetor.png)
+
+*Figura E1-S11 — Um instante vira um vetor de 3 números, e o modelo devolveria uma classe (codificação _one-hot_: `[1, 0, 0, 0]` = primeira classe).*
+
+![Mas instantes diferentes do mesmo movimento dão vetores muito diferentes (em X: −0,22, depois 9,74, depois −7,22…)…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_varias_amostras.png)
+
+*Figura E1-S12 — Mas instantes diferentes do **mesmo** movimento dão vetores muito diferentes (em X: −0,22, depois 9,74, depois −7,22…)…*
+
+![…e, amostra por amostra, o modelo não tem como decidir. O problema é que o dado é uma série temporal: a informação está na variação ao longo do tempo.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_problema_serie_temporal.png)
+
+*Figura E1-S13 — …e, amostra por amostra, o modelo não tem como decidir. **O problema é que o dado é uma série temporal**: a informação está na variação ao longo do tempo.*
+
+![A solução: olhar uma janela de tempo, que desliza sobre o sinal.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela.png)
+
+*Figura E1-S14 — A solução: olhar uma **janela** de tempo, que desliza sobre o sinal.*
+
 - **Tamanho da janela** (*window size*): **2000 ms**. A 62,5 Hz são **125 amostras × 3 eixos =
   375 números**.
 - **Incremento** (*window increase*): de quanto em quanto a janela "anda" ao fatiar os dados de
   treino. Com **80 ms**, janelas vizinhas se sobrepõem em 96 % — uma gravação vira muitas janelas.
+
+![A janela de 2 s em números: 62,5 Hz × 2 s = 125 amostras por eixo; 125 × 3 eixos = 375 raw features. Dois segundos bastam para conter 1 ou 2 ciclos do…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela_2s_375.png)
+
+*Figura E1-S15 — A janela de 2 s em números: 62,5 Hz × 2 s = **125 amostras por eixo**; 125 × 3 eixos = **375 _raw features_**. Dois segundos bastam para conter 1 ou 2 ciclos do movimento.*
 
 > **Exemplo resolvido 1.1 — quantas janelas uma gravação gera?** Uma amostra de 10 s, janela de
 > 2 s e incremento de 80 ms: a primeira janela começa em 0 s e a última começa em 8 s.
@@ -104,6 +172,10 @@ limite de Nyquist é **31,25 Hz** — folga confortável. E o filtro interno do 
 o papel do **filtro anti-*aliasing*** (semana 7, seção 3.4).
 
 ### A.5 *Features*: o bloco de processamento de sinal (DSP)
+
+![Por que não entregar os 375 números direto a uma rede profunda, que extrairia as features sozinha? Funciona, mas exige mais computação, mais dados de treino…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela_dl_memoria.png)
+
+*Figura E1-S16 — Por que não entregar os 375 números direto a uma rede profunda, que extrairia as _features_ sozinha? Funciona, mas exige mais computação, mais dados de treino e **mais memória** — ruim para um sistema embarcado. Por isso extraímos as _features_ "à mão", com processamento de sinais.*
 
 Entregar os 375 números crus a uma rede é possível, mas desperdiça dados e treino. O Edge Impulse
 usa um bloco de **análise espectral** (*Spectral Analysis*) que **resume** cada janela em algumas
@@ -128,6 +200,44 @@ energia e em que frequência. Essa é a informação que a rede vai usar.*
 Movimentos lentos (`maritime`, ~0,5 Hz) pedem FFT maior — e, portanto, **janela longa** (2 s ou
 mais). É a mesma troca da semana 7: ver detalhes em frequência exige observar por mais tempo.
 
+Os slides montam as *features* do bloco espectral **passo a passo**. Siga a sequência:
+
+![Passo 1 — RMS de cada eixo na janela de 2 s (n = 125 amostras): 3 features, uma por eixo. Mede a 'energia' do movimento.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_rms.png)
+
+*Figura E1-S17 — Passo 1 — **RMS** de cada eixo na janela de 2 s (n = 125 amostras): 3 _features_, uma por eixo. Mede a "energia" do movimento.*
+
+![Passo 2 — além do RMS, a janela passa pela FFT, para vermos o sinal no domínio da frequência.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_fft_bloco.png)
+
+*Figura E1-S18 — Passo 2 — além do RMS, a janela passa pela **FFT**, para vermos o sinal no domínio da frequência.*
+
+![O que a FFT faz (1/3): um sinal bruto no tempo, aparentemente complicado…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fft_sinal_bruto.png)
+
+*Figura E1-S19 — O que a FFT faz (1/3): um sinal bruto no tempo, aparentemente complicado…*
+
+![(2/3) …é a soma de senoides simples — aqui, uma de 400 Hz (amplitude A1) e outra de 4 kHz (amplitude A2)…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fft_componentes.png)
+
+*Figura E1-S20 — (2/3) …é a soma de senoides simples — aqui, uma de 400 Hz (amplitude A1) e outra de 4 kHz (amplitude A2)…*
+
+![(3/3) …e a FFT mostra cada componente como um pico no domínio da frequência: a posição é a frequência e a altura é proporcional à amplitude (à direita, o…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fft_dominio_freq.png)
+
+*Figura E1-S21 — (3/3) …e a FFT mostra cada componente como um **pico** no domínio da frequência: a posição é a frequência e a altura é proporcional à amplitude (à direita, o código em Python com `scipy.fft`).*
+
+![A FFT aplicada à janela do acelerômetro: a energia do movimento concentra-se perto de 1 Hz no eixo X (vermelho).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_fft_espectro.png)
+
+*Figura E1-S22 — A FFT aplicada à janela do acelerômetro: a energia do movimento concentra-se perto de 1 Hz no eixo X (vermelho).*
+
+![Passo 3 — de cada espectro tiramos os 3 maiores picos, com altura (height) e frequência: 9 alturas + 9 frequências.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_picos.png)
+
+*Figura E1-S23 — Passo 3 — de cada espectro tiramos os 3 maiores **picos**, com altura (_height_) e frequência: 9 alturas + 9 frequências.*
+
+![Passo 4 — a densidade espectral de potência (PSD) somada em 4 faixas de frequência (bins) por eixo: 12 features.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_feature_psd.png)
+
+*Figura E1-S24 — Passo 4 — a **densidade espectral de potência** (PSD) somada em 4 faixas de frequência (_bins_) por eixo: 12 _features_.*
+
+![Resultado: os 375 números crus viram 33 features (11 por eixo: RMS, 3 picos × altura/frequência e 4 faixas de potência). Os números do seu projeto podem ser…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_features_33.png)
+
+*Figura E1-S25 — Resultado: os 375 números crus viram **33 _features_** (11 por eixo: RMS, 3 picos × altura/frequência e 4 faixas de potência). Os números do seu projeto podem ser outros, porque o bloco do Studio é configurável; confira e anote na Q2.*
+
 ### A.6 O classificador: uma pequena rede neural
 
 Um **neurônio artificial** faz uma conta que você conhece: soma ponderada + uma não-linearidade.
@@ -142,6 +252,22 @@ neurônios. A do projeto de referência é:
 ```
 features (dezenas)  →  camada de 20 neurônios  →  camada de 10  →  4 saídas (uma por classe)
 ```
+
+![O classificador visto de fora: entram as 33 features e saem as 4 classes.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_nn_bloco.png)
+
+*Figura E1-S26 — O classificador visto de fora: entram as 33 _features_ e saem as 4 classes.*
+
+![Por dentro: 33 entradas → 20 neurônios → 10 neurônios → 4 saídas. Cada ligação tem um peso ajustável (rede densa).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dnn_neuronios.png)
+
+*Figura E1-S27 — Por dentro: 33 entradas → 20 neurônios → 10 neurônios → 4 saídas. Cada ligação tem um peso ajustável (rede **densa**).*
+
+![As mesmas camadas desenhadas como blocos: entrada, duas camadas ocultas e camada de saída.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dnn_camadas.png)
+
+*Figura E1-S28 — As mesmas camadas desenhadas como blocos: entrada, duas camadas ocultas e camada de saída.*
+
+![A rede como o Edge Impulse a descreve (Keras): camadas Dense 33×20 e 20×10 com ReLU e 10×4 com softmax na saída.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dnn_keras.png)
+
+*Figura E1-S29 — A rede como o Edge Impulse a descreve (Keras): camadas `Dense` 33×20 e 20×10 com ReLU e 10×4 com **softmax** na saída.*
 
 A última camada usa **softmax**, que transforma 4 números quaisquer em 4 **probabilidades** que
 somam 1:
@@ -167,6 +293,28 @@ tamanho de cada ajuste é a **taxa de aprendizado** (*learning rate*).
 - ***Underfitting*** (subajuste): o modelo é simples demais ou treinou pouco — erra até no treino.
 - ***Overfitting*** (sobreajuste): o modelo "decorou" o treino — acerta 100 % lá e erra no mundo
   real. Sintoma: acurácia de treino/validação muito maior que a de teste.
+
+A sequência mostra como os dados coletados são divididos:
+
+![Parte-se do conjunto original de dados (todas as gravações).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_1.png)
+
+*Figura E1-S30 — Parte-se do conjunto original de dados (todas as gravações).*
+
+![Primeiro, separa-se um conjunto de teste, que o treino nunca verá.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_2.png)
+
+*Figura E1-S31 — Primeiro, separa-se um **conjunto de teste**, que o treino nunca verá.*
+
+![Do que sobrou, separa-se a validação (o Studio faz isso automaticamente, ≈ 20 %).](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_3.png)
+
+*Figura E1-S32 — Do que sobrou, separa-se a **validação** (o Studio faz isso automaticamente, ≈ 20 %).*
+
+![Treino e validação alimentam o ciclo de treino, ajuste e avaliação do algoritmo.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_4.png)
+
+*Figura E1-S33 — Treino e validação alimentam o ciclo de treino, ajuste e avaliação do algoritmo.*
+
+![Só no fim, o teste dá a estimativa final de desempenho do modelo final.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_5.png)
+
+*Figura E1-S34 — Só no fim, o **teste** dá a estimativa final de desempenho do modelo final.*
 
 ![Divisão errada (janelas sorteadas) e certa (gravações inteiras reservadas para teste)](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/tml_split.png)
 
@@ -205,6 +353,10 @@ O Edge Impulse chama de **impulso** (*impulse*) a cadeia completa: janela → DS
 *Figura E1-D — O impulso do projeto de referência. Tudo isso é empacotado no arquivo `.eim` que
 você vai rodar nas Etapas 3 e 4.*
 
+![O impulso na versão dos slides: 375 raw features → análise espectral → 33 features → classificador → 4 classes. Os slides não mostram o bloco K-means de…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_pipeline_completo.png)
+
+*Figura E1-S35 — O impulso na versão dos slides: 375 _raw features_ → análise espectral → 33 _features_ → classificador → 4 classes. Os slides não mostram o bloco K-means de anomalias, que o projeto de referência também tem.*
+
 > 📝 **Relatório (Etapa 1, Q1):** em suas palavras, explique por que uma única amostra
 > `accX,accY,accZ` não basta para reconhecer o movimento e por que precisamos de uma janela de
 > 2 s (e não de 0,2 s) para distinguir `maritime`.
@@ -212,6 +364,14 @@ você vai rodar nas Etapas 3 e 4.*
 ---
 
 ## Parte B — Conta no Edge Impulse e o projeto de referência (20 min)
+
+![O Edge Impulse Studio, a plataforma de ML embarcado que vamos usar: coletar → treinar → validar → implantar, em ciclo.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_ei_studio.png)
+
+*Figura E1-S36 — O Edge Impulse Studio, a plataforma de ML embarcado que vamos usar: coletar → treinar → validar → implantar, em ciclo.*
+
+![Engenharia orientada por dados: amostras do dispositivo alimentam o dataset e o impulso; depois do teste, o modelo volta ao dispositivo, com estimativas de…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_ei_data_driven.png)
+
+*Figura E1-S37 — Engenharia orientada por dados: amostras do dispositivo alimentam o _dataset_ e o impulso; depois do teste, o modelo volta ao dispositivo, com estimativas de acurácia, latência e uso de RAM e ROM.*
 
 1. Crie sua conta gratuita em <https://edgeimpulse.com/signup> (use o e-mail institucional).
 2. Abra o projeto de referência: <https://studio.edgeimpulse.com/public/509253/live>.
@@ -265,6 +425,10 @@ assim você aprende o Studio sem depender de fios. As capturas de tela de cada p
 | `lift` | sobe e desce, vertical, ritmo de ~1 vez por segundo |
 | `terrestrial` | vai-e-vem horizontal, sobre a mesa, numa linha reta |
 | `maritime` | balanço lento, inclinando e ondulando em todas as direções, como um barco |
+
+![Qual direção cada classe excita (setas vermelhas): terrestrial, vai-e-vem horizontal; lift, vertical; idle, nenhuma. Em maritime (o '?' no navio), todas ao…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_coleta_eixos.png)
+
+*Figura E1-S38 — Qual direção cada classe excita (setas vermelhas): `terrestrial`, vai-e-vem horizontal; `lift`, vertical; `idle`, nenhuma. Em `maritime` (o "?" no navio), todas ao mesmo tempo. No canto, os eixos do acelerômetro (lineares) e do giroscópio (rotações).*
 
    **Varie** um pouco a velocidade e a amplitude entre as gravações (o modelo precisa ver a
    variação que acontecerá no uso real).
@@ -370,6 +534,10 @@ Monte a ligação do Lab 9, com o ESP32 **desligado da USB**:
 ![Ligação ESP32–MPU-6050: 3V3, GND, SDA no GPIO21, SCL no GPIO22, AD0 em GND](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/tml_fiacao.png)
 
 *Figura E1-E — A mesma ligação do Lab 9: 4 fios + AD0 em GND (endereço 0x68).*
+
+![Os eixos do MPU-6050 desenhados sobre o módulo GY-521: X e Y no plano da placa, Z perpendicular a ela. Com a placa deitada, a gravidade aparece em Z (≈ 9,8…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_mpu6050_eixos.png)
+
+*Figura E1-S39 — Os eixos do MPU-6050 desenhados sobre o módulo GY-521: X e Y no plano da placa, Z perpendicular a ela. Com a placa deitada, a gravidade aparece em Z (≈ 9,8 m/s²).*
 
 | ESP32 | MPU-6050 (GY-521) |
 |---|---|

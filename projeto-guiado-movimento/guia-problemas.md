@@ -23,6 +23,23 @@ m/s², mesma montagem).
 | Primeiras linhas com lixo (`ets Jun 8 2016`, `rst:0x1`) | o ESP32 reinicia quando a porta é aberta (auto-reset por DTR/RTS) | normal; os scripts descartam essas linhas |
 | Muitas mensagens `I (123) cpu_start: ...` | o `sdkconfig.defaults` não foi aplicado (já existia um `sdkconfig`) | `rm sdkconfig && idf.py fullclean build` |
 
+
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+Referência rápida para os problemas de I²C e MPU-6050:
+
+![SDA e SCL precisam de pull-up (o módulo GY-521 já tem); cada secundário responde só ao seu endereço: 0x68 com AD0 em GND, 0x69 com AD0 em 3V3.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_i2c_barramento.png)
+
+*Figura GP-S1 — SDA e SCL precisam de _pull-up_ (o módulo GY-521 já tem); cada secundário responde só ao seu endereço: `0x68` com AD0 em GND, `0x69` com AD0 em 3V3.*
+
+![Se o endereço enviado não for o do sensor, ninguém responde (NACK), e o firmware imprime ERR: ....](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_i2c_quadro.png)
+
+*Figura GP-S2 — Se o endereço enviado não for o do sensor, ninguém responde (NACK), e o firmware imprime `ERR: ...`.*
+
+![Orientação dos eixos: com a placa deitada, Z ≈ +9,8 m/s². Se aparecer −9,8 ou a gravidade em X ou Y, a placa está virada.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_mpu6050_eixos.png)
+
+*Figura GP-S3 — Orientação dos eixos: com a placa deitada, Z ≈ +9,8 m/s². Se aparecer −9,8 ou a gravidade em X ou Y, a placa está virada.*
+
 ## *Data forwarder* e Studio
 
 | Sintoma | Causa provável | Remédio |
@@ -36,6 +53,17 @@ m/s², mesma montagem).
 | No Studio, a frequência do impulso aparece como 62 ou 63 Hz | forwarder sem `--frequency 62.5` | regrave com `--frequency 62.5` (ou ajuste a frequência em *Create impulse* para 62.5) |
 | Acurácia de validação alta, de teste baixa | *overfitting* ou teste com movimentos muito diferentes | mais dados e mais variados no treino; confira a divisão treino/teste por **gravação** |
 | Duas classes sempre confundidas | movimentos parecidos demais | torne-os mais distintos ao gravar; mais amostras dessas duas |
+
+
+Para os sintomas de *overfitting* e confusão entre classes:
+
+![Teste separado do treino por gravação, antes de treinar.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_2.png)
+
+*Figura GP-S4 — Teste separado do treino **por gravação**, antes de treinar.*
+
+![Acurácia de teste muito menor que a de validação indica overfitting: falta variedade no treino.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_dataset_5.png)
+
+*Figura GP-S5 — Acurácia de teste muito menor que a de validação indica _overfitting_: falta variedade no treino.*
 
 ## Python, SDK e `.eim`
 
@@ -52,6 +80,13 @@ m/s², mesma montagem).
 | Classe muda com ~2 s de atraso | janela de 2 s | esperado (Etapa 3, Q4) |
 | Sempre a mesma classe, qualquer movimento | contrato quebrado (unidade, eixos, orientação) ou modelo de outro projeto | compare 1 linha da serial com os dados do Studio; baixe de novo o `.eim` com `--clean` |
 | Latência crescendo com o tempo | o script não acompanha a serial (atraso acumulado no *buffer*) | aumente `STRIDE`; feche programas pesados; no RPi confira `top` |
+
+
+Para o erro `The features array is ... expected 375`:
+
+![O modelo espera 125 amostras × 3 eixos = 375 números, numa lista achatada.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela_2s_375.png)
+
+*Figura GP-S6 — O modelo espera 125 amostras × 3 eixos = 375 números, numa lista achatada.*
 
 ## Raspberry Pi
 

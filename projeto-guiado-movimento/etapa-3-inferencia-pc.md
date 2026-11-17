@@ -13,6 +13,12 @@ treinou — sem nuvem.
  (pronto)            (TODO 1–4)                (TODO 1–4)                 (TODO 1–6)
 ```
 
+> 🖼️ As figuras com numeração **S** (de *slides*) vêm da apresentação da disciplina *Ingestão de Dados de IMU* e estão em inglês. Nelas, *Lift* = `lift`, *Terrestrial* = `terrestrial`, *Maritime* = `maritime` e *Idle* (às vezes grafado *Iddle*) = `idle`.
+
+![O que os seus scripts vão reproduzir no PC: dados crus do sensor → janela de 375 números → análise espectral → classificador → classe. A análise espectral e…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_pipeline_completo.png)
+
+*Figura E3-S1 — O que os seus scripts vão reproduzir no PC: dados crus do sensor → janela de 375 números → análise espectral → classificador → classe. A análise espectral e o classificador vêm prontos dentro do `.eim`.*
+
 | Parte | Tempo | Conteúdo |
 |---|---|---|
 | 0 | 20 min | O modelo como programa: baixar o `.eim` |
@@ -63,6 +69,16 @@ processo.*
 
 Consequência prática: **o `.eim` precisa ser da arquitetura da máquina onde roda**. O do PC não
 roda no Raspberry Pi, e vice-versa (Etapa 4).
+
+Onde estamos no fluxo de ML:
+
+![O treino e a avaliação ficaram na Etapa 2. Agora vêm converter, implantar e inferir.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_treino_deploy.png)
+
+*Figura E3-S2 — O treino e a avaliação ficaram na Etapa 2. Agora vêm **converter, implantar e inferir**.*
+
+![A conversão é feita pelo Studio. Para Linux, em vez do TensorFlow Lite Micro dos microcontroladores, o resultado é o executável .eim.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_fluxo_tensorflow.png)
+
+*Figura E3-S3 — A conversão é feita pelo Studio. Para Linux, em vez do TensorFlow Lite Micro dos microcontroladores, o resultado é o executável `.eim`.*
 
 ### 0.2 Baixe o modelo para o PC
 
@@ -194,6 +210,14 @@ Uma linha de texto `"1.23,-0.45,9.81"` ainda não é "dado": precisamos **valida
    `acc_y`, `acc_z`);
 4. tratar `ValueError` (texto que não é número) sem derrubar o programa.
 
+![A Parte B produz uma amostra: os 3 valores accX, accY, accZ de um instante…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_amostra_unica_modelo.png)
+
+*Figura E3-S4 — A Parte B produz **uma amostra**: os 3 valores `accX, accY, accZ` de um instante…*
+
+![…como um vetor de 3 floats. Sozinho, ele ainda não basta para classificar (Etapa 1, A.4); a Parte C junta 125 deles.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_amostra_unica_vetor.png)
+
+*Figura E3-S5 — …como um vetor de 3 _floats_. Sozinho, ele ainda não basta para classificar (Etapa 1, A.4); a Parte C junta 125 deles.*
+
 ### B.1 Complete os TODOs de `02_extrai_features.py`
 
 ```python
@@ -257,6 +281,24 @@ X:    0.04  Y:   -0.08  Z:    9.83  (m/s²)
 O modelo foi treinado com janelas de **2 s = 125 amostras**. Em tempo real, mantemos uma lista com
 as amostras mais recentes; quando ela tem 125 amostras, **processamos** e então descartamos as
 `STRIDE` mais antigas — a janela "desliza" e a próxima decisão sai `STRIDE` amostras depois.
+
+Recapitulando a Etapa 1, A.4:
+
+![Amostras soltas do mesmo movimento são muito diferentes entre si…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_varias_amostras.png)
+
+*Figura E3-S6 — Amostras soltas do mesmo movimento são muito diferentes entre si…*
+
+![…por isso o modelo precisa de um trecho da série temporal…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_problema_serie_temporal.png)
+
+*Figura E3-S7 — …por isso o modelo precisa de um trecho da série temporal…*
+
+![…uma janela que desliza sobre o sinal…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela.png)
+
+*Figura E3-S8 — …uma **janela** que desliza sobre o sinal…*
+
+![…de 2 s: 125 amostras × 3 eixos = 375 números, exatamente o que o .eim espera receber.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_janela_2s_375.png)
+
+*Figura E3-S9 — …de 2 s: 125 amostras × 3 eixos = 375 números, exatamente o que o `.eim` espera receber.*
 
 ![Janelas de 125 amostras deslocadas de 12 em 12 sobre o sinal, e a lista achatada x0,y0,z0,...](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/pgm_janela.png)
 
@@ -358,6 +400,16 @@ Porta serial '/dev/ttyUSB0' aberta com sucesso.
 ```
 
 5. `runner.stop()` no `finally` encerra o processo `.eim` (senão ele fica "órfão" no sistema).
+
+O que acontece dentro de `runner.classify(janela)`:
+
+![Primeiro, o .eim transforma os 375 números nas features espectrais…](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_features_33.png)
+
+*Figura E3-S10 — Primeiro, o `.eim` transforma os 375 números nas _features_ espectrais…*
+
+![…e depois passa as features à rede treinada: extrair features e treinar foram feitos no Studio, e o .eim leva as duas partes para o PC.](https://raw.githubusercontent.com/fabiobento/sis-emb-2026-2/main/assets/figuras/imu_celular_features_mcu.png)
+
+*Figura E3-S11 — …e depois passa as _features_ à rede treinada: _extrair features_ e _treinar_ foram feitos no Studio, e o `.eim` leva as duas partes para o PC.*
 
 ### D.2 Complete os TODOs de `04_classifica.py`
 
