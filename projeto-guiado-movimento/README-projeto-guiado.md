@@ -72,7 +72,7 @@ sintoma (a mensagem que aparece na tela).
 
 ---
 
-## O "contrato" — leia antes de começar
+## Algumas padronizações — leia antes de começar
 
 Um modelo de aprendizado de máquina só funciona com dados **parecidos com os do treino**. Por
 isso, estes parâmetros valem para **todo** o projeto — firmware, Studio, scripts do PC e do RPi:
