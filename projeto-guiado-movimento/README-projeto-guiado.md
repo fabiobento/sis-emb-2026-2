@@ -80,7 +80,7 @@ oscila; em `terrestrial`, o X oscila; em `maritime`, tudo ondula devagar.*
 
 | Encontro (200 min) | Etapa | O que você faz | Termina quando… |
 |---|---|---|---|
-| **1** | [Etapa 1 — Aprendizado de máquina embarcado e o Edge Impulse Studio](etapa-1-studio.md) | Teoria essencial de ML embarcado; conta no Edge Impulse; clona e explora o projeto de referência; treina um modelo com o **celular** como sensor; instala as ferramentas no PC | ✅ modelo do celular classificando ao vivo + `edge-impulse-data-forwarder --version` funcionando no PC |
+| **1** | [Etapa 1 — Aprendizado de máquina embarcado e o Edge Impulse Studio](etapa-1-studio.md) | Teoria essencial de ML embarcado (com o [notebook do bloco espectral](notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb)); conta no Edge Impulse; clona e explora o projeto de referência; treina um modelo com o **celular** como sensor; instala as ferramentas no PC | ✅ modelo do celular classificando ao vivo + `edge-impulse-data-forwarder --version` funcionando no PC |
 | **2** | [Etapa 2 — Ingestão de dados: ESP32 → PC → Edge Impulse](etapa-2-ingestao.md) | Firmware que serializa o MPU-6050 a 62,5 Hz; *data forwarder*; coleta das 4 classes; impulso, treino, teste e detecção de anomalias com os **seus** dados | ✅ modelo treinado com dados do ESP32, matriz de confusão do conjunto de teste anotada |
 | **3** | [Etapa 3 — Classificação na borda: PC desktop](etapa-3-inferencia-pc.md) | Scripts Python: leitura serial → extração de *features* → janela deslizante → classificação em tempo real com o `.eim` | ✅ terminal do PC classificando os movimentos do ESP32 em tempo real |
 | **4** | [Etapa 4 — Classificação na borda: Raspberry Pi](etapa-4-rpi.md) | Instala o Raspberry Pi OS, acessa por SSH, prepara o Python, copia scripts e modelo e roda a classificação **no RPi** | ✅ RPi classificando os movimentos do ESP32 + entrega no GitHub |
@@ -153,6 +153,8 @@ projeto-guiado-movimento/
 ├── etapa-4-rpi.md                ← Raspberry Pi: sistema, SSH, Python e classificação
 ├── guia-problemas.md             ← sintoma → causa → remédio
 ├── gabarito/                     ← soluções dos scripts 02–04 (para conferência)
+├── notebooks/
+│   └── Edge_Impulse_Spectral_Analysis_Block.ipynb  ← o bloco espectral "por dentro" (Etapa 1, A.5)
 ├── src/
 │   ├── imu_serial/               ← projeto ESP-IDF completo (firmware de serialização)
 │   ├── python/                   ← 01_leitor_serial.py, 02–04 (com TODOs), simulador, cubo 3D

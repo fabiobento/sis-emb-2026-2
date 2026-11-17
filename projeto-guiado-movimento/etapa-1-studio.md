@@ -12,7 +12,7 @@
 
 | Parte | Tempo | Conteúdo |
 |---|---|---|
-| A | 60 min | Teoria: do sensor à decisão |
+| A | 60 min | Teoria: do sensor à decisão (inclui a demonstração do notebook do bloco espectral) |
 | B | 20 min | Conta no Edge Impulse e o projeto de referência |
 | C | 75 min | Primeiro modelo com o celular (coleta → impulso → treino → teste ao vivo → anomalias) |
 | D | 45 min | Instalação das ferramentas no PC e conferência do MPU-6050 |
@@ -238,6 +238,43 @@ Os slides montam as *features* do bloco espectral **passo a passo**. Siga a sequ
 
 *Figura E1-S25 — Resultado: os 375 números crus viram **33 _features_** (11 por eixo: RMS, 3 picos × altura/frequência e 4 faixas de potência). Os números do seu projeto podem ser outros, porque o bloco do Studio é configurável; confira e anote na Q2.*
 
+#### Demonstração: o bloco espectral "por dentro" (notebook, ≈ 15 min)
+
+> 📓 **Notebook:** [`notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb`](notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb) · [![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fabiobento/sis-emb-2026-2/blob/main/projeto-guiado-movimento/notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb)
+>
+> Abra pelo botão do Colab (não precisa instalar nada) e rode **célula a célula** (`Shift+Enter`).
+> No GitHub, o link mostra o notebook já executado, com todos os gráficos.
+
+Até aqui o bloco espectral foi uma "caixa": entram 375 números e saem as *features*. O notebook
+**abre a caixa**. Ele parte de **uma janela real** de 2 s, a 62,5 Hz (125 amostras × 3 eixos), e
+da lista de *features* que o Edge Impulse calculou para ela. Em seguida, recalcula cada *feature*
+em Python, com NumPy e SciPy, e compara com o resultado do Studio. Se a nossa conta bate com a
+dele, entendemos o que o bloco faz.
+
+| Seção do notebook | O que ela mostra | Onde isso aparece neste roteiro |
+|---|---|---|
+| Dados e *features* do Studio | `data`: os 375 valores crus intercalados `x0, y0, z0, x1, …`; `features`: os 39 números que o Studio devolveu (13 por eixo) | Figura E1-S15 |
+| Subtraindo a média | remove a componente contínua (a gravidade no Z) antes de qualquer cálculo | por que o pico em 0 Hz some do espectro |
+| Cálculo do valor RMS | `sqrt(mean(x²))` por eixo — **bate exatamente** com o Studio | Figura E1-S17 e tabela da A.5 |
+| Assimetria e curtose | a **forma** da distribuição dos valores no tempo (gráficos de densidade por eixo) | tabela da A.5 |
+| Potência espectral (método de Welch) | a janela é cortada em quadros de 16 amostras; a FFT de cada quadro dá a potência por *bin*, e guarda-se o **máximo** de cada *bin* (*max hold*). São 8 *bins* por eixo (o 0 Hz é descartado), espaçados de Δf = 62,5/16 ≈ 3,9 Hz | Figuras E1-S18 a E1-S24 |
+| Assimetria e curtose espectrais | a forma do **espectro** (energia concentrada num pico ou espalhada) | — |
+| *Wavelets* (extra) | a alternativa à FFT que o Studio também oferece: 14 estatísticas por nível de decomposição | para ir além |
+
+> 🔢 **39 ou 33?** A versão atual do bloco gera **13 *features* por eixo**: 3 no tempo (RMS,
+> assimetria, curtose), 2 de forma do espectro e 8 de potência (um por *bin* da FFT de 16
+> pontos). São **39** no total, e não as 33 dos slides (RMS, picos e 4 faixas de PSD), que vêm de
+> uma versão anterior do bloco. A ideia é a mesma: resumir 375 números em poucas dezenas que
+> descrevem **energia** e **frequência**. Quantas são no **seu** projeto depende do *FFT length*
+> e do filtro (você anota isso na Q2).
+
+> 🤔 **Para pensar.** Com FFT de 16 pontos, Δf ≈ 3,9 Hz e cada quadro dura só 16/62,5 ≈ 0,26 s.
+> Em que *bin* cai um balanço de `maritime` a 0,5 Hz? O que isso sugere sobre o *FFT length*
+> para separar `maritime` de `idle`? (Volte ao parágrafo "Resolução em frequência" acima.)
+
+> 💡 Se o Colab acusar `ModuleNotFoundError: No module named 'pywt'` na célula de importações, rode
+> antes, numa célula nova: `!pip install PyWavelets`.
+
 ### A.6 O classificador: uma pequena rede neural
 
 Um **neurônio artificial** faz uma conta que você conhece: soma ponderada + uma não-linearidade.
@@ -392,6 +429,11 @@ você vai rodar nas Etapas 3 e 4.*
 > 📝 **Relatório (Etapa 1, Q2):** copie para uma tabela os parâmetros do *Spectral features*
 > (tipo de filtro, frequência de corte, ordem, tamanho da FFT etc.) e da rede neural do projeto de
 > referência. Você vai usá-los como **ponto de partida** na Etapa 2.
+
+> 💡 Na página **Spectral features** do projeto clonado, os quadros ***Raw features*** e
+> ***Processed features*** mostram, para a janela selecionada, os números que entram e os que saem
+> do bloco. É exatamente o par `data`/`features` usado no
+> [notebook do bloco espectral](notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb) da seção A.5.
 
 ---
 

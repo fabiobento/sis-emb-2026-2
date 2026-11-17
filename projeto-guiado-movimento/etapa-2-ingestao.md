@@ -496,6 +496,12 @@ Na lista de amostras, clique em algumas e confira os gráficos:
    power*. Compare com a Figura E1-A.
 3. Analise o **Feature explorer** (salve em `evidencias/e2_feature_explorer.png`): as classes
    formam grupos separados? Quais se sobrepõem?
+4. *(Opcional, para ir além.)* Abra o [notebook do bloco espectral](notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb)
+   ([![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/fabiobento/sis-emb-2026-2/blob/main/projeto-guiado-movimento/notebooks/Edge_Impulse_Spectral_Analysis_Block.ipynb)) e troque o conteúdo das listas `data` e `features` pelos quadros ***Raw features*** e
+   ***Processed features*** de uma janela do **seu** projeto (há um botão de copiar em cada
+   quadro). Ajuste `FFT_Lenght` para o *FFT length* que você usou e rode de novo. O RMS e a
+   potência espectral batem com o Studio? Atenção: as células de comparação supõem 13 *features*
+   por eixo (FFT de 16 pontos); com outro *FFT length*, ajuste os índices.
 
 > **Exemplo resolvido 2.4 — onde deve aparecer o pico?** Se você fez `lift` a ~1 vez por
 > segundo, o espectro de `accZ` deve ter o pico perto de **1 Hz**. Se a FFT tiver 64 pontos
