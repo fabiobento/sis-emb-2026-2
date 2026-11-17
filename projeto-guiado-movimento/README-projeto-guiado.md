@@ -127,12 +127,6 @@ projeto-guiado-movimento/
 └── tests/                        ← teste automático dos scripts (simulador + .eim falso)
 ```
 
-> 🧪 **Status do material.** O firmware `imu_serial` **compila sem avisos** no ESP-IDF v5.2. Os
-> scripts Python (gabarito) foram testados de ponta a ponta com o simulador e com um `.eim` falso
-> que implementa o mesmo protocolo do real (`tests/testa_scripts.py`). As telas do Edge Impulse
-> Studio mudam de nome com frequência: se um botão não estiver onde o roteiro diz, procure pelo
-> nome parecido e **anote a diferença no relatório** — isso também é engenharia.
-
 ---
 
 ## Entrega (GitHub da bancada, pasta `projeto-guiado/`)
