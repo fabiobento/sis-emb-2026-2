@@ -23,8 +23,7 @@ classifica os dados **localmente**, em tempo real.*
 
 ## O problema que vamos resolver
 
-Usaremos o cenário do professor **Marcelo Rovai** (UNIFEI/TinyML4D), o mesmo do projeto de
-referência da disciplina: **monitorar o estresse mecânico de uma carga durante o transporte**.
+Usaremos o seguinte cenário : **monitorar o estresse mecânico de uma carga durante o transporte**.
 Uma caixa com um acelerômetro "sabe" se está:
 
 | Classe | Situação real | Como simular com a bancada |
@@ -177,8 +176,6 @@ O projeto guiado vale **20 dos 100 pontos** da disciplina em 2026/2 (ver a
   o mesmo tipo de modelo rodando **dentro do próprio ESP32** (biblioteca C++), com MQTT.
 - [Documentação do Edge Impulse](https://docs.edgeimpulse.com/) — tutorial oficial
   *Continuous motion recognition*.
-- M. Rovai, *Motion Classification and Anomaly Detection* (MLSysBook, labs com XIAO ESP32S3):
-  <https://mlsysbook.ai/contents/labs/seeed/xiao_esp32s3/motion_classification/motion_classification.html>
 - Slides das aulas de 2025-2: [Reconhecimento de movimentos contínuos (Studio)](https://docs.google.com/presentation/d/1oIcHNPSVA_vh4FlVsO12M2JcFWncSQFJ/edit?usp=sharing&ouid=110939560925015610214&rtpof=true&sd=true)
   e [Ingestão de dados de IMU](https://docs.google.com/presentation/d/1hxq8a5sli60JcUFc5-LRpduTTpjgUcyc/edit?usp=sharing&ouid=110939560925015610214&rtpof=true&sd=true)
   — **as capturas de tela do Studio estão nesses slides**.
