@@ -21,7 +21,7 @@ sudo apt update
 sudo apt install -y curl git build-essential python3-venv python3-pip \
     python3-numpy python3-serial python3-six python3-pyaudio python3-opencv
 
-echo "== 2/5 Node.js 22 (NodeSource) ============================================="
+echo "== 2/5 Node.js (>= 20; instala o 22 se faltar) ============================"
 if ! command -v node >/dev/null || [ "$(node -v | cut -c2- | cut -d. -f1)" -lt 20 ]; then
     curl -fsSL https://deb.nodesource.com/setup_22.x | sudo -E bash -
     sudo apt install -y nodejs
@@ -39,9 +39,31 @@ npm install -g edge-impulse-linux                 # edge-impulse-linux-runner (.
 echo "== 4/5 Ambiente Python (venv) =============================================="
 # --system-site-packages: a venv enxerga numpy/pyserial/pyaudio/opencv do apt
 python3 -m venv --system-site-packages ~/venv-ei
-~/venv-ei/bin/pip install --upgrade pip
-~/venv-ei/bin/pip install edge_impulse_linux
-~/venv-ei/bin/python -c "from edge_impulse_linux.runner import ImpulseRunner; import serial; print('SDK OK, pyserial', serial.__version__)"
+VPY=~/venv-ei/bin/python
+"$VPY" -m pip install --upgrade pip
+# Instala o SDK DENTRO da venv, mesmo que já exista outra cópia em /usr/local
+# (instalada por 'sudo pip'), que teria prioridade e poderia estar desatualizada.
+"$VPY" -m pip install --upgrade --ignore-installed edge_impulse_linux
+
+testa_python() {
+    "$VPY" -c "import numpy, cv2, pyaudio, serial; from edge_impulse_linux.runner import ImpulseRunner" 2>/dev/null
+}
+if ! testa_python; then
+    # Causa típica: um 'sudo pip install' antigo deixou um NumPy 2.x em /usr/local,
+    # que tem prioridade sobre o NumPy 1.x do apt; o OpenCV do apt (compilado para
+    # NumPy 1.x) quebra e o SDK acusa "Missing OpenCV". Correção: pôr DENTRO da venv
+    # a mesma versão de NumPy que o apt instalou (a venv vem antes de /usr/local).
+    NUMPY_APT=$(/usr/bin/python3 -I -c "import sys; sys.path=[p for p in sys.path if not p.startswith('/usr/local')]; import numpy; print(numpy.__version__)")
+    echo "   Conflito de versões detectado: fixando numpy==$NUMPY_APT (a versão do apt) dentro da venv."
+    "$VPY" -m pip install "numpy==$NUMPY_APT"
+fi
+if ! testa_python; then
+    echo "ERRO: o SDK ainda não carrega. Mensagem completa:"
+    "$VPY" -c "import numpy, cv2, pyaudio, serial; from edge_impulse_linux.runner import ImpulseRunner"
+    echo "Veja 'Python, SDK e .eim' em projeto-guiado-movimento/guia-problemas.md."
+    exit 1
+fi
+"$VPY" -c "import numpy, serial; print('SDK OK — numpy', numpy.__version__, '— pyserial', serial.__version__)"
 
 echo "== 5/5 Porta serial ========================================================"
 sudo usermod -a -G dialout "$USER"

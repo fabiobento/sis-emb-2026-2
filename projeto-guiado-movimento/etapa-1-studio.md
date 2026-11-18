@@ -557,6 +557,13 @@ O que cada ferramenta faz no projeto:
 > ⚠️ **Por que `pyaudio` e `opencv` se não usamos áudio nem câmera?** Porque o SDK
 > `edge_impulse_linux` importa seus módulos de áudio e de imagem assim que é carregado; sem eles,
 > o `import` falha com `No module named 'pyaudio'` ou `Missing OpenCV`.
+>
+> ⚠️ **PC com outros projetos Python?** Se alguém já rodou `sudo pip install ...` nesse PC, pode
+> haver um NumPy 2 em `/usr/local`, incompatível com o OpenCV do `apt`. O sintoma é a mensagem `A
+> module that was compiled using NumPy 1.x cannot be run in NumPy 2.x`, seguida de `Missing
+> OpenCV`. O script detecta isso sozinho e corrige **dentro da venv**, sem mexer no sistema;
+> você verá a linha `Conflito de versões detectado: fixando numpy==...`. Basta deixá-lo terminar;
+> no fim deve aparecer `SDK OK — numpy 1.26.4 — pyserial 3.5`.
 
 Quando terminar: **faça logout e login** (vale o grupo `dialout`, que dá acesso à porta serial
 sem `sudo`) e confira:

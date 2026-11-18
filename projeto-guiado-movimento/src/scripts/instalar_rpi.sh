@@ -26,8 +26,31 @@ echo "== 2) venv + SDK do Edge Impulse =========================================
 # O Raspberry Pi OS (Bookworm/Trixie) protege o Python do sistema (PEP 668):
 # 'pip install' fora de uma venv dá "externally-managed-environment".
 python3 -m venv --system-site-packages ~/venv-ei
-~/venv-ei/bin/pip install edge_impulse_linux
-~/venv-ei/bin/python -c "from edge_impulse_linux.runner import ImpulseRunner; import serial; print('SDK OK')"
+VPY=~/venv-ei/bin/python
+"$VPY" -m pip install --upgrade pip
+# Instala o SDK DENTRO da venv, mesmo que já exista outra cópia em /usr/local
+# (instalada por 'sudo pip'), que teria prioridade e poderia estar desatualizada.
+"$VPY" -m pip install --upgrade --ignore-installed edge_impulse_linux
+
+testa_python() {
+    "$VPY" -c "import numpy, cv2, pyaudio, serial; from edge_impulse_linux.runner import ImpulseRunner" 2>/dev/null
+}
+if ! testa_python; then
+    # Causa típica: um 'sudo pip install' antigo deixou um NumPy 2.x em /usr/local,
+    # que tem prioridade sobre o NumPy 1.x do apt; o OpenCV do apt (compilado para
+    # NumPy 1.x) quebra e o SDK acusa "Missing OpenCV". Correção: pôr DENTRO da venv
+    # a mesma versão de NumPy que o apt instalou (a venv vem antes de /usr/local).
+    NUMPY_APT=$(/usr/bin/python3 -I -c "import sys; sys.path=[p for p in sys.path if not p.startswith('/usr/local')]; import numpy; print(numpy.__version__)")
+    echo "   Conflito de versões detectado: fixando numpy==$NUMPY_APT (a versão do apt) dentro da venv."
+    "$VPY" -m pip install "numpy==$NUMPY_APT"
+fi
+if ! testa_python; then
+    echo "ERRO: o SDK ainda não carrega. Mensagem completa:"
+    "$VPY" -c "import numpy, cv2, pyaudio, serial; from edge_impulse_linux.runner import ImpulseRunner"
+    echo "Veja 'Python, SDK e .eim' em projeto-guiado-movimento/guia-problemas.md."
+    exit 1
+fi
+"$VPY" -c "import numpy, serial; print('SDK OK — numpy', numpy.__version__, '— pyserial', serial.__version__)"
 
 echo "== 3) Porta serial ========================================================="
 sudo usermod -a -G dialout "$USER"
