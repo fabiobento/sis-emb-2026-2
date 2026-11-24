@@ -220,6 +220,10 @@ Uma linha de texto `"1.23,-0.45,9.81"` ainda não é "dado": precisamos **valida
 
 ### B.1 Complete os TODOs de `02_extrai_features.py`
 
+Cada `...` marca um trecho que **você** escreve. Se rodar o script antes de completar, ele
+avisa quais faltam, por exemplo `⚠️ Este arquivo ainda tem TODOs sem completar: TODO 1
+(linha 47), ...`, e encerra sem abrir a serial. O mesmo vale para os scripts 03 e 04.
+
 ```python
 def process_line(line_str):
     """

@@ -69,6 +69,7 @@ Para os sintomas de *overfitting* e confusão entre classes:
 
 | Sintoma | Causa provável | Remédio |
 |---|---|---|
+| `TypeError: object of type 'ellipsis' has no len()` (ou outro erro citando `ellipsis`) | um `...` de TODO não foi substituído; acontece com cópias antigas dos scripts, que não avisam | complete os TODOs (as versões atuais de 02, 03 e 04 listam quais faltam ao rodar) |
 | `error: externally-managed-environment` | `pip install` fora da venv | `source ~/venv-ei/bin/activate` (nunca `--break-system-packages`) |
 | `ModuleNotFoundError: No module named 'serial'` | venv não ativa, ou pacote errado (`serial` ≠ `pyserial`) | ative a venv; `pip install pyserial` |
 | `ModuleNotFoundError: No module named 'pyaudio'` | o SDK importa o módulo de áudio ao carregar | `sudo apt install python3-pyaudio` e venv com `--system-site-packages` (ou `sudo apt install portaudio19-dev python3-dev` + `pip install pyaudio`) |
@@ -77,7 +78,6 @@ Para os sintomas de *overfitting* e confusão entre classes:
 | `Exception: Model file "..." is not executable` | permissão de execução perdida (ex.: `scp`) | `chmod +x modelfile*.eim` |
 | `Exec format error` / `Failed to start runner` | `.eim` de outra arquitetura (x86 no RPi ou vice-versa) | Etapa 4, Parte E (`--force-target runner-linux-aarch64`) |
 | `The features array is 300 elements, expected 375` | janela com tamanho errado | use `window_size` lido do modelo (TODO 4) e `extend` (não `append`) |
-| `TypeError: object of type 'ellipsis' has no len()` | um TODO ficou com `...` | complete o TODO indicado pela linha do erro |
 | Classe muda com ~2 s de atraso | janela de 2 s | esperado (Etapa 3, Q4) |
 | Sempre a mesma classe, qualquer movimento | contrato quebrado (unidade, eixos, orientação) ou modelo de outro projeto | compare 1 linha da serial com os dados do Studio; baixe de novo o `.eim` com `--clean` |
 | Latência crescendo com o tempo | o script não acompanha a serial (atraso acumulado no *buffer*) | aumente `STRIDE`; feche programas pesados; no RPi confira `top` |

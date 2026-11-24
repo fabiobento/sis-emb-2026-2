@@ -29,6 +29,28 @@ FS_FIRMWARE_HZ = 62.5   # taxa do firmware imu_serial (o "contrato")
 STRIDE = 12             # amostras entre classificações (~0,19 s a 62,5 Hz)
 
 
+
+def confere_todos():
+    """Antes de abrir a serial, avisa se ainda há TODOs sem completar neste arquivo."""
+    import re
+    linhas = open(__file__, encoding="utf-8").read().splitlines()
+    pendentes = []
+    for i, linha in enumerate(linhas):
+        codigo = linha.split("#", 1)[0]
+        if re.search(r"(^\s*|=\s*|if\s+)\.\.\.\s*:?\s*$", codigo):
+            num = None
+            for vizinha in (linha, linhas[i - 1] if i else "", linhas[i - 2] if i > 1 else ""):
+                m = re.search(r"TODO\s*(\d+)", vizinha)
+                if m:
+                    num = m.group(1)
+                    break
+            pendentes.append(f"TODO {num} (linha {i + 1})" if num else f"linha {i + 1}")
+    if pendentes:
+        print("⚠️  Este arquivo ainda tem TODOs sem completar: " + ", ".join(pendentes) + ".")
+        print("    Troque cada '...' pelo código pedido no comentário (veja o roteiro da")
+        print("    Etapa 3) e rode de novo.")
+        sys.exit(1)
+
 def process_line(line_str):
     """Mesma função da Parte B: devolve [acc_x, acc_y, acc_z] ou None."""
     # TODO 1: cole aqui a process_line da Parte B (pode remover os prints de aviso)
@@ -60,6 +82,7 @@ def process_window(window_data, runner, limiar, t_inicio, log):
 
 
 def main():
+    confere_todos()
     parser = argparse.ArgumentParser(description="Classificação em tempo real (Edge Impulse)")
     parser.add_argument("modelo", nargs="?", default="./modelfile.eim", help="arquivo .eim")
     parser.add_argument("--porta", default="/dev/ttyUSB0")

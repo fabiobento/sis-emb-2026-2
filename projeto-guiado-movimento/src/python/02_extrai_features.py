@@ -16,6 +16,28 @@ import sys
 import serial
 
 
+
+def confere_todos():
+    """Antes de abrir a serial, avisa se ainda há TODOs sem completar neste arquivo."""
+    import re
+    linhas = open(__file__, encoding="utf-8").read().splitlines()
+    pendentes = []
+    for i, linha in enumerate(linhas):
+        codigo = linha.split("#", 1)[0]
+        if re.search(r"(^\s*|=\s*|if\s+)\.\.\.\s*:?\s*$", codigo):
+            num = None
+            for vizinha in (linha, linhas[i - 1] if i else "", linhas[i - 2] if i > 1 else ""):
+                m = re.search(r"TODO\s*(\d+)", vizinha)
+                if m:
+                    num = m.group(1)
+                    break
+            pendentes.append(f"TODO {num} (linha {i + 1})" if num else f"linha {i + 1}")
+    if pendentes:
+        print("⚠️  Este arquivo ainda tem TODOs sem completar: " + ", ".join(pendentes) + ".")
+        print("    Troque cada '...' pelo código pedido no comentário (veja o roteiro da")
+        print("    Etapa 3) e rode de novo.")
+        sys.exit(1)
+
 def process_line(line_str):
     """
     Processa UMA linha de texto: valida, extrai e converte os dados.
@@ -40,6 +62,7 @@ def process_line(line_str):
 
 
 def main():
+    confere_todos()
     parser = argparse.ArgumentParser(description="Extração de features do acelerômetro")
     parser.add_argument("--porta", default="/dev/ttyUSB0")
     parser.add_argument("--baud", type=int, default=115200)
