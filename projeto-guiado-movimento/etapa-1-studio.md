@@ -575,6 +575,7 @@ source ~/venv-ei/bin/activate
 python -c "from edge_impulse_linux.runner import ImpulseRunner; print('SDK ok')"
 groups | grep dialout
 ```
+Se tudo ocorreu bem, feche esse terminal e vá para a próxima seção.
 
 ### D.3 Monte e confira o MPU-6050 (enquanto o script roda)
 
