@@ -1,177 +1,198 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-(Opcional) Etapa 3, Parte B — Cubo 3D que gira conforme o acelerômetro.
-Adaptado do roteiro de 2025-2. Requer:  pip install pygame  (dentro da venv)
-Uso:  python3 cubo3d.py --porta /dev/ttyUSB0
+(Opcional) Etapa 2, B.6 — A protoboard em 3D, inclinada conforme o acelerômetro.
+
+Uso:  python3 cubo3d.py --porta /dev/ttyUSB0      (pip install pygame, dentro da venv)
+
+O desenho é uma placa (a protoboard) com os eixos X (vermelho), Y (verde) e Z (azul) do
+MPU-6050. A placa deitada na bancada aparece deitada, com o Z para CIMA, como no módulo
+GY-521.
+
+O que o acelerômetro consegue e o que NÃO consegue mostrar
+-----------------------------------------------------------
+Parado, o acelerômetro mede só a gravidade, um vetor "para cima" de 9,8 m/s² visto no
+referencial do sensor. Desse vetor saem dois ângulos:
+
+    roll  (rolagem, em torno de X) = atan2(ay, az)
+    pitch (arfagem, em torno de Y) = atan2(-ax, sqrt(ay² + az²))
+
+Girar a placa em torno do eixo VERTICAL (yaw, guinada) não muda o vetor gravidade no
+referencial do sensor. Por isso o yaw NÃO aparece aqui: é um limite físico do acelerômetro,
+e não um defeito do programa. Para medir o yaw é preciso o giroscópio (integrando a
+velocidade angular, com deriva) ou um magnetômetro (bússola); o MPU-6050 tem o giroscópio,
+mas o firmware deste projeto envia só accX, accY e accZ.
+
+Durante um movimento, a aceleração do movimento se soma à gravidade e os ângulos oscilam:
+a placa no desenho "treme" quando você sacode a protoboard. É esperado.
 """
 import argparse
-import serial
-import time
-import threading
 import math
-import pygame
+import threading
+import time
 
-# --- Configurações da Janela e do Cubo ---
-WIDTH, HEIGHT = 800, 600
-CENTER_X, CENTER_Y = WIDTH // 2, HEIGHT // 2
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-# --- NOVAS CORES PARA OS EIXOS ---
-RED = (255, 0, 0)
-GREEN = (0, 255, 0)
-BLUE = (0, 0, 255)
-VIEW_DISTANCE = 150.0
+import serial
 
-# --- Vértices do Cubo ---
-SCALE = 3
-CUBE_VERTICES = [
-    [-20 * SCALE, -20 * SCALE, 20 * SCALE], [ 20 * SCALE, -20 * SCALE, 20 * SCALE],
-    [ 20 * SCALE,  20 * SCALE, 20 * SCALE], [-20 * SCALE,  20 * SCALE, 20 * SCALE],
-    [-20 * SCALE, -20 * SCALE, -20 * SCALE],[ 20 * SCALE, -20 * SCALE, -20 * SCALE],
-    [ 20 * SCALE,  20 * SCALE, -20 * SCALE], [-20 * SCALE,  20 * SCALE, -20 * SCALE]
+LARGURA, ALTURA = 900, 650
+CENTRO_X, CENTRO_Y = LARGURA // 2, ALTURA // 2 + 40
+DIST_CAMERA = 900.0          # distância da câmera (perspectiva suave)
+AZIMUTE = math.radians(-35)  # câmera girada em torno do Z do mundo...
+ELEVACAO = math.radians(25)  # ...e olhando de cima para baixo
+
+# Placa com proporções de uma protoboard (meias-dimensões, em pixels do desenho)
+PX, PY, PZ = 160, 100, 18
+VERTICES = [(sx * PX, sy * PY, sz * PZ)
+            for sz in (-1, 1) for sy in (-1, 1) for sx in (-1, 1)]
+# faces: (índices dos vértices, cor). A face de cima (+Z) é destacada.
+FACES = [
+    ((4, 5, 7, 6), (70, 110, 170)),   # +Z (topo, onde estão os componentes)
+    ((0, 1, 3, 2), (45, 45, 55)),     # -Z
+    ((1, 3, 7, 5), (80, 80, 95)),     # +X
+    ((0, 2, 6, 4), (80, 80, 95)),     # -X
+    ((2, 3, 7, 6), (95, 95, 110)),    # +Y
+    ((0, 1, 5, 4), (95, 95, 110)),    # -Y
 ]
+EIXO = 230
+EIXOS = [((EIXO, 0, 0), (230, 60, 60), "X"),
+         ((0, EIXO, 0), (60, 200, 60), "Y"),
+         ((0, 0, EIXO), (80, 140, 255), "Z")]
 
-# --- Arestas do Cubo ---
-EDGES = [
-    (0, 1), (1, 2), (2, 3), (3, 0), (4, 5), (5, 6), (6, 7), (7, 4),
-    (0, 4), (1, 5), (2, 6), (3, 7)
-]
+acc = [0.0, 0.0, 9.8]        # última amostra (m/s²), atualizada pela thread serial
+rodando = True
 
-# --- NOVO: DEFINIÇÃO DOS PONTOS DOS EIXOS ---
-# O primeiro ponto é a origem (0,0,0). O segundo é a extremidade do eixo.
-AXIS_LENGTH = 3.5 * SCALE * 2 # Um pouco maior que o cubo
-AXES_VERTICES = [
-    [0, 0, 0], [AXIS_LENGTH, 0, 0],   # Eixo X
-    [0, 0, 0], [0, AXIS_LENGTH, 0],   # Eixo Y
-    [0, 0, 0], [0, 0, AXIS_LENGTH]    # Eixo Z
-]
 
-# --- Variáveis Globais ---
-accel_data = [0.0, 0.0, 9.8]
-running = True
+# ----------------------------------------------------------------- matemática
+def angulos_da_gravidade(ax, ay, az):
+    """Roll e pitch (rad) a partir da gravidade medida pelo acelerômetro."""
+    roll = math.atan2(ay, az)
+    pitch = math.atan2(-ax, math.sqrt(ay * ay + az * az))
+    return roll, pitch
 
-# --- Função para Ler os Dados Seriais (em uma Thread) ---
-def read_serial_data(ser):
-    """Lê a porta serial em segundo plano e atualiza a variável global."""
-    global accel_data, running
-    while running:
+
+def matriz_sensor_para_mundo(roll, pitch):
+    """R = Ry(pitch) · Rx(roll): leva um vetor do referencial do sensor ao do mundo
+    (Z do mundo para cima). O yaw é fixado em 0, pois o acelerômetro não o mede."""
+    cr, sr = math.cos(roll), math.sin(roll)
+    cp, sp = math.cos(pitch), math.sin(pitch)
+    return [[cp, sp * sr, sp * cr],
+            [0.0, cr, -sr],
+            [-sp, cp * sr, cp * cr]]
+
+
+def aplica(R, v):
+    return tuple(R[i][0] * v[0] + R[i][1] * v[1] + R[i][2] * v[2] for i in range(3))
+
+
+def para_tela(p):
+    """Mundo (Z para cima) → tela. Devolve (x, y, profundidade)."""
+    x, y, z = p
+    # gira a cena em torno do Z do mundo (azimute da câmera)
+    xa = x * math.cos(AZIMUTE) - y * math.sin(AZIMUTE)
+    ya = x * math.sin(AZIMUTE) + y * math.cos(AZIMUTE)
+    # inclina a câmera para olhar de cima (elevação): o que é mais alto fica mais perto
+    prof = ya * math.cos(ELEVACAO) - z * math.sin(ELEVACAO)
+    cima = ya * math.sin(ELEVACAO) + z * math.cos(ELEVACAO)
+    f = DIST_CAMERA / (DIST_CAMERA + prof)
+    return CENTRO_X + xa * f, CENTRO_Y - cima * f, prof   # tela: y cresce para baixo
+
+
+# ----------------------------------------------------------------- serial
+def le_serial(ser):
+    """Lê linhas 'accX,accY,accZ' em segundo plano. Linhas 'ERR: ...' são ignoradas."""
+    global acc, rodando
+    while rodando:
         try:
-            line = ser.readline().decode("utf-8").strip()
-            if line:
-                parts = line.split(",")
-                if len(parts) == 3:
-                    accel_data = [float(p) for p in parts]
-        except (serial.SerialException, ValueError, UnicodeDecodeError):
+            partes = ser.readline().decode("utf-8", errors="ignore").strip().split(",")
+            if len(partes) == 3:
+                acc = [float(p) for p in partes]
+        except ValueError:
             pass
-        except Exception as e:
-            print(f"Erro inesperado na thread serial: {e}")
-            running = False
+        except serial.SerialException as e:
+            print(f"Porta serial perdida: {e}")
             break
-        time.sleep(1 / 100)
-
-# --- Função de Projeção (Refatorada para ser reutilizável) ---
-def project_point(point, angle_x, angle_y):
-    """Aplica rotação e projeção de perspectiva a um único ponto 3D."""
-    x, y, z = point[0], point[1], point[2]
-
-    # Rotação em torno do eixo Y (Yaw)
-    rot_x = z * math.sin(angle_y) + x * math.cos(angle_y)
-    rot_z = z * math.cos(angle_y) - x * math.sin(angle_y)
-    
-    # Rotação em torno do eixo X (Pitch)
-    rot_y = y * math.cos(angle_x) - rot_z * math.sin(angle_x)
-    final_z = y * math.sin(angle_x) + rot_z * math.cos(angle_x)
-    final_x = rot_x
-    
-    # Projeção de Perspectiva 3D -> 2D
-    factor = VIEW_DISTANCE / (VIEW_DISTANCE + final_z) if VIEW_DISTANCE + final_z != 0 else 1
-    
-    projected_x = final_x * factor + CENTER_X
-    projected_y = rot_y * factor + CENTER_Y
-    
-    return (projected_x, projected_y)
 
 
-# --- Função Principal ---
+# ----------------------------------------------------------------- desenho
+def desenha(tela, fonte, fonte_p, roll, pitch, a):
+    import pygame
+    tela.fill((18, 18, 24))
+    R = matriz_sensor_para_mundo(roll, pitch)
+
+    # chão de referência (fixo no mundo) e a vertical do mundo
+    for k in range(-4, 5):
+        for (p, q) in (((k * 60, -240, -140), (k * 60, 240, -140)),
+                       ((-240, k * 60, -140), (240, k * 60, -140))):
+            pygame.draw.line(tela, (40, 40, 50), para_tela(p)[:2], para_tela(q)[:2], 1)
+    base, topo = para_tela((-240, -240, -140)), para_tela((-240, -240, 120))
+    pygame.draw.line(tela, (150, 150, 150), base[:2], topo[:2], 2)
+    pygame.draw.polygon(tela, (150, 150, 150), [(topo[0], topo[1] - 10),
+                        (topo[0] - 6, topo[1] + 4), (topo[0] + 6, topo[1] + 4)])
+    tela.blit(fonte_p.render("vertical do mundo", True, (150, 150, 150)),
+              (topo[0] - 70, topo[1] - 34))
+
+    # placa: faces da mais distante para a mais próxima (algoritmo do pintor)
+    pts = [para_tela(aplica(R, v)) for v in VERTICES]
+    for idx, cor in sorted(FACES, key=lambda f: -sum(pts[i][2] for i in f[0])):
+        pygame.draw.polygon(tela, cor, [pts[i][:2] for i in idx])
+        pygame.draw.polygon(tela, (210, 210, 220), [pts[i][:2] for i in idx], 1)
+
+    # eixos do sensor, presos à placa
+    origem = para_tela(aplica(R, (0, 0, 0)))
+    for v, cor, nome in EIXOS:
+        ponta = para_tela(aplica(R, v))
+        pygame.draw.line(tela, cor, origem[:2], ponta[:2], 4)
+        pygame.draw.circle(tela, cor, (int(ponta[0]), int(ponta[1])), 6)
+        tela.blit(fonte.render(nome, True, cor), (ponta[0] + 8, ponta[1] - 14))
+
+    linhas = [
+        f"acc = ({a[0]:+6.2f}, {a[1]:+6.2f}, {a[2]:+6.2f}) m/s²",
+        f"roll (em X) = {math.degrees(roll):+6.1f}°    pitch (em Y) = {math.degrees(pitch):+6.1f}°",
+        "yaw (giro em torno da vertical): o acelerômetro não mede — veja o cabeçalho do script",
+    ]
+    for i, txt in enumerate(linhas):
+        tela.blit(fonte_p.render(txt, True, (220, 220, 220)), (16, 14 + 24 * i))
+
+
 def main():
-    global running
-
-    # --- Configuração e Inicialização da Porta Serial ---
-    ap = argparse.ArgumentParser(description="Cubo 3D guiado pelo acelerômetro")
+    global rodando
+    ap = argparse.ArgumentParser(description="Protoboard em 3D guiada pelo acelerômetro")
     ap.add_argument("--porta", default="/dev/ttyUSB0")
-    port = ap.parse_args().porta
-    baudrate = 115200
-    ser = None
+    ap.add_argument("--suavizacao", type=float, default=0.2,
+                    help="filtro passa-baixas (0 < alfa ≤ 1; 1 = sem filtro)")
+    args = ap.parse_args()
+
+    import pygame
     try:
-        ser = serial.Serial(port, baudrate, timeout=1)
-        print(f"Conectado com sucesso à porta {port}")
-        serial_thread = threading.Thread(target=read_serial_data, args=(ser,))
-        serial_thread.daemon = True
-        serial_thread.start()
+        ser = serial.Serial(args.porta, 115200, timeout=1)
+        threading.Thread(target=le_serial, args=(ser,), daemon=True).start()
+        print(f"Conectado à porta {args.porta}")
     except serial.SerialException as e:
-        print(f"⚠️ Erro ao abrir porta serial: {e}\nO programa continuará, mas o cubo ficará estático.")
+        ser = None
+        print(f"⚠️ Não abri a porta serial ({e}). A placa ficará parada.")
 
-    # --- Inicialização do Pygame ---
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
-    pygame.display.set_caption("Cubo 3D com Acelerômetro e Eixos XYZ")
-    clock = pygame.time.Clock()
-    # --- NOVO: CONFIGURAÇÃO DA FONTE PARA OS RÓTULOS DOS EIXOS ---
-    font = pygame.font.SysFont('arial', 24)
+    tela = pygame.display.set_mode((LARGURA, ALTURA))
+    pygame.display.set_caption("Protoboard 3D — inclinação pelo acelerômetro")
+    fonte = pygame.font.SysFont("dejavusans", 26, bold=True)
+    fonte_p = pygame.font.SysFont("dejavusans", 17)
+    relogio = pygame.time.Clock()
+    f = list(acc)
 
-    # --- Loop Principal de Renderização ---
-    while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-
-        screen.fill(BLACK)
-
-        # --- Mapeamento dos Dados do Acelerômetro para Ângulos ---
-        acc_x, acc_y, acc_z = accel_data
-        angle_x = math.atan2(acc_y, math.sqrt(acc_x**2 + acc_z**2))
-        angle_y = -math.atan2(acc_x, math.sqrt(acc_y**2 + acc_z**2))
-        
-        # --- Lógica de Projeção ---
-        # Projeta os pontos do cubo
-        projected_cube_points = [project_point(v, angle_x, angle_y) for v in CUBE_VERTICES]
-        # --- NOVO: Projeta os pontos dos eixos ---
-        projected_axes_points = [project_point(v, angle_x, angle_y) for v in AXES_VERTICES]
-
-        # --- Desenhar os Eixos ---
-        # Eixo X (Vermelho)
-        pygame.draw.line(screen, RED, projected_axes_points[0], projected_axes_points[1], 2)
-        # Eixo Y (Verde)
-        pygame.draw.line(screen, GREEN, projected_axes_points[2], projected_axes_points[3], 2)
-        # Eixo Z (Azul)
-        pygame.draw.line(screen, BLUE, projected_axes_points[4], projected_axes_points[5], 2)
-
-        # --- Desenhar as Arestas do Cubo ---
-        for edge in EDGES:
-            p1 = projected_cube_points[edge[0]]
-            p2 = projected_cube_points[edge[1]]
-            pygame.draw.line(screen, WHITE, p1, p2, 2)
-            
-        # --- NOVO: Desenhar os rótulos dos eixos ---
-        label_x = font.render('X', True, RED)
-        label_y = font.render('Y', True, GREEN)
-        label_z = font.render('Z', True, BLUE)
-        
-        # O ponto [1] é a extremidade do eixo X, [3] do Y, e [5] do Z
-        screen.blit(label_x, (projected_axes_points[1][0] + 5, projected_axes_points[1][1]))
-        screen.blit(label_y, (projected_axes_points[3][0] + 5, projected_axes_points[3][1]))
-        screen.blit(label_z, (projected_axes_points[5][0] + 5, projected_axes_points[5][1]))
-
-        # --- Atualizar a Tela ---
+    while rodando:
+        for ev in pygame.event.get():
+            if ev.type == pygame.QUIT:
+                rodando = False
+        a = acc
+        f = [fi + args.suavizacao * (ai - fi) for fi, ai in zip(f, a)]
+        roll, pitch = angulos_da_gravidade(*f)
+        desenha(tela, fonte, fonte_p, roll, pitch, f)
         pygame.display.flip()
-        clock.tick(60)
+        relogio.tick(60)
 
-    # --- Finalização ---
     if ser and ser.is_open:
         ser.close()
-        print("Porta serial fechada.")
     pygame.quit()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

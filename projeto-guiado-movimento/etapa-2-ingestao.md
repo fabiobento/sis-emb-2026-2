@@ -321,7 +321,20 @@ pip install pygame
 python3 cubo3d.py --porta /dev/ttyUSB0
 ```
 
-Um cubo gira conforme a inclinação calculada a partir da gravidade (feche a janela para sair).
+Uma placa (a protoboard) se inclina conforme a gravidade medida pelo sensor, com os eixos X
+(vermelho), Y (verde) e Z (azul) do MPU-6050 desenhados sobre ela. Feche a janela para sair.
+
+- Com a protoboard deitada na bancada, o Z aponta **para cima**; vire a placa e confira que o
+  desenho acompanha a rolagem (em torno de X) e a arfagem (em torno de Y).
+- **Gire a protoboard em torno do eixo vertical, ainda deitada: o desenho não se mexe.** Não é
+  defeito. Parado, o acelerômetro mede só a gravidade, e esse giro (o *yaw*, guinada) não muda
+  a direção da gravidade vista pelo sensor. Medir o yaw exige o giroscópio (integrando a
+  velocidade angular, com deriva) ou um magnetômetro, e o nosso firmware envia só `accX,accY,accZ`.
+
+> 🤔 **Para pensar.** Se o modelo do Studio também só "vê" o acelerômetro, um movimento que
+> fosse **só** girar a caixa em torno da vertical, sem sacudir, seria reconhecido? E por que,
+> mesmo assim, `maritime` e `terrestrial` são distinguíveis? (Pista: as acelerações *lineares*
+> do movimento se somam à gravidade.)
 
 ---
 
